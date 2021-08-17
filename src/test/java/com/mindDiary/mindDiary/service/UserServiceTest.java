@@ -11,6 +11,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mindDiary.mindDiary.controller.UserController;
 import com.mindDiary.mindDiary.dto.request.UserJoinRequestDTO;
 import com.mindDiary.mindDiary.repository.UserRepository;
+import com.mindDiary.mindDiary.utils.RedisUtil;
+import java.util.UUID;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -39,6 +41,9 @@ public class UserServiceTest {
   @Autowired
   private PasswordEncoder passwordEncoder;
 
+  @Autowired
+  RedisUtil redisUtil;
+
   @Test
   @DisplayName("회원가입 실패 : 중복 닉네임, 중복 이메일")
   public void joinFail() throws Exception {
@@ -64,5 +69,18 @@ public class UserServiceTest {
     System.out.println(encodePassword);
 
     assertThat(passwordEncoder.matches("meme", encodePassword)).isTrue();
+  }
+
+  @Test
+  @DisplayName("redis 인증 메일 테스트")
+  public void redisEmailCheckToken() {
+    String email = "meme@naver.com";
+    UserJoinRequestDTO userJoinRequestDTO = new UserJoinRequestDTO();
+    userJoinRequestDTO.setEmail(email);
+    String uuid = UUID.randomUUID().toString();
+
+    redisUtil.setValudData(uuid, userJoinRequestDTO.getEmail());
+
+    assertThat(redisUtil.getValueData(uuid)).isEqualTo(email);
   }
 }
