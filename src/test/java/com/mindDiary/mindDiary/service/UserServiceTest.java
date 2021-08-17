@@ -23,6 +23,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.web.servlet.MockMvc;
 
 @AutoConfigureMockMvc
@@ -35,8 +36,8 @@ public class UserServiceTest {
   @Autowired
   private ObjectMapper objectMapper;
 
-  @InjectMocks
-  private BCryptPasswordEncoder bCryptPasswordEncoder;
+  @Autowired
+  private PasswordEncoder passwordEncoder;
 
   @Test
   @DisplayName("회원가입 실패 : 중복 닉네임, 중복 이메일")
@@ -59,9 +60,9 @@ public class UserServiceTest {
   @Test
   @DisplayName("bcrypt 비밀번호 생성 및 매칭 테스트")
   public void passwordEncoder() {
-    String encodePassword = bCryptPasswordEncoder.encode("meme");
+    String encodePassword = passwordEncoder.encode("meme");
     System.out.println(encodePassword);
 
-    assertThat(bCryptPasswordEncoder.matches("meme", encodePassword)).isTrue();
+    assertThat(passwordEncoder.matches("meme", encodePassword)).isTrue();
   }
 }
