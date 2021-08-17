@@ -1,5 +1,6 @@
 package com.mindDiary.mindDiary.service;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -21,7 +22,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
-import org.springframework.mock.web.MockHttpServletResponse;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.test.web.servlet.MockMvc;
 
 @AutoConfigureMockMvc
@@ -34,6 +35,9 @@ public class UserServiceTest {
   @Autowired
   private ObjectMapper objectMapper;
 
+  @InjectMocks
+  private BCryptPasswordEncoder bCryptPasswordEncoder;
+
   @Test
   @DisplayName("회원가입 실패 : 중복 닉네임, 중복 이메일")
   public void joinFail() throws Exception {
@@ -42,15 +46,22 @@ public class UserServiceTest {
     userJoinRequestDTO.setEmail("meme@naver.com");
     userJoinRequestDTO.setNickname("aaaaa");
 
-
     String url = "/auth/join";
     String content = objectMapper.writeValueAsString(userJoinRequestDTO);
     mockMvc
         .perform(post(url)
             .content(content)
             .contentType(MediaType.APPLICATION_JSON))
-            .andDo(print())
-            .andExpect(status().isConflict());
+        .andDo(print())
+        .andExpect(status().isConflict());
+  }
 
+  @Test
+  @DisplayName("bcrypt 비밀번호 생성 및 매칭 테스트")
+  public void passwordEncoder() {
+    String encodePassword = bCryptPasswordEncoder.encode("meme");
+    System.out.println(encodePassword);
+
+    assertThat(bCryptPasswordEncoder.matches("meme", encodePassword)).isTrue();
   }
 }
