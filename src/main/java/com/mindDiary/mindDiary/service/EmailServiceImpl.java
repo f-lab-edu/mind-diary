@@ -16,11 +16,12 @@ public class EmailServiceImpl implements EmailService {
   private String fromEmailAddress;
 
   public void sendMessage(String toEmailAddress, String emailCheckToken) {
+    String link = "http://localhost:8080/auth";
     SimpleMailMessage message = new SimpleMailMessage();
     message.setFrom(fromEmailAddress);
     message.setTo(toEmailAddress);
     message.setSubject("Mind-diary 회원 가입 인증");
-    message.setText("/check-email-token?token="+ emailCheckToken +
+    message.setText(link + "/check-email-token?token="+ emailCheckToken +
         "&email=" + toEmailAddress);
     javaMailSender.send(message);
   }

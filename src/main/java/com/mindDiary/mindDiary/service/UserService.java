@@ -1,11 +1,11 @@
 package com.mindDiary.mindDiary.service;
 
-import com.mindDiary.mindDiary.dto.request.UserJoinRequestDTO;
-import org.springframework.stereotype.Service;
+
+import com.mindDiary.mindDiary.domain.User;
 
 public interface UserService {
 
-  boolean isDuplicate(UserJoinRequestDTO userJoinRequestDTO);
+  boolean isDuplicate(User user);
 
-  void join(UserJoinRequestDTO userJoinRequestDTO);
+  void join(User user);
 }

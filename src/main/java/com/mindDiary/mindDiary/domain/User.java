@@ -1,16 +1,24 @@
 package com.mindDiary.mindDiary.domain;
 
+import javax.validation.constraints.Email;
+import javax.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
-import lombok.ToString;
 
 @Getter
 @Setter
-@ToString
 public class User {
-  private Integer id;
-  private String nickname;
+
+  private int id;
+
+  @Email
   private String email;
+
+  @NotNull
+  private String nickname;
+
+  @NotNull
   private String password;
-  private Integer role;
+
+  private int role;
 }
