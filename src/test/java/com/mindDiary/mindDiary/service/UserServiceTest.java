@@ -1,30 +1,20 @@
 package com.mindDiary.mindDiary.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.mindDiary.mindDiary.controller.UserController;
 import com.mindDiary.mindDiary.dto.request.UserJoinRequestDTO;
-import com.mindDiary.mindDiary.repository.UserRepository;
 import com.mindDiary.mindDiary.utils.RedisUtil;
 import java.util.UUID;
-import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -43,6 +33,9 @@ public class UserServiceTest {
 
   @Autowired
   RedisUtil redisUtil;
+
+  @Autowired
+  EmailService emailService;
 
   @Test
   @DisplayName("회원가입 실패 : 중복 닉네임, 중복 이메일")
@@ -72,8 +65,8 @@ public class UserServiceTest {
   }
 
   @Test
-  @DisplayName("redis 인증 메일 테스트")
-  public void redisEmailCheckToken() {
+  @DisplayName("redis 키 값 저장 테스트")
+  public void redisSetValue() {
     String email = "meme@naver.com";
     UserJoinRequestDTO userJoinRequestDTO = new UserJoinRequestDTO();
     userJoinRequestDTO.setEmail(email);
@@ -82,5 +75,12 @@ public class UserServiceTest {
     redisUtil.setValudData(uuid, userJoinRequestDTO.getEmail());
 
     assertThat(redisUtil.getValueData(uuid)).isEqualTo(email);
+  }
+
+  @Test
+  @DisplayName("인증 메일 전송 테스트")
+  public void sendMail() {
+    String uuid = UUID.randomUUID().toString();
+    emailService.sendMessage("meme91322367@gmail.com", uuid);
   }
 }
