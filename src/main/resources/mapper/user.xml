@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mindDiary.mindDiary.repository.UserRepository">
+  <select id = "findByEmail" resultType="com.mindDiary.mindDiary.domain.User">
+    SELECT * FROM user WHERE email = #{email}
+  </select>
+
+  <select id = "findByNickname" parameterType="String" resultType="com.mindDiary.mindDiary.domain.User">
+    SELECT * FROM user WHERE nickname = #{nickname}
+  </select>
+</mapper>
