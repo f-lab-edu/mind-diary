@@ -10,5 +10,7 @@ public interface UserRepository {
 
   User findByNickname(String nickname);
 
-  int join(User user);
+  int save(User user);
+
+  void updateRole(User user);
 }

@@ -8,4 +8,6 @@ public interface UserService {
   boolean isDuplicate(User user);
 
   void join(User user);
+
+  boolean checkEmailToken(String token, String email);
 }

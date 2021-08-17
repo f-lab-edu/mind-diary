@@ -18,6 +18,7 @@ public class UserServiceImpl implements UserService {
   private final RedisUtil redisUtil;
   private final EmailService emailService;
 
+  @Override
   public boolean isDuplicate(User user) {
     if (isDuplicateEmail(user.getEmail())
         || isDuplicateNickname(user.getNickname())) {
@@ -40,12 +41,26 @@ public class UserServiceImpl implements UserService {
     user.setPassword(passwordEncoder.encode(user.getPassword()));
     user.setRole(UserRole.ROLE_NOT_PERMITTED.getRole());
 
-    userRepository.join(user);
+    userRepository.save(user);
 
     String emailCheckToken = makeEmailCheckToken();
     redisUtil.setValueExpire(emailCheckToken, String.valueOf(user.getId()), 60 * 30L);
 
     emailService.sendMessage(user.getEmail(),emailCheckToken);
+  }
+
+  @Override
+  public boolean checkEmailToken(String token, String email) {
+    int id = Integer.parseInt(redisUtil.getValueData(token));
+    User user = userRepository.findByEmail(email);
+
+    if (user.getId() != id) {
+      return false;
+    }
+    redisUtil.deleteValue(token);
+    user.setRole(UserRole.ROLE_USER.getRole());
+    userRepository.updateRole(user);
+    return true;
   }
 
   private boolean isDuplicateEmail(String email) {
