@@ -5,7 +5,9 @@ import com.mindDiary.mindDiary.domain.User;
 
 public interface UserService {
 
-  boolean isDuplicate(User user);
+  boolean isEmailDuplicate(String email);
+
+  boolean isNicknameDuplicate(String nickname);
 
   void join(User user);
 

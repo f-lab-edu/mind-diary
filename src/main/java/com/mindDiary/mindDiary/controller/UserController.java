@@ -23,7 +23,8 @@ public class UserController {
   @PostMapping("/join")
   public ResponseEntity join(@RequestBody @Valid User user) {
 
-    if (userService.isDuplicate(user)) {
+    if (userService.isNicknameDuplicate(user.getNickname())
+        || userService.isEmailDuplicate(user.getEmail())) {
       return new ResponseEntity(HttpStatus.CONFLICT);
     }
 

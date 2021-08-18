@@ -49,14 +49,13 @@ public class UserControllerTest {
   @Test
   @DisplayName("회원가입 실패 : 중복 유저")
   public void joinFail() throws Exception {
-    //given
     User user = new User();
     user.setPassword("new");
     user.setEmail("new@naver.com");
     user.setNickname("구우");
-    doReturn(true).when(userService).isDuplicate(any(User.class));
+    doReturn(true).when(userService).isEmailDuplicate(user.getEmail());
+    doReturn(false).when(userService).isEmailDuplicate(user.getNickname());
 
-    //when
     String content = objectMapper.writeValueAsString(user);
     String url = "/auth/join";
     ResultActions resultActions = mockMvc
@@ -64,7 +63,6 @@ public class UserControllerTest {
             .content(content)
             .contentType(MediaType.APPLICATION_JSON));
 
-    //then
     resultActions.andDo(print()).andExpect(status().isConflict());
   }
 
@@ -75,18 +73,17 @@ public class UserControllerTest {
     user.setPassword("new");
     user.setEmail("new@naver.com");
     user.setNickname("구우");
-    doReturn(false).when(userService).isDuplicate(any(User.class));
+    doReturn(false).when(userService).isNicknameDuplicate(user.getNickname());
+    doReturn(false).when(userService).isEmailDuplicate(user.getEmail());
     doNothing().when(userService).join(any(User.class));
 
-    //when
     String content = objectMapper.writeValueAsString(user);
     String url = "/auth/join";
     ResultActions resultActions = mockMvc
         .perform(post(url)
             .content(content)
             .contentType(MediaType.APPLICATION_JSON));
-
-    //then
+    
     resultActions.andDo(print()).andExpect(status().isOk());
   }
 }

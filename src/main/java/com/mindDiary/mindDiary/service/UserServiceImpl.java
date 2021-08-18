@@ -18,15 +18,6 @@ public class UserServiceImpl implements UserService {
   private final RedisUtil redisUtil;
   private final EmailService emailService;
 
-  @Override
-  public boolean isDuplicate(User user) {
-    if (isDuplicateEmail(user.getEmail())
-        || isDuplicateNickname(user.getNickname())) {
-      return true;
-    }
-    return false;
-  }
-
   /**
    * 회원 가입 로직
    * 사용자의 패스워드 암호화 - bcrypt( 자동으로 salt 생성해줌 )
@@ -63,11 +54,11 @@ public class UserServiceImpl implements UserService {
     return true;
   }
 
-  private boolean isDuplicateEmail(String email) {
+  public boolean isEmailDuplicate(String email) {
     return userRepository.findByEmail(email) != null;
   }
 
-  private boolean isDuplicateNickname(String nickname) {
+  public boolean isNicknameDuplicate(String nickname) {
     return userRepository.findByNickname(nickname) != null;
   }
 

@@ -62,19 +62,30 @@ public class UserServiceTest {
 
 
   @Test
-  @DisplayName("중복 유저")
-  void isDuplicate() {
-    //given
+  @DisplayName("중복 이메일 확인")
+  void isEmailDuplicate() {
     User user = new User();
     user.setPassword("new");
     user.setEmail("new@naver.com");
     user.setNickname("구우");
     doReturn(user).when(userRepository).findByEmail(user.getEmail());
 
-    //when
-    boolean isDuplicated = userService.isDuplicate(user);
+    boolean isDuplicated = userService.isEmailDuplicate(user.getEmail());
 
-    //then
+    assertThat(isDuplicated).isTrue();
+  }
+
+  @Test
+  @DisplayName("중복 닉네임 확인")
+  void isNicknameDuplicate() {
+    User user = new User();
+    user.setPassword("new");
+    user.setEmail("new@naver.com");
+    user.setNickname("구우");
+    doReturn(user).when(userRepository).findByNickname(user.getNickname());
+
+    boolean isDuplicated = userService.isNicknameDuplicate(user.getNickname());
+
     assertThat(isDuplicated).isTrue();
   }
 
