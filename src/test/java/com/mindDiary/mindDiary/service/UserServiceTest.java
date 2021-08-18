@@ -12,32 +12,40 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mindDiary.mindDiary.controller.UserController;
 import com.mindDiary.mindDiary.domain.User;
+import com.mindDiary.mindDiary.repository.UserRepository;
 import com.mindDiary.mindDiary.utils.RedisUtil;
 import java.util.UUID;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Spy;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 @AutoConfigureMockMvc
 @SpringBootTest
 public class UserServiceTest {
 
-  @Autowired
+  @InjectMocks
+  private UserServiceImpl userService;
+
+  @Mock
+  private UserRepository userRepository;
+
+  @Spy
   private PasswordEncoder passwordEncoder;
 
-  @Autowired
-  RedisUtil redisUtil;
+  @Spy
+  private RedisUtil redisUtil;
 
-  @Autowired
-  EmailService emailService;
+  @Spy
+  private EmailService emailService;
 
   @Value("${mailInfo.email}")
   private String email;
@@ -51,6 +59,25 @@ public class UserServiceTest {
 
     assertThat(passwordEncoder.matches("meme", encodePassword)).isTrue();
   }
+
+
+  @Test
+  @DisplayName("중복 유저")
+  void isDuplicate() {
+    //given
+    User user = new User();
+    user.setPassword("new");
+    user.setEmail("new@naver.com");
+    user.setNickname("구우");
+    doReturn(user).when(userRepository).findByEmail(user.getEmail());
+
+    //when
+    boolean isDuplicated = userService.isDuplicate(user);
+
+    //then
+    assertThat(isDuplicated).isTrue();
+  }
+
 
   @Test
   @DisplayName("redis 키 값 저장 테스트")
