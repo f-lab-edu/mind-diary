@@ -2,7 +2,6 @@ package com.mindDiary.mindDiary.service;
 
 
 import com.mindDiary.mindDiary.domain.User;
-import com.mindDiary.mindDiary.dto.request.UserLoginRequestDTO;
 import com.mindDiary.mindDiary.dto.response.UserLoginResponseDTO;
 
 public interface UserService {
@@ -15,7 +14,7 @@ public interface UserService {
 
   boolean checkEmailToken(String token, String email);
 
-  UserLoginResponseDTO login(UserLoginRequestDTO userLoginRequestDTO);
+  UserLoginResponseDTO login(int userId, int userRole);
 
   User findByEmail(String email);
 
