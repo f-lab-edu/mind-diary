@@ -1,6 +1,7 @@
 package com.mindDiary.mindDiary.controller;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -44,7 +45,7 @@ public class UserControllerTest {
   public void init() {
     mockMvc = MockMvcBuilders.standaloneSetup(userController).build();
   }
-  
+
   @Test
   @DisplayName("회원가입 실패 : 중복 유저")
   public void joinFail() throws Exception {
@@ -65,5 +66,27 @@ public class UserControllerTest {
 
     //then
     resultActions.andDo(print()).andExpect(status().isConflict());
+  }
+
+  @Test
+  @DisplayName("회원가입 성공")
+  public void join() throws Exception {
+    User user = new User();
+    user.setPassword("new");
+    user.setEmail("new@naver.com");
+    user.setNickname("구우");
+    doReturn(false).when(userService).isDuplicate(any(User.class));
+    doNothing().when(userService).join(any(User.class));
+
+    //when
+    String content = objectMapper.writeValueAsString(user);
+    String url = "/auth/join";
+    ResultActions resultActions = mockMvc
+        .perform(post(url)
+            .content(content)
+            .contentType(MediaType.APPLICATION_JSON));
+
+    //then
+    resultActions.andDo(print()).andExpect(status().isOk());
   }
 }

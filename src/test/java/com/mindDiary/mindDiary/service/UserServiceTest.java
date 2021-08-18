@@ -72,9 +72,4 @@ public class UserServiceTest {
     emailService.sendMessage(email, uuid);
   }
 
-  @Test
-  @DisplayName("회원가입")
-  public void join() throws Exception {
-
-  }
 }
