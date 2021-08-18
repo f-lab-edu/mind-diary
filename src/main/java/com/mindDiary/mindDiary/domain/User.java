@@ -1,5 +1,6 @@
 package com.mindDiary.mindDiary.domain;
 
+import java.util.UUID;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotNull;
 import lombok.Getter;
@@ -21,4 +22,10 @@ public class User {
   private String password;
 
   private int role;
+
+  private String emailCheckToken;
+
+  public void createEmailCheckToken() {
+    this.emailCheckToken = UUID.randomUUID().toString();
+  }
 }

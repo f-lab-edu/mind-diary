@@ -34,10 +34,11 @@ public class UserServiceImpl implements UserService {
 
     userRepository.save(user);
 
-    String emailCheckToken = makeEmailCheckToken();
-    redisUtil.setValueExpire(emailCheckToken, String.valueOf(user.getId()), 60 * 30L);
+    user.createEmailCheckToken();
 
-    emailService.sendMessage(user.getEmail(),emailCheckToken);
+    redisUtil.setValueExpire(user.getEmailCheckToken(), String.valueOf(user.getId()), 60 * 30L);
+
+    emailService.sendMessage(user.getEmail(),user.getEmailCheckToken());
   }
 
   @Override
@@ -60,9 +61,5 @@ public class UserServiceImpl implements UserService {
 
   public boolean isNicknameDuplicate(String nickname) {
     return userRepository.findByNickname(nickname) != null;
-  }
-
-  private String makeEmailCheckToken() {
-    return UUID.randomUUID().toString();
   }
 }

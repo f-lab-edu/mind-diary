@@ -41,15 +41,8 @@ public class UserServiceTest {
   @Spy
   private PasswordEncoder passwordEncoder;
 
-  @Spy
+  @Autowired
   private RedisUtil redisUtil;
-
-  @Spy
-  private EmailService emailService;
-
-  @Value("${mailInfo.email}")
-  private String email;
-
 
   @Test
   @DisplayName("bcrypt 비밀번호 생성 및 매칭 테스트")
@@ -103,11 +96,5 @@ public class UserServiceTest {
     assertThat(redisUtil.getValueData(uuid)).isEqualTo(email);
   }
 
-  @Test
-  @DisplayName("인증 메일 전송 테스트")
-  public void sendMail() {
-    String uuid = UUID.randomUUID().toString();
-    emailService.sendMessage(email, uuid);
-  }
 
 }
