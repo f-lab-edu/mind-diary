@@ -1,7 +1,11 @@
 package com.mindDiary.mindDiary.controller;
 
 import com.mindDiary.mindDiary.domain.User;
+import com.mindDiary.mindDiary.dto.request.UserLoginRequestDTO;
+import com.mindDiary.mindDiary.dto.response.UserLoginResponseDTO;
 import com.mindDiary.mindDiary.service.UserService;
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -40,6 +44,26 @@ public class UserController {
       return new ResponseEntity(HttpStatus.BAD_REQUEST);
     }
     return new ResponseEntity(HttpStatus.OK);
+  }
+
+  @PostMapping("/auth/login")
+  public ResponseEntity login(@RequestBody @Valid UserLoginRequestDTO userLoginRequestDTO,
+      HttpServletResponse httpServletResponse) {
+
+    User user = userService.findByEmail(userLoginRequestDTO.getEmail());
+    if (user == null) {
+      return new ResponseEntity(HttpStatus.BAD_REQUEST);
+    }
+
+    if (!userService.passwordMatches(userLoginRequestDTO.getPassword(), user.getPassword())) {
+      return new ResponseEntity(HttpStatus.BAD_REQUEST);
+    }
+
+    UserLoginResponseDTO userLoginResponseDTO = userService.login(userLoginRequestDTO);
+
+    Cookie cookieWithRefreshToken = new Cookie("refreshToken",userLoginResponseDTO.getRefreshToken());
+    httpServletResponse.addCookie(cookieWithRefreshToken);
+    return new ResponseEntity(userLoginResponseDTO.getAccessToken(), HttpStatus.OK);
   }
 
 }

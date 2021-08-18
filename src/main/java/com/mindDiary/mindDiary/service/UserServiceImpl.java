@@ -2,9 +2,10 @@ package com.mindDiary.mindDiary.service;
 
 import com.mindDiary.mindDiary.domain.User;
 import com.mindDiary.mindDiary.domain.UserRole;
+import com.mindDiary.mindDiary.dto.request.UserLoginRequestDTO;
+import com.mindDiary.mindDiary.dto.response.UserLoginResponseDTO;
 import com.mindDiary.mindDiary.repository.UserRepository;
 import com.mindDiary.mindDiary.utils.RedisUtil;
-import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -53,6 +54,28 @@ public class UserServiceImpl implements UserService {
     user.setRole(UserRole.ROLE_USER.getRole());
     userRepository.updateRole(user);
     return true;
+  }
+
+  @Override
+  public UserLoginResponseDTO login(UserLoginRequestDTO userLoginRequestDTO) {
+    //email 가지고 user 가져옴
+    //user의 hassedpassword == userLoginRequestDTO의 hassedPassword
+    //access token, refresh token 발급
+    //access token : body, refresh token : header
+    UserLoginResponseDTO userLoginResponseDTO = new UserLoginResponseDTO();
+    userLoginResponseDTO.setAccessToken("sxx");
+    userLoginResponseDTO.setRefreshToken("rrr");
+    return userLoginResponseDTO;
+  }
+
+  @Override
+  public User findByEmail(String email) {
+    return userRepository.findByEmail(email);
+  }
+
+  @Override
+  public boolean passwordMatches(String rawPassword, String hassedPassword) {
+    return passwordEncoder.matches(rawPassword, hassedPassword);
   }
 
   public boolean isEmailDuplicate(String email) {
