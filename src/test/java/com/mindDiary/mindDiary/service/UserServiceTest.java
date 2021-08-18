@@ -23,21 +23,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.http.MediaType;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 @AutoConfigureMockMvc
 @SpringBootTest
 public class UserServiceTest {
-
-  @Autowired
-  private MockMvc mockMvc;
-
-  @Autowired
-  private ObjectMapper objectMapper;
 
   @Autowired
   private PasswordEncoder passwordEncoder;
@@ -51,39 +42,7 @@ public class UserServiceTest {
   @Value("${mailInfo.email}")
   private String email;
 
-  @InjectMocks
-  private UserController userController;
 
-  @Mock
-  private UserService userService;
-
-  @BeforeEach
-  public void init() {
-    mockMvc = MockMvcBuilders.standaloneSetup(userController).build();
-  }
-
-
-  @Test
-  @DisplayName("회원가입 실패 : 중복 닉네임")
-  public void joinFail() throws Exception {
-    //given
-    User user = new User();
-    user.setPassword("new");
-    user.setEmail("new@naver.com");
-    user.setNickname("구우");
-    doReturn(true).when(userService).isDuplicate(any(User.class));
-
-    //when
-    String content = objectMapper.writeValueAsString(user);
-    String url = "/auth/join";
-    ResultActions resultActions = mockMvc
-        .perform(post(url)
-            .content(content)
-            .contentType(MediaType.APPLICATION_JSON));
-
-    //then
-    resultActions.andDo(print()).andExpect(status().isConflict());
-  }
   @Test
   @DisplayName("bcrypt 비밀번호 생성 및 매칭 테스트")
   public void passwordEncoder() {
