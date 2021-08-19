@@ -96,5 +96,32 @@ public class UserServiceImpl implements UserService {
     return tokenResponseDTO;
   }
 
+  @Override
+  public TokenResponseDTO refresh(String orginToken) {
+    if (!jwtStrategy.validateToken(orginToken)) {
+      return null;
+    }
+
+    String emailTakenFromCache = redisStrategy.getValueData(orginToken);
+    if (!emailTakenFromCache.equals(jwtStrategy.getUserEmail(orginToken))) {
+      return null;
+    }
+
+    int userId = jwtStrategy.getUserId(orginToken);
+    int userRole = jwtStrategy.getUserRole(orginToken);
+    String userEmail = jwtStrategy.getUserEmail(orginToken);
+
+    String newAccessToken = jwtStrategy.createAccessToken(userId, userRole, userEmail);
+    String newRefreshToken = jwtStrategy.createRefreshToken(userId, userRole, userEmail);
+
+    TokenResponseDTO tokenResponseDTO = new TokenResponseDTO();
+    tokenResponseDTO.setAccessToken(newAccessToken);
+    tokenResponseDTO.setRefreshToken(newRefreshToken);
+
+    redisStrategy.deleteValue(orginToken);
+    redisStrategy.setValueExpire(newRefreshToken, userEmail, refreshTokenValidityInSeconds);
+    return tokenResponseDTO;
+  }
+
 
 }

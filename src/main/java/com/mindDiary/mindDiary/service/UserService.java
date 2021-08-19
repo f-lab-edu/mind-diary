@@ -12,4 +12,6 @@ public interface UserService {
   boolean checkEmailToken(String token, String email);
 
   TokenResponseDTO login(UserLoginRequestDTO userLoginRequestDTO);
+
+  TokenResponseDTO refresh(String originToken);
 }
