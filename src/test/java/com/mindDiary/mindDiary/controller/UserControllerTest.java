@@ -14,9 +14,13 @@ import com.mindDiary.mindDiary.controller.UserController;
 import com.mindDiary.mindDiary.domain.User;
 import com.mindDiary.mindDiary.dto.request.UserJoinRequestDTO;
 import com.mindDiary.mindDiary.dto.request.UserLoginRequestDTO;
+import com.mindDiary.mindDiary.dto.response.TokenResponseDTO;
+import com.mindDiary.mindDiary.repository.UserRepository;
 import com.mindDiary.mindDiary.service.UserService;
 import com.mindDiary.mindDiary.strategy.JwtStrategyTest;
+import com.mindDiary.mindDiary.strategy.email.EmailStrategy;
 import com.mindDiary.mindDiary.strategy.jwt.JwtStrategy;
+import com.mindDiary.mindDiary.strategy.redis.RedisStrategy;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -38,6 +42,15 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 @SpringBootTest
 public class UserControllerTest {
 
+  private static final String JOIN_URL =  "/auth/join";
+  private static final String LOGIN_URL = "/auth/login";
+  private static final String CHECK_EMAIL_TOKEN_URL = "/auth/check-email-token";
+  private static final String EMAIL = "email@google.com";
+  private static final String PASSWORD = "password";
+  private static final String NICKNAME = "nickname";
+  private static final String ACCESS_TOKEN = "accessToken";
+  private static final String REFRESH_TOKEN = "refreshToken";
+
   @Autowired
   private MockMvc mockMvc;
 
@@ -50,23 +63,6 @@ public class UserControllerTest {
   @Mock
   private UserService userService;
 
-  @Mock
-  private PasswordEncoder passwordEncoder;
-
-  @Mock
-  private JwtStrategy jwtStrategy;
-
-  private static final String EMAIL = "email@google.com";
-
-  private static final String PASSWORD = "password";
-
-  private static final String NICKNAME = "nickname";
-
-  private static final String JOIN_URL =  "/auth/join";
-
-  private static final String LOGIN_URL = "/auth/login";
-
-  private static final String CHECK_EMAIL_TOKEN_URL = "/auth/check-email-token";
 
   @BeforeEach
   public void init() {
@@ -81,13 +77,6 @@ public class UserControllerTest {
     return userJoinRequestDTO;
   }
 
-  public User getUser() {
-    User user = new User();
-    user.setPassword(PASSWORD);
-    user.setEmail(EMAIL);
-    user.setNickname(NICKNAME);
-    return user;
-  }
 
   public UserLoginRequestDTO getUserLoginRequestDTO() {
     UserLoginRequestDTO userLoginRequestDTO = new UserLoginRequestDTO();
@@ -96,30 +85,19 @@ public class UserControllerTest {
     return userLoginRequestDTO;
   }
 
-
-  @Test
-  @DisplayName("회원가입 실패 : 중복 이메일 유저")
-  public void joinFailByEmail() throws Exception {
-    doReturn(getUser()).when(userService).findByEmail(EMAIL);
-
-    String content = objectMapper.writeValueAsString(getUserJoinRequestDTO());
-    ResultActions resultActions = mockMvc
-        .perform(post(JOIN_URL)
-            .content(content)
-            .contentType(MediaType.APPLICATION_JSON));
-
-    resultActions.andDo(print()).andExpect(status().isConflict());
+  public TokenResponseDTO getTokenResponseDTO() {
+    TokenResponseDTO tokenResponseDTO = new TokenResponseDTO();
+    tokenResponseDTO.setAccessToken(ACCESS_TOKEN);
+    tokenResponseDTO.setRefreshToken(REFRESH_TOKEN);
+    return tokenResponseDTO;
   }
 
   @Test
-  @DisplayName("회원가입 실패 : 중복 닉네임 유저")
-  public void joinFailByNickname() throws Exception {
-    User user = getUser();
+  @DisplayName("회원가입 실패 : 중복 유저")
+  public void joinFailByEmail() throws Exception {
+    doReturn(false).when(userService).join(getUserJoinRequestDTO());
 
-    doReturn(null).when(userService).findByEmail(EMAIL);
-    doReturn(user).when(userService).findByNickname(NICKNAME);
-
-    String content = objectMapper.writeValueAsString(user);
+    String content = objectMapper.writeValueAsString(getUserJoinRequestDTO());
     ResultActions resultActions = mockMvc
         .perform(post(JOIN_URL)
             .content(content)
@@ -132,10 +110,7 @@ public class UserControllerTest {
   @DisplayName("회원가입 성공")
   public void join() throws Exception {
     UserJoinRequestDTO userJoinRequestDTO = getUserJoinRequestDTO();
-
-    doReturn(null).when(userService).findByEmail(EMAIL);
-    doReturn(null).when(userService).findByNickname(NICKNAME);
-    doNothing().when(userService).join(userJoinRequestDTO);
+    doReturn(true).when(userService).join(userJoinRequestDTO);
 
     String content = objectMapper.writeValueAsString(userJoinRequestDTO);
     ResultActions resultActions = mockMvc
@@ -164,7 +139,6 @@ public class UserControllerTest {
   @Test
   @DisplayName("인증 메일 전송 실패 : 입력값 오류")
   public void sendMailFail() throws Exception {
-
     String token = "xxxx";
     String email = "xxxx";
     doReturn(false).when(userService).checkEmailToken(token, email);
@@ -181,16 +155,24 @@ public class UserControllerTest {
   @Test
   @DisplayName("로그인 성공")
   public void loginSuccess() throws Exception {
-    //작성중
+    UserLoginRequestDTO userLoginRequestDTO = getUserLoginRequestDTO();
+    doReturn(getTokenResponseDTO()).when(userService).login(userLoginRequestDTO);
+
+    String content = objectMapper.writeValueAsString(userLoginRequestDTO);
+    ResultActions resultActions = mockMvc
+        .perform(post(LOGIN_URL)
+            .content(content)
+            .contentType(MediaType.APPLICATION_JSON));
+
+    resultActions.andDo(print()).andExpect(status().isOk());
 
   }
 
   @Test
-  @DisplayName("로그인 실패 : 일치하는 유저가 DB에 없을 경우 확인")
+  @DisplayName("로그인 실패")
   public void loginFailByUserNotExist() throws Exception {
-
     UserLoginRequestDTO userLoginRequestDTO = getUserLoginRequestDTO();
-    doReturn(null).when(userService).findByEmail(EMAIL);
+    doReturn(null).when(userService).login(userLoginRequestDTO);
 
     String content = objectMapper.writeValueAsString(userLoginRequestDTO);
     ResultActions resultActions = mockMvc
@@ -201,22 +183,4 @@ public class UserControllerTest {
     resultActions.andDo(print()).andExpect(status().isBadRequest());
   }
 
-  @Test
-  @DisplayName("로그인 실패 : 비밀번호가 틀릴 경우 확인")
-  public void loginFailByWrongPassword() throws Exception {
-
-    UserLoginRequestDTO userLoginRequestDTO = getUserLoginRequestDTO();
-    User user = getUser();
-
-    doReturn(user).when(userService).findByEmail(EMAIL);
-    doReturn(false).when(passwordEncoder).matches(user.getPassword(), userLoginRequestDTO.getPassword());
-
-    String content = objectMapper.writeValueAsString(userLoginRequestDTO);
-    ResultActions resultActions = mockMvc
-        .perform(post(LOGIN_URL)
-            .content(content)
-            .contentType(MediaType.APPLICATION_JSON));
-
-    resultActions.andDo(print()).andExpect(status().isBadRequest());
-  }
 }

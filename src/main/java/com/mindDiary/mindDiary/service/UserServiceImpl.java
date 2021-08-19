@@ -27,6 +27,9 @@ public class UserServiceImpl implements UserService {
   @Value("${jwt.refresh-token-validity-in-seconds}")
   private long refreshTokenValidityInSeconds;
 
+  @Value("${mailInfo.email-validity-in-seconds}")
+  private long emailValidityInSeconds;
+
   @Override
   public boolean join(UserJoinRequestDTO userJoinRequestDTO) {
 
@@ -45,9 +48,11 @@ public class UserServiceImpl implements UserService {
     user.setRole(UserRole.ROLE_NOT_PERMITTED.getRole());
     user.createEmailCheckToken();
 
-    userRepository.save(user);
-
-    redisStrategy.setValueExpire(user.getEmailCheckToken(), String.valueOf(user.getId()), 60 * 30L);
+    int cnt = userRepository.save(user);
+    if (cnt == 0) {
+      return false;
+    }
+    redisStrategy.setValueExpire(user.getEmailCheckToken(), String.valueOf(user.getId()), emailValidityInSeconds);
 
     emailStrategy.sendMessage(user.getEmail(),user.getEmailCheckToken());
     return true;
