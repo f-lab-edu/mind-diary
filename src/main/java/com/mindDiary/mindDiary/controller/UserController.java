@@ -95,13 +95,9 @@ public class UserController {
 
   @PostMapping("/refresh")
   public ResponseEntity updateToken(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) {
-    Cookie[] cookies = httpServletRequest.getCookies();
-    Cookie cookie = Arrays.stream(cookies)
-        .filter(c -> c.getName().equals("refreshToken"))
-        .findFirst()
-        .get();
 
-    //refresh token 유효성 : 캐시에 있는 refreshtoken 과 일치하는지
+
+    Cookie cookie = cookieStrategy.getCookie("refreshToken", httpServletRequest);
     String refreshTokenTakenFromCookie = cookie.getValue();
 
     //만료기간 지나지 않았는지 토큰 유효성
