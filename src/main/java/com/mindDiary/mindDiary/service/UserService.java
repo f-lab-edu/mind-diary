@@ -16,5 +16,4 @@ public interface UserService {
 
   User findByEmail(String email);
 
-  boolean passwordMatches(String password, String password1);
 }

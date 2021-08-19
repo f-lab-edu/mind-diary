@@ -60,11 +60,6 @@ public class UserServiceImpl implements UserService {
     return userRepository.findByEmail(email);
   }
 
-  @Override
-  public boolean passwordMatches(String rawPassword, String hassedPassword) {
-    return passwordEncoder.matches(rawPassword, hassedPassword);
-  }
-
   public boolean isEmailDuplicate(String email) {
     return userRepository.findByEmail(email) != null;
   }

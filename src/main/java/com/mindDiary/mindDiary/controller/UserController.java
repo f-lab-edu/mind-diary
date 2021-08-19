@@ -12,6 +12,7 @@ import javax.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -27,6 +28,7 @@ public class UserController {
   private final UserService userService;
   private final JwtStrategy jwtStrategy;
   private final CookieStrategy cookieStrategy;
+  private final PasswordEncoder passwordEncoder;
 
   @PostMapping("/join")
   public ResponseEntity join(@RequestBody @Valid User user) {
@@ -59,7 +61,7 @@ public class UserController {
       return new ResponseEntity(HttpStatus.BAD_REQUEST);
     }
 
-    if (!userService.passwordMatches(userLoginRequestDTO.getPassword(), user.getPassword())) {
+    if (!passwordEncoder.matches(userLoginRequestDTO.getPassword(), user.getPassword())) {
       return new ResponseEntity(HttpStatus.BAD_REQUEST);
     }
 
