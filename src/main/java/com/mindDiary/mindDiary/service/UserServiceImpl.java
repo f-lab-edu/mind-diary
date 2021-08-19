@@ -3,6 +3,7 @@ package com.mindDiary.mindDiary.service;
 import com.mindDiary.mindDiary.domain.User;
 import com.mindDiary.mindDiary.domain.UserRole;
 import com.mindDiary.mindDiary.dto.request.UserJoinRequestDTO;
+import com.mindDiary.mindDiary.dto.request.UserLoginRequestDTO;
 import com.mindDiary.mindDiary.repository.UserRepository;
 import com.mindDiary.mindDiary.strategy.email.EmailStrategy;
 import com.mindDiary.mindDiary.strategy.redis.RedisStrategy;
@@ -20,7 +21,15 @@ public class UserServiceImpl implements UserService {
   private final EmailStrategy emailStrategy;
 
   @Override
-  public void join(UserJoinRequestDTO userJoinRequestDTO) {
+  public boolean join(UserJoinRequestDTO userJoinRequestDTO) {
+
+    if (isEmailDuplicate(userJoinRequestDTO.getEmail())) {
+      return false;
+    }
+
+    if (isNicknameDuplicate(userJoinRequestDTO.getNickname())) {
+      return false;
+    }
 
     User user = new User();
     user.setEmail(userJoinRequestDTO.getEmail());
@@ -34,6 +43,15 @@ public class UserServiceImpl implements UserService {
     redisStrategy.setValueExpire(user.getEmailCheckToken(), String.valueOf(user.getId()), 60 * 30L);
 
     emailStrategy.sendMessage(user.getEmail(),user.getEmailCheckToken());
+    return true;
+  }
+
+  private boolean isNicknameDuplicate(String nickname) {
+    return userRepository.findByNickname(nickname) != null;
+  }
+
+  private boolean isEmailDuplicate(String email) {
+    return userRepository.findByEmail(email) != null;
   }
 
   @Override
@@ -59,5 +77,7 @@ public class UserServiceImpl implements UserService {
   public User findByNickname(String email) {
     return userRepository.findByNickname(email);
   }
+
+
 
 }

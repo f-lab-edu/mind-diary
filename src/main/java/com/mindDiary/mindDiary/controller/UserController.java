@@ -46,17 +46,10 @@ public class UserController {
 
   @PostMapping("/join")
   public ResponseEntity join(@RequestBody @Valid UserJoinRequestDTO userJoinRequestDTO) {
-
-    User nicknameDuplicateUser = userService.findByEmail(userJoinRequestDTO.getEmail());
-    if (nicknameDuplicateUser != null) {
+    boolean flag = userService.join(userJoinRequestDTO);
+    if (!flag) {
       return new ResponseEntity(HttpStatus.CONFLICT);
     }
-    User emailDuplicateUser = userService.findByNickname(userJoinRequestDTO.getNickname());
-    if (emailDuplicateUser != null) {
-      return new ResponseEntity(HttpStatus.CONFLICT);
-    }
-
-    userService.join(userJoinRequestDTO);
     return new ResponseEntity(HttpStatus.OK);
   }
 
@@ -93,6 +86,7 @@ public class UserController {
 
     redisStrategy.setValueExpire(refreshToken, user.getEmail(), refreshTokenValidityInSeconds);
     httpServletResponse.addCookie(cookie);
+
     return new ResponseEntity(accessTokenResponseDTO, HttpStatus.OK);
   }
 
