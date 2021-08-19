@@ -14,8 +14,6 @@ public interface UserService {
 
   boolean checkEmailToken(String token, String email);
 
-  UserLoginResponseDTO login(int userId, int userRole);
-
   User findByEmail(String email);
 
   boolean passwordMatches(String password, String password1);
