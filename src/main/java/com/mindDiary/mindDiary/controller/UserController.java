@@ -81,7 +81,6 @@ public class UserController {
   @PostMapping("/refresh")
   public ResponseEntity updateToken(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) {
 
-
     Cookie cookie = cookieStrategy.getCookie("refreshToken", httpServletRequest);
     String refreshTokenTakenFromCookie = cookie.getValue();
 
@@ -110,6 +109,7 @@ public class UserController {
     cookieStrategy.deleteCookie(cookieRefreshTokenKey, httpServletRequest, httpServletResponse);
     redisStrategy.setValueExpire(newRefreshToken, userEmail, refreshTokenValidityInSeconds);
     httpServletResponse.addCookie(newCookie);
+
 
     return new ResponseEntity(accessTokenResponseDTO, HttpStatus.OK);
   }

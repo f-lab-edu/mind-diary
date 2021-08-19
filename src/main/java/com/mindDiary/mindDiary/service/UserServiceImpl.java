@@ -76,16 +76,6 @@ public class UserServiceImpl implements UserService {
   }
 
   @Override
-  public User findByEmail(String email) {
-    return userRepository.findByEmail(email);
-  }
-
-  @Override
-  public User findByNickname(String email) {
-    return userRepository.findByNickname(email);
-  }
-
-  @Override
   public TokenResponseDTO login(UserLoginRequestDTO userLoginRequestDTO) {
     User user = userRepository.findByEmail(userLoginRequestDTO.getEmail());
     if (user == null) {
