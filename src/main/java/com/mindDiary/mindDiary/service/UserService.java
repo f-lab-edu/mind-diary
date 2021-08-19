@@ -3,6 +3,8 @@ package com.mindDiary.mindDiary.service;
 
 import com.mindDiary.mindDiary.domain.User;
 import com.mindDiary.mindDiary.dto.request.UserJoinRequestDTO;
+import com.mindDiary.mindDiary.dto.request.UserLoginRequestDTO;
+import com.mindDiary.mindDiary.dto.response.TokenResponseDTO;
 
 public interface UserService {
 
@@ -14,4 +16,5 @@ public interface UserService {
 
   User findByNickname(String nickname);
 
+  TokenResponseDTO login(UserLoginRequestDTO userLoginRequestDTO);
 }

@@ -1,9 +1,6 @@
 package com.mindDiary.mindDiary.strategy.cookie;
 
-import com.mindDiary.mindDiary.strategy.cookie.CookieStrategy;
-import java.lang.reflect.Array;
 import java.util.Arrays;
-import java.util.Optional;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -15,6 +12,7 @@ public class CreateCookieStrategy implements CookieStrategy {
 
   @Value("${jwt.refresh-token-validity-in-seconds}")
   private long refreshTokenValidityInSeconds;
+
 
   public Cookie createCookie(String key, String value) {
     Cookie cookie = new Cookie(key, value);

@@ -11,4 +11,5 @@ public interface CookieStrategy {
   Cookie getCookie(String key, HttpServletRequest httpServletRequest);
 
   void deleteCookie(String key, HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse);
+
 }

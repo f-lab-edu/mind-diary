@@ -4,10 +4,13 @@ import com.mindDiary.mindDiary.domain.User;
 import com.mindDiary.mindDiary.domain.UserRole;
 import com.mindDiary.mindDiary.dto.request.UserJoinRequestDTO;
 import com.mindDiary.mindDiary.dto.request.UserLoginRequestDTO;
+import com.mindDiary.mindDiary.dto.response.TokenResponseDTO;
 import com.mindDiary.mindDiary.repository.UserRepository;
 import com.mindDiary.mindDiary.strategy.email.EmailStrategy;
+import com.mindDiary.mindDiary.strategy.jwt.JwtStrategy;
 import com.mindDiary.mindDiary.strategy.redis.RedisStrategy;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -19,6 +22,10 @@ public class UserServiceImpl implements UserService {
   private final PasswordEncoder passwordEncoder;
   private final RedisStrategy redisStrategy;
   private final EmailStrategy emailStrategy;
+  private final JwtStrategy jwtStrategy;
+
+  @Value("${jwt.refresh-token-validity-in-seconds}")
+  private long refreshTokenValidityInSeconds;
 
   @Override
   public boolean join(UserJoinRequestDTO userJoinRequestDTO) {
@@ -78,6 +85,26 @@ public class UserServiceImpl implements UserService {
     return userRepository.findByNickname(email);
   }
 
+  @Override
+  public TokenResponseDTO login(UserLoginRequestDTO userLoginRequestDTO) {
+    User user = userRepository.findByEmail(userLoginRequestDTO.getEmail());
+    if (user == null) {
+      return null;
+    }
+
+    if (!passwordEncoder.matches(userLoginRequestDTO.getPassword(), user.getPassword())) {
+      return null;
+    }
+    String accessToken = jwtStrategy.createAccessToken(user.getId(), user.getRole(), user.getEmail());
+    String refreshToken = jwtStrategy.createRefreshToken(user.getId(), user.getRole(), user.getEmail());
+
+    TokenResponseDTO tokenResponseDTO = new TokenResponseDTO();
+    tokenResponseDTO.setAccessToken(accessToken);
+    tokenResponseDTO.setRefreshToken(refreshToken);
+
+    redisStrategy.setValueExpire(refreshToken, user.getEmail(), refreshTokenValidityInSeconds);
+    return tokenResponseDTO;
+  }
 
 
 }

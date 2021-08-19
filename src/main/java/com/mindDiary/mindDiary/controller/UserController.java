@@ -1,15 +1,14 @@
 package com.mindDiary.mindDiary.controller;
 
-import com.mindDiary.mindDiary.domain.User;
-import com.mindDiary.mindDiary.dto.request.UserRefreshRequestDTO;
 import com.mindDiary.mindDiary.dto.request.UserJoinRequestDTO;
 import com.mindDiary.mindDiary.dto.request.UserLoginRequestDTO;
 import com.mindDiary.mindDiary.dto.response.AccessTokenResponseDTO;
+import com.mindDiary.mindDiary.dto.response.TokenResponseDTO;
 import com.mindDiary.mindDiary.service.UserService;
 import com.mindDiary.mindDiary.strategy.cookie.CookieStrategy;
+import com.mindDiary.mindDiary.strategy.cookie.CreateCookieStrategy;
 import com.mindDiary.mindDiary.strategy.jwt.JwtStrategy;
 import com.mindDiary.mindDiary.strategy.redis.RedisStrategy;
-import java.util.Arrays;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -67,27 +66,16 @@ public class UserController {
   public ResponseEntity login(@RequestBody @Valid UserLoginRequestDTO userLoginRequestDTO,
       HttpServletResponse httpServletResponse) {
 
-    User user = userService.findByEmail(userLoginRequestDTO.getEmail());
-    if (user == null) {
+    TokenResponseDTO tokenResponseDTO = userService.login(userLoginRequestDTO);
+
+    if (tokenResponseDTO == null) {
       return new ResponseEntity(HttpStatus.BAD_REQUEST);
     }
 
-    if (!passwordEncoder.matches(userLoginRequestDTO.getPassword(), user.getPassword())) {
-      return new ResponseEntity(HttpStatus.BAD_REQUEST);
-    }
-
-    String accessToken = jwtStrategy.createAccessToken(user.getId(), user.getRole(), user.getEmail());
-    String refreshToken = jwtStrategy.createRefreshToken(user.getId(), user.getRole(), user.getEmail());
-
-    AccessTokenResponseDTO accessTokenResponseDTO = new AccessTokenResponseDTO();
-    accessTokenResponseDTO.setAccessToken(accessToken);
-
-    Cookie cookie  = cookieStrategy.createCookie(cookieRefreshTokenKey, refreshToken);
-
-    redisStrategy.setValueExpire(refreshToken, user.getEmail(), refreshTokenValidityInSeconds);
+    Cookie cookie = tokenResponseDTO.createTokenCookie(new CreateCookieStrategy(), cookieRefreshTokenKey);
     httpServletResponse.addCookie(cookie);
 
-    return new ResponseEntity(accessTokenResponseDTO, HttpStatus.OK);
+    return new ResponseEntity(tokenResponseDTO.createAccessTokenResponseDTO(), HttpStatus.OK);
   }
 
   @PostMapping("/refresh")
