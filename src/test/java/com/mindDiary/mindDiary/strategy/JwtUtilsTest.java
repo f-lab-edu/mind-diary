@@ -2,7 +2,7 @@ package com.mindDiary.mindDiary.strategy;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.mindDiary.mindDiary.strategy.jwt.JwtUtil;
+import com.mindDiary.mindDiary.strategy.jwt.JwtStrategy;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,7 +12,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 public class JwtUtilsTest {
 
   @Autowired
-  JwtUtil jwtUtil;
+  JwtStrategy jwtUtil;
 
   @Test
   @DisplayName("token으로 userId 가져오는지 확인")

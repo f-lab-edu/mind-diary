@@ -5,7 +5,7 @@ import com.mindDiary.mindDiary.dto.request.UserLoginRequestDTO;
 import com.mindDiary.mindDiary.dto.response.UserLoginResponseDTO;
 import com.mindDiary.mindDiary.service.UserService;
 import com.mindDiary.mindDiary.strategy.cookie.CookieStrategy;
-import com.mindDiary.mindDiary.strategy.jwt.JwtUtil;
+import com.mindDiary.mindDiary.strategy.jwt.JwtStrategy;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
@@ -25,7 +25,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class UserController {
 
   private final UserService userService;
-  private final JwtUtil jwtUtil;
+  private final JwtStrategy jwtStrategy;
   private final CookieStrategy cookieStrategy;
 
   @PostMapping("/join")
@@ -63,8 +63,8 @@ public class UserController {
       return new ResponseEntity(HttpStatus.BAD_REQUEST);
     }
 
-    String accessToken = jwtUtil.createAccessToken(user.getId(), user.getRole());
-    String refreshToken = jwtUtil.createRefreshToken(user.getId(), user.getRole());
+    String accessToken = jwtStrategy.createAccessToken(user.getId(), user.getRole());
+    String refreshToken = jwtStrategy.createRefreshToken(user.getId(), user.getRole());
 
     UserLoginResponseDTO userLoginResponseDTO = new UserLoginResponseDTO();
     userLoginResponseDTO.setAccessToken(accessToken);
