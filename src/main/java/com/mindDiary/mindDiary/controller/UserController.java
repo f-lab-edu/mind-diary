@@ -40,6 +40,9 @@ public class UserController {
   @Value("${jwt.refresh-token-validity-in-seconds}")
   private long refreshTokenValidityInSeconds;
 
+  @Value("${cookie.key.refresh-token}")
+  private String cookieRefreshTokenKey;
+
 
   @PostMapping("/join")
   public ResponseEntity join(@RequestBody @Valid UserJoinRequestDTO userJoinRequestDTO) {
@@ -86,7 +89,7 @@ public class UserController {
     AccessTokenResponseDTO accessTokenResponseDTO = new AccessTokenResponseDTO();
     accessTokenResponseDTO.setAccessToken(accessToken);
 
-    Cookie cookie  = cookieStrategy.createCookie("refreshToken", refreshToken);
+    Cookie cookie  = cookieStrategy.createCookie(cookieRefreshTokenKey, refreshToken);
 
     redisStrategy.setValueExpire(refreshToken, user.getEmail(), refreshTokenValidityInSeconds);
     httpServletResponse.addCookie(cookie);
@@ -119,10 +122,10 @@ public class UserController {
     AccessTokenResponseDTO accessTokenResponseDTO = new AccessTokenResponseDTO();
     accessTokenResponseDTO.setAccessToken(newAccessToken);
 
-    Cookie newCookie  = cookieStrategy.createCookie("refreshToken", newRefreshToken);
+    Cookie newCookie  = cookieStrategy.createCookie(cookieRefreshTokenKey, newRefreshToken);
 
     redisStrategy.deleteValue(refreshTokenTakenFromCookie);
-    cookieStrategy.deleteCookie("refreshToken", httpServletRequest, httpServletResponse);
+    cookieStrategy.deleteCookie(cookieRefreshTokenKey, httpServletRequest, httpServletResponse);
     redisStrategy.setValueExpire(newRefreshToken, userEmail, refreshTokenValidityInSeconds);
     httpServletResponse.addCookie(newCookie);
 
