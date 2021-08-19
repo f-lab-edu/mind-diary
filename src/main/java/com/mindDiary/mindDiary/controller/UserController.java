@@ -100,7 +100,6 @@ public class UserController {
     Cookie cookie = cookieStrategy.getCookie("refreshToken", httpServletRequest);
     String refreshTokenTakenFromCookie = cookie.getValue();
 
-    //만료기간 지나지 않았는지 토큰 유효성
     if (!jwtStrategy.validateToken(refreshTokenTakenFromCookie)) {
       return new ResponseEntity(HttpStatus.FORBIDDEN);
     }
@@ -110,10 +109,10 @@ public class UserController {
       return new ResponseEntity(HttpStatus.FORBIDDEN);
     }
 
-    //새로운 refreshToken, accessToken을 리턴.
     int userId = jwtStrategy.getUserId(refreshTokenTakenFromCookie);
     int userRole = jwtStrategy.getUserRole(refreshTokenTakenFromCookie);
     String userEmail = jwtStrategy.getUserEmail(refreshTokenTakenFromCookie);
+
     String newAccessToken = jwtStrategy.createAccessToken(userId, userRole, userEmail);
     String newRefreshToken = jwtStrategy.createRefreshToken(userId, userRole, userEmail);
 
@@ -123,6 +122,7 @@ public class UserController {
     Cookie newCookie  = cookieStrategy.createCookie("refreshToken", newRefreshToken);
 
     redisStrategy.deleteValue(refreshTokenTakenFromCookie);
+    cookieStrategy.deleteCookie("refreshToken", httpServletRequest, httpServletResponse);
     redisStrategy.setValueExpire(newRefreshToken, userEmail, refreshTokenValidityInSeconds);
     httpServletResponse.addCookie(newCookie);
 
