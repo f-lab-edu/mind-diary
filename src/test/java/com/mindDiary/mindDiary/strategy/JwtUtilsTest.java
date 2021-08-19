@@ -1,4 +1,4 @@
-package com.mindDiary.mindDiary.utils;
+package com.mindDiary.mindDiary.strategy;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

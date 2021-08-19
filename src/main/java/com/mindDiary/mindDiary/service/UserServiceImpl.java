@@ -2,11 +2,8 @@ package com.mindDiary.mindDiary.service;
 
 import com.mindDiary.mindDiary.domain.User;
 import com.mindDiary.mindDiary.domain.UserRole;
-import com.mindDiary.mindDiary.dto.request.UserLoginRequestDTO;
-import com.mindDiary.mindDiary.dto.response.UserLoginResponseDTO;
 import com.mindDiary.mindDiary.repository.UserRepository;
-import com.mindDiary.mindDiary.utils.JwtUtil;
-import com.mindDiary.mindDiary.utils.RedisUtil;
+import com.mindDiary.mindDiary.strategy.RedisUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;

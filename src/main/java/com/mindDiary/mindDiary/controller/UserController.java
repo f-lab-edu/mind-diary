@@ -4,12 +4,12 @@ import com.mindDiary.mindDiary.domain.User;
 import com.mindDiary.mindDiary.dto.request.UserLoginRequestDTO;
 import com.mindDiary.mindDiary.dto.response.UserLoginResponseDTO;
 import com.mindDiary.mindDiary.service.UserService;
-import com.mindDiary.mindDiary.utils.JwtUtil;
+import com.mindDiary.mindDiary.strategy.CookieStrategy;
+import com.mindDiary.mindDiary.strategy.JwtUtil;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -26,6 +26,7 @@ public class UserController {
 
   private final UserService userService;
   private final JwtUtil jwtUtil;
+  private final CookieStrategy cookieStrategy;
 
   @PostMapping("/join")
   public ResponseEntity join(@RequestBody @Valid User user) {
@@ -63,15 +64,14 @@ public class UserController {
     }
 
     String accessToken = jwtUtil.createAccessToken(user.getId(), user.getRole());
-    String refreshToken = jwtUtil.createAccessToken(user.getId(), user.getRole());
+    String refreshToken = jwtUtil.createRefreshToken(user.getId(), user.getRole());
 
     UserLoginResponseDTO userLoginResponseDTO = new UserLoginResponseDTO();
     userLoginResponseDTO.setAccessToken(accessToken);
 
-    Cookie cookieWithRefreshToken = new Cookie("refreshToken",refreshToken);
-    cookieWithRefreshToken.setHttpOnly(true);
+    Cookie cookie  = cookieStrategy.createCookie("refreshToken", refreshToken);
 
-    httpServletResponse.addCookie(cookieWithRefreshToken);
+    httpServletResponse.addCookie(cookie);
     return new ResponseEntity(userLoginResponseDTO, HttpStatus.OK);
   }
 
