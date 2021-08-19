@@ -1,4 +1,4 @@
-package com.mindDiary.mindDiary.strategy;
+package com.mindDiary.mindDiary.strategy.jwt;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;

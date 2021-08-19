@@ -2,6 +2,7 @@ package com.mindDiary.mindDiary.strategy;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.mindDiary.mindDiary.strategy.jwt.JwtUtil;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

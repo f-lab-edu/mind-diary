@@ -1,4 +1,4 @@
-package com.mindDiary.mindDiary.strategy;
+package com.mindDiary.mindDiary.strategy.cookie;
 
 import javax.servlet.http.Cookie;
 

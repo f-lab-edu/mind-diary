@@ -1,5 +1,6 @@
-package com.mindDiary.mindDiary.strategy;
+package com.mindDiary.mindDiary.strategy.cookie;
 
+import com.mindDiary.mindDiary.strategy.cookie.CookieStrategy;
 import javax.servlet.http.Cookie;
 import org.springframework.stereotype.Service;
 

@@ -1,4 +1,4 @@
-package com.mindDiary.mindDiary.strategy;
+package com.mindDiary.mindDiary.strategy.redis;
 
 import java.time.Duration;
 

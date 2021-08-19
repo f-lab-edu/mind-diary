@@ -1,6 +1,6 @@
-package com.mindDiary.mindDiary.strategy;
+package com.mindDiary.mindDiary.strategy.email;
 
-import com.mindDiary.mindDiary.strategy.EmailStrategy;
+import com.mindDiary.mindDiary.strategy.email.EmailStrategy;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.SimpleMailMessage;

@@ -1,5 +1,6 @@
-package com.mindDiary.mindDiary.strategy;
+package com.mindDiary.mindDiary.strategy.redis;
 
+import com.mindDiary.mindDiary.strategy.redis.RedisStrategy;
 import java.time.Duration;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
