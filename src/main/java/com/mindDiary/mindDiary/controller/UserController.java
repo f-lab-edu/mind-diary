@@ -1,16 +1,21 @@
 package com.mindDiary.mindDiary.controller;
 
 import com.mindDiary.mindDiary.domain.User;
+import com.mindDiary.mindDiary.dto.request.UserRefreshRequestDTO;
 import com.mindDiary.mindDiary.dto.request.UserJoinRequestDTO;
 import com.mindDiary.mindDiary.dto.request.UserLoginRequestDTO;
-import com.mindDiary.mindDiary.dto.response.UserLoginResponseDTO;
+import com.mindDiary.mindDiary.dto.response.AccessTokenResponseDTO;
 import com.mindDiary.mindDiary.service.UserService;
 import com.mindDiary.mindDiary.strategy.cookie.CookieStrategy;
 import com.mindDiary.mindDiary.strategy.jwt.JwtStrategy;
+import com.mindDiary.mindDiary.strategy.redis.RedisStrategy;
+import java.util.Arrays;
 import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -30,6 +35,11 @@ public class UserController {
   private final JwtStrategy jwtStrategy;
   private final CookieStrategy cookieStrategy;
   private final PasswordEncoder passwordEncoder;
+  private final RedisStrategy redisStrategy;
+
+  @Value("${jwt.refresh-token-validity-in-seconds}")
+  private long refreshTokenValidityInSeconds;
+
 
   @PostMapping("/join")
   public ResponseEntity join(@RequestBody @Valid UserJoinRequestDTO userJoinRequestDTO) {
@@ -70,16 +80,57 @@ public class UserController {
       return new ResponseEntity(HttpStatus.BAD_REQUEST);
     }
 
-    String accessToken = jwtStrategy.createAccessToken(user.getId(), user.getRole());
-    String refreshToken = jwtStrategy.createRefreshToken(user.getId(), user.getRole());
+    String accessToken = jwtStrategy.createAccessToken(user.getId(), user.getRole(), user.getEmail());
+    String refreshToken = jwtStrategy.createRefreshToken(user.getId(), user.getRole(), user.getEmail());
 
-    UserLoginResponseDTO userLoginResponseDTO = new UserLoginResponseDTO();
-    userLoginResponseDTO.setAccessToken(accessToken);
+    AccessTokenResponseDTO accessTokenResponseDTO = new AccessTokenResponseDTO();
+    accessTokenResponseDTO.setAccessToken(accessToken);
 
     Cookie cookie  = cookieStrategy.createCookie("refreshToken", refreshToken);
 
+    redisStrategy.setValueExpire(refreshToken, user.getEmail(), refreshTokenValidityInSeconds);
     httpServletResponse.addCookie(cookie);
-    return new ResponseEntity(userLoginResponseDTO, HttpStatus.OK);
+    return new ResponseEntity(accessTokenResponseDTO, HttpStatus.OK);
+  }
+
+  @PostMapping("/refresh")
+  public ResponseEntity updateToken(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) {
+    Cookie[] cookies = httpServletRequest.getCookies();
+    Cookie cookie = Arrays.stream(cookies)
+        .filter(c -> c.getName().equals("refreshToken"))
+        .findFirst()
+        .get();
+
+    //refresh token 유효성 : 캐시에 있는 refreshtoken 과 일치하는지
+    String refreshTokenTakenFromCookie = cookie.getValue();
+
+    //만료기간 지나지 않았는지 토큰 유효성
+    if (!jwtStrategy.validateToken(refreshTokenTakenFromCookie)) {
+      return new ResponseEntity(HttpStatus.FORBIDDEN);
+    }
+
+    String emailTakenFromCache = redisStrategy.getValueData(refreshTokenTakenFromCookie);
+    if (!emailTakenFromCache.equals(jwtStrategy.getUserEmail(refreshTokenTakenFromCookie))) {
+      return new ResponseEntity(HttpStatus.FORBIDDEN);
+    }
+
+    //새로운 refreshToken, accessToken을 리턴.
+    int userId = jwtStrategy.getUserId(refreshTokenTakenFromCookie);
+    int userRole = jwtStrategy.getUserRole(refreshTokenTakenFromCookie);
+    String userEmail = jwtStrategy.getUserEmail(refreshTokenTakenFromCookie);
+    String newAccessToken = jwtStrategy.createAccessToken(userId, userRole, userEmail);
+    String newRefreshToken = jwtStrategy.createRefreshToken(userId, userRole, userEmail);
+
+    AccessTokenResponseDTO accessTokenResponseDTO = new AccessTokenResponseDTO();
+    accessTokenResponseDTO.setAccessToken(newAccessToken);
+
+    Cookie newCookie  = cookieStrategy.createCookie("refreshToken", newRefreshToken);
+
+    redisStrategy.deleteValue(refreshTokenTakenFromCookie);
+    redisStrategy.setValueExpire(newRefreshToken, userEmail, refreshTokenValidityInSeconds);
+    httpServletResponse.addCookie(newCookie);
+
+    return new ResponseEntity(accessTokenResponseDTO, HttpStatus.OK);
   }
 
 }

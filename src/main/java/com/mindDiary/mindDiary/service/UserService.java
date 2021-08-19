@@ -3,7 +3,6 @@ package com.mindDiary.mindDiary.service;
 
 import com.mindDiary.mindDiary.domain.User;
 import com.mindDiary.mindDiary.dto.request.UserJoinRequestDTO;
-import com.mindDiary.mindDiary.dto.response.UserLoginResponseDTO;
 
 public interface UserService {
 
