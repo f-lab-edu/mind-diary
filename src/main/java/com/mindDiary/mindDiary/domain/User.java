@@ -12,13 +12,10 @@ public class User {
 
   private int id;
 
-  @Email
   private String email;
 
-  @NotNull
   private String nickname;
 
-  @NotNull
   private String password;
 
   private int role;

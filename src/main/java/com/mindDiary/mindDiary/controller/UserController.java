@@ -1,6 +1,7 @@
 package com.mindDiary.mindDiary.controller;
 
 import com.mindDiary.mindDiary.domain.User;
+import com.mindDiary.mindDiary.dto.request.UserJoinRequestDTO;
 import com.mindDiary.mindDiary.dto.request.UserLoginRequestDTO;
 import com.mindDiary.mindDiary.dto.response.UserLoginResponseDTO;
 import com.mindDiary.mindDiary.service.UserService;
@@ -31,14 +32,18 @@ public class UserController {
   private final PasswordEncoder passwordEncoder;
 
   @PostMapping("/join")
-  public ResponseEntity join(@RequestBody @Valid User user) {
+  public ResponseEntity join(@RequestBody @Valid UserJoinRequestDTO userJoinRequestDTO) {
 
-    if (userService.isNicknameDuplicate(user.getNickname())
-        || userService.isEmailDuplicate(user.getEmail())) {
+    User nicknameDuplicateUser = userService.findByEmail(userJoinRequestDTO.getEmail());
+    if (nicknameDuplicateUser != null) {
+      return new ResponseEntity(HttpStatus.CONFLICT);
+    }
+    User emailDuplicateUser = userService.findByEmail(userJoinRequestDTO.getNickname());
+    if (emailDuplicateUser != null) {
       return new ResponseEntity(HttpStatus.CONFLICT);
     }
 
-    userService.join(user);
+    userService.join(userJoinRequestDTO);
     return new ResponseEntity(HttpStatus.OK);
   }
 
