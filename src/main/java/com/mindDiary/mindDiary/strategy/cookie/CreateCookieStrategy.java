@@ -38,7 +38,9 @@ public class CreateCookieStrategy implements CookieStrategy {
         .filter(c -> c.getName().equals(key))
         .findFirst()
         .map(c -> {
+          c.setValue(null);
           c.setMaxAge(0);
+          c.setPath("/");
           httpServletResponse.addCookie(c);
           return c;
         });
