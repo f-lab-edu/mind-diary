@@ -4,7 +4,7 @@ import com.mindDiary.mindDiary.domain.User;
 import com.mindDiary.mindDiary.domain.UserRole;
 import com.mindDiary.mindDiary.repository.UserRepository;
 import com.mindDiary.mindDiary.strategy.EmailStrategy;
-import com.mindDiary.mindDiary.strategy.RedisUtil;
+import com.mindDiary.mindDiary.strategy.RedisStrategy;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -15,7 +15,7 @@ public class UserServiceImpl implements UserService {
 
   private final UserRepository userRepository;
   private final PasswordEncoder passwordEncoder;
-  private final RedisUtil redisUtil;
+  private final RedisStrategy redisStrategy;
   private final EmailStrategy emailStrategy;
 
   /**
@@ -36,20 +36,20 @@ public class UserServiceImpl implements UserService {
 
     user.createEmailCheckToken();
 
-    redisUtil.setValueExpire(user.getEmailCheckToken(), String.valueOf(user.getId()), 60 * 30L);
+    redisStrategy.setValueExpire(user.getEmailCheckToken(), String.valueOf(user.getId()), 60 * 30L);
 
     emailStrategy.sendMessage(user.getEmail(),user.getEmailCheckToken());
   }
 
   @Override
   public boolean checkEmailToken(String token, String email) {
-    int id = Integer.parseInt(redisUtil.getValueData(token));
+    int id = Integer.parseInt(redisStrategy.getValueData(token));
     User user = userRepository.findByEmail(email);
 
     if (user.getId() != id) {
       return false;
     }
-    redisUtil.deleteValue(token);
+    redisStrategy.deleteValue(token);
     user.setRole(UserRole.ROLE_USER.getRole());
     userRepository.updateRole(user);
     return true;

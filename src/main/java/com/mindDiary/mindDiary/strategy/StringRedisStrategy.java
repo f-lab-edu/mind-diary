@@ -6,7 +6,7 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
 @Service
-public class RedisUtil {
+public class StringRedisStrategy implements RedisStrategy {
 
   @Autowired
   private StringRedisTemplate redisTemplate;
