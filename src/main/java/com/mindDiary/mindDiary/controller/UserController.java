@@ -38,7 +38,7 @@ public class UserController {
     if (nicknameDuplicateUser != null) {
       return new ResponseEntity(HttpStatus.CONFLICT);
     }
-    User emailDuplicateUser = userService.findByEmail(userJoinRequestDTO.getNickname());
+    User emailDuplicateUser = userService.findByNickname(userJoinRequestDTO.getNickname());
     if (emailDuplicateUser != null) {
       return new ResponseEntity(HttpStatus.CONFLICT);
     }
