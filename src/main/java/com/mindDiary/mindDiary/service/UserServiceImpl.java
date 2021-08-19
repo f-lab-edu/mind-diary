@@ -3,6 +3,7 @@ package com.mindDiary.mindDiary.service;
 import com.mindDiary.mindDiary.domain.User;
 import com.mindDiary.mindDiary.domain.UserRole;
 import com.mindDiary.mindDiary.repository.UserRepository;
+import com.mindDiary.mindDiary.strategy.EmailStrategy;
 import com.mindDiary.mindDiary.strategy.RedisUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -15,7 +16,7 @@ public class UserServiceImpl implements UserService {
   private final UserRepository userRepository;
   private final PasswordEncoder passwordEncoder;
   private final RedisUtil redisUtil;
-  private final EmailService emailService;
+  private final EmailStrategy emailStrategy;
 
   /**
    * 회원 가입 로직
@@ -37,7 +38,7 @@ public class UserServiceImpl implements UserService {
 
     redisUtil.setValueExpire(user.getEmailCheckToken(), String.valueOf(user.getId()), 60 * 30L);
 
-    emailService.sendMessage(user.getEmail(),user.getEmailCheckToken());
+    emailStrategy.sendMessage(user.getEmail(),user.getEmailCheckToken());
   }
 
   @Override
