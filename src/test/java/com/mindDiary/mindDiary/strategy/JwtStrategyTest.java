@@ -39,8 +39,11 @@ public class JwtStrategyTest {
   @Test
   @DisplayName("토큰 유효성 확인")
   public void validateToken() {
-    String token = jwtUtil.createToken(1, 1,"meme@naver.com", 0);
-    assertThat(jwtUtil.validateToken(token)).isFalse();
+    String token1 = jwtUtil.createToken(1, 1,"meme@naver.com", 0);
+    assertThat(jwtUtil.validateToken(token1)).isFalse();
+
+    String token2 = jwtUtil.createToken(1, 1,"meme@naver.com", 100);
+    assertThat(jwtUtil.validateToken(token2)).isTrue();
   }
 
 }
