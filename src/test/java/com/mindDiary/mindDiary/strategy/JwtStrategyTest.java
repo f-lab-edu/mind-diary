@@ -25,7 +25,7 @@ public class JwtStrategyTest {
   @DisplayName("token으로 userRole 가져오는지 확인")
   public void getUserRoleByToken() {
     String token = jwtUtil.createToken(1,1,"meme@naver.com",600);
-    assertThat(jwtUtil.getUserRole(token)).isSameAs(5);
+    assertThat(jwtUtil.getUserRole(token)).isSameAs(1);
   }
 
   @Test

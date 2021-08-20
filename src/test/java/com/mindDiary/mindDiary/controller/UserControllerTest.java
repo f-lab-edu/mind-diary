@@ -12,6 +12,7 @@ import com.mindDiary.mindDiary.dto.request.UserJoinRequestDTO;
 import com.mindDiary.mindDiary.dto.request.UserLoginRequestDTO;
 import com.mindDiary.mindDiary.dto.response.TokenResponseDTO;
 import com.mindDiary.mindDiary.service.UserService;
+import com.mindDiary.mindDiary.strategy.cookie.CookieStrategy;
 import com.mindDiary.mindDiary.strategy.cookie.CreateCookieStrategy;
 import javax.servlet.http.Cookie;
 import lombok.extern.slf4j.Slf4j;
@@ -56,7 +57,7 @@ public class UserControllerTest {
   private UserService userService;
 
   @Mock
-  private CreateCookieStrategy cookieStrategy;
+  private CookieStrategy cookieStrategy;
 
   @BeforeEach
   public void init() {
