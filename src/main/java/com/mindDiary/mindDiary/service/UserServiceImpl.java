@@ -105,7 +105,7 @@ public class UserServiceImpl implements UserService {
     if (!emailTakenFromCache.equals(jwtStrategy.getUserEmail(originToken))) {
       return null;
     }
-    
+
     User user = jwtStrategy.getUserByToken(originToken);
     TokenResponseDTO tokenResponseDTO = user.createToken(jwtStrategy);
 
