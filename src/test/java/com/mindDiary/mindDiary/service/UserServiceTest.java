@@ -2,6 +2,8 @@ package com.mindDiary.mindDiary.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
 
 import com.mindDiary.mindDiary.domain.User;
@@ -27,14 +29,14 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 @ExtendWith(MockitoExtension.class)
 public class UserServiceTest {
 
-  private static final String JOIN_URL =  "/auth/join";
-  private static final String LOGIN_URL = "/auth/login";
-  private static final String CHECK_EMAIL_TOKEN_URL = "/auth/check-email-token";
   private static final String EMAIL = "email@google.com";
   private static final String PASSWORD = "password";
   private static final String NICKNAME = "nickname";
   private static final String ACCESS_TOKEN = "access";
   private static final String REFRESH_TOKEN = "refresh";
+  private static final int USER_ROLE = 1;
+  private static final int USER_ID = 1;
+  private static final String EMAIL_TOKEN = "emailToken";
 
   @Mock
   UserRepository userRepository;
@@ -77,8 +79,8 @@ public class UserServiceTest {
 
   public User getUser() {
     User user = new User();
-    user.setId(1);
-    user.setRole(1);
+    user.setId(USER_ID);
+    user.setRole(USER_ROLE);
     user.setEmail(EMAIL);
     user.setPassword(PASSWORD);
     user.setNickname(NICKNAME);
@@ -89,7 +91,7 @@ public class UserServiceTest {
     TokenResponseDTO tokenResponseDTO = new TokenResponseDTO(ACCESS_TOKEN, REFRESH_TOKEN);
     return tokenResponseDTO;
   }
-  
+
   @Test
   @DisplayName("회원가입 성공")
   public void join() {
@@ -118,5 +120,63 @@ public class UserServiceTest {
     doReturn(user).when(userRepository).findByNickname(NICKNAME);
 
     assertThat(userService.join(getUserJoinRequestDTO())).isFalse();
+  }
+
+  @Test
+  @DisplayName("이메일 인증 확인")
+  public void checkEmailTokenSuccess() {
+    User user = getUser();
+    doReturn("1").when(redisStrategy).getValueData(EMAIL_TOKEN);
+    doReturn(user).when(userRepository).findByEmail(EMAIL);
+    doNothing().when(userRepository).updateRole(user);
+
+    assertThat(userService.checkEmailToken(EMAIL_TOKEN, EMAIL)).isTrue();
+  }
+
+  @Test
+  @DisplayName("이메일 인증 실패")
+  public void checkEmailTokenFail() {
+    User user = getUser();
+    doReturn("110").when(redisStrategy).getValueData(EMAIL_TOKEN);
+    doReturn(user).when(userRepository).findByEmail(EMAIL);
+
+    assertThat(userService.checkEmailToken(EMAIL_TOKEN, EMAIL)).isFalse();
+  }
+
+  @Test
+  @DisplayName("로그인 성공")
+  public void loginSuccess() {
+    User user = getUser();
+    UserLoginRequestDTO userLoginRequestDTO = getUserLoginRequestDTO();
+    TokenResponseDTO tokenResponseDTO = getTokenResponseDTO();
+    doReturn(user).when(userRepository).findByEmail(EMAIL);
+    doReturn(true).when(passwordEncoder).matches(any(), any());
+    doReturn(ACCESS_TOKEN).when(tokenStrategy).createAccessToken(USER_ID, USER_ROLE, EMAIL);
+    doReturn(REFRESH_TOKEN).when(tokenStrategy).createRefreshToken(USER_ID, USER_ROLE, EMAIL);
+
+    assertThat(userService.login(userLoginRequestDTO)).isEqualTo(tokenResponseDTO);
+  }
+
+  @Test
+  @DisplayName("로그인 실패 : 유저를 DB에서 찾지 못함")
+  public void loginFailByUserNotExists() {
+    User user = getUser();
+    UserLoginRequestDTO userLoginRequestDTO = getUserLoginRequestDTO();
+    TokenResponseDTO tokenResponseDTO = getTokenResponseDTO();
+    doReturn(null).when(userRepository).findByEmail(EMAIL);
+
+    assertThat(userService.login(userLoginRequestDTO)).isNull();
+  }
+
+  @Test
+  @DisplayName("로그인 실패 : 패스워드가 일치하지 않음")
+  public void loginFail() {
+    User user = getUser();
+    UserLoginRequestDTO userLoginRequestDTO = getUserLoginRequestDTO();
+    TokenResponseDTO tokenResponseDTO = getTokenResponseDTO();
+    doReturn(user).when(userRepository).findByEmail(EMAIL);
+    doReturn(false).when(passwordEncoder).matches(any(), any());
+
+    assertThat(userService.login(userLoginRequestDTO)).isNull();
   }
 }

@@ -2,10 +2,12 @@ package com.mindDiary.mindDiary.dto.response;
 
 import com.mindDiary.mindDiary.strategy.cookie.CookieStrategy;
 import javax.servlet.http.Cookie;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 
+@EqualsAndHashCode
 @Getter
 @Setter
 public class TokenResponseDTO {
