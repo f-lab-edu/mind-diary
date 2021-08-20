@@ -162,7 +162,6 @@ public class UserServiceTest {
   public void loginFailByUserNotExists() {
     User user = getUser();
     UserLoginRequestDTO userLoginRequestDTO = getUserLoginRequestDTO();
-    TokenResponseDTO tokenResponseDTO = getTokenResponseDTO();
     doReturn(null).when(userRepository).findByEmail(EMAIL);
 
     assertThat(userService.login(userLoginRequestDTO)).isNull();
@@ -173,10 +172,52 @@ public class UserServiceTest {
   public void loginFail() {
     User user = getUser();
     UserLoginRequestDTO userLoginRequestDTO = getUserLoginRequestDTO();
-    TokenResponseDTO tokenResponseDTO = getTokenResponseDTO();
     doReturn(user).when(userRepository).findByEmail(EMAIL);
     doReturn(false).when(passwordEncoder).matches(any(), any());
 
     assertThat(userService.login(userLoginRequestDTO)).isNull();
   }
+
+
+  @Test
+  @DisplayName("토큰 재발급 성공")
+  public void refreshSuccess() {
+    User user = getUser();
+    TokenResponseDTO tokenResponseDTO = getTokenResponseDTO();
+    doReturn(true).when(tokenStrategy).validateToken(REFRESH_TOKEN);
+    doReturn(EMAIL).when(redisStrategy).getValueData(REFRESH_TOKEN);
+    doReturn(EMAIL).when(tokenStrategy).getUserEmail(REFRESH_TOKEN);
+    doReturn(user).when(tokenStrategy).getUserByToken(REFRESH_TOKEN);
+    doReturn(ACCESS_TOKEN).when(tokenStrategy).createAccessToken(USER_ID, USER_ROLE, EMAIL);
+    doReturn(REFRESH_TOKEN).when(tokenStrategy).createRefreshToken(USER_ID, USER_ROLE, EMAIL);
+
+    assertThat(userService.refresh(REFRESH_TOKEN)).isEqualTo(tokenResponseDTO);
+
+  }
+
+  @Test
+  @DisplayName("토큰 재발급 실패 : 유효하지 않은 리프레시 토큰이 요청으로 들어옴")
+  public void refreshFailByUnvalidToken() {
+    User user = getUser();
+    TokenResponseDTO tokenResponseDTO = getTokenResponseDTO();
+    doReturn(false).when(tokenStrategy).validateToken(REFRESH_TOKEN);
+
+    assertThat(userService.refresh(REFRESH_TOKEN)).isNull();
+
+  }
+
+  @Test
+  @DisplayName("토큰 재발급 실패 : 요청으로 들어온 리프레시 토큰 캐시에 있는 리프레시 토큰과 일치하지 않음")
+  public void refreshFailByCache() {
+    User user = getUser();
+    TokenResponseDTO tokenResponseDTO = getTokenResponseDTO();
+    doReturn(true).when(tokenStrategy).validateToken(REFRESH_TOKEN);
+    doReturn(EMAIL).when(redisStrategy).getValueData(REFRESH_TOKEN);
+    doReturn(null).when(tokenStrategy).getUserEmail(REFRESH_TOKEN);
+
+    assertThat(userService.refresh(REFRESH_TOKEN)).isNull();
+
+  }
+
+
 }
