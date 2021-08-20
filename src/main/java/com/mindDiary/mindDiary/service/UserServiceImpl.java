@@ -48,8 +48,8 @@ public class UserServiceImpl implements UserService {
     user.setRole(UserRole.ROLE_NOT_PERMITTED.getRole());
     user.createEmailCheckToken();
 
-    int cnt = userRepository.save(user);
-    if (cnt == 0) {
+    int id = userRepository.save(user);
+    if (id == 0) {
       return false;
     }
     redisStrategy.setValueExpire(user.getEmailCheckToken(), String.valueOf(user.getId()), emailValidityInSeconds);

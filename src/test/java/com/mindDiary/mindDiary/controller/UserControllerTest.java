@@ -1,45 +1,37 @@
 package com.mindDiary.mindDiary.controller;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.cookie;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import static org.springframework.web.servlet.function.RequestPredicates.contentType;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.mindDiary.mindDiary.controller.UserController;
-import com.mindDiary.mindDiary.domain.User;
 import com.mindDiary.mindDiary.dto.request.UserJoinRequestDTO;
 import com.mindDiary.mindDiary.dto.request.UserLoginRequestDTO;
 import com.mindDiary.mindDiary.dto.response.TokenResponseDTO;
-import com.mindDiary.mindDiary.repository.UserRepository;
 import com.mindDiary.mindDiary.service.UserService;
-import com.mindDiary.mindDiary.strategy.JwtStrategyTest;
-import com.mindDiary.mindDiary.strategy.email.EmailStrategy;
-import com.mindDiary.mindDiary.strategy.jwt.JwtStrategy;
-import com.mindDiary.mindDiary.strategy.redis.RedisStrategy;
-import java.util.UUID;
+import com.mindDiary.mindDiary.strategy.cookie.CookieStrategy;
+import javax.servlet.http.Cookie;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
-import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
-@AutoConfigureMockMvc
-@SpringBootTest
+@Slf4j
+@ExtendWith(MockitoExtension.class)
 public class UserControllerTest {
 
   private static final String JOIN_URL =  "/auth/join";
@@ -48,13 +40,11 @@ public class UserControllerTest {
   private static final String EMAIL = "email@google.com";
   private static final String PASSWORD = "password";
   private static final String NICKNAME = "nickname";
-  private static final String ACCESS_TOKEN = "accessToken";
-  private static final String REFRESH_TOKEN = "refreshToken";
 
   @Autowired
   private MockMvc mockMvc;
 
-  @Autowired
+  @Spy
   private ObjectMapper objectMapper;
 
   @InjectMocks
@@ -63,6 +53,8 @@ public class UserControllerTest {
   @Mock
   private UserService userService;
 
+  @Mock
+  private TokenResponseDTO tokenResponseDTO;
 
   @BeforeEach
   public void init() {
@@ -85,19 +77,17 @@ public class UserControllerTest {
     return userLoginRequestDTO;
   }
 
-  public TokenResponseDTO getTokenResponseDTO() {
-    TokenResponseDTO tokenResponseDTO = new TokenResponseDTO();
-    tokenResponseDTO.setAccessToken(ACCESS_TOKEN);
-    tokenResponseDTO.setRefreshToken(REFRESH_TOKEN);
-    return tokenResponseDTO;
+  public Cookie getCookie() {
+    Cookie cookie = new Cookie("key", "value");
+    return cookie;
   }
-
   @Test
   @DisplayName("회원가입 실패 : 중복 유저")
   public void joinFailByEmail() throws Exception {
-    doReturn(false).when(userService).join(getUserJoinRequestDTO());
-
     String content = objectMapper.writeValueAsString(getUserJoinRequestDTO());
+
+    doReturn(false).when(userService).join(any(UserJoinRequestDTO.class));
+
     ResultActions resultActions = mockMvc
         .perform(post(JOIN_URL)
             .content(content)
@@ -110,15 +100,20 @@ public class UserControllerTest {
   @DisplayName("회원가입 성공")
   public void join() throws Exception {
     UserJoinRequestDTO userJoinRequestDTO = getUserJoinRequestDTO();
-    doReturn(true).when(userService).join(userJoinRequestDTO);
-
     String content = objectMapper.writeValueAsString(userJoinRequestDTO);
+
+    doReturn(true).when(userService).join(any(UserJoinRequestDTO.class));
+
     ResultActions resultActions = mockMvc
         .perform(post(JOIN_URL)
             .content(content)
-            .contentType(MediaType.APPLICATION_JSON));
+            .contentType(MediaType.APPLICATION_JSON))
+        .andExpect(result -> {
+          MockHttpServletResponse response = result.getResponse();
+          log.info(response.getContentAsString());
+        });
 
-    resultActions.andDo(print()).andExpect(status().isOk());
+    resultActions.andExpect(status().isOk()).andDo(print());
   }
 
   @Test
@@ -156,25 +151,29 @@ public class UserControllerTest {
   @DisplayName("로그인 성공")
   public void loginSuccess() throws Exception {
     UserLoginRequestDTO userLoginRequestDTO = getUserLoginRequestDTO();
-    doReturn(getTokenResponseDTO()).when(userService).login(userLoginRequestDTO);
-
+    Cookie cookie = getCookie();
+    String name = cookie.getName();
     String content = objectMapper.writeValueAsString(userLoginRequestDTO);
+
+    doReturn(tokenResponseDTO).when(userService).login(any(UserLoginRequestDTO.class));
+    doReturn(cookie).when(tokenResponseDTO).createTokenCookie(any(CookieStrategy.class), any());
+
     ResultActions resultActions = mockMvc
         .perform(post(LOGIN_URL)
             .content(content)
             .contentType(MediaType.APPLICATION_JSON));
 
-    resultActions.andDo(print()).andExpect(status().isOk());
-
+    resultActions.andDo(print()).andExpect(status().isOk()).andExpect(cookie().exists(name));
   }
 
   @Test
   @DisplayName("로그인 실패")
   public void loginFailByUserNotExist() throws Exception {
     UserLoginRequestDTO userLoginRequestDTO = getUserLoginRequestDTO();
-    doReturn(null).when(userService).login(userLoginRequestDTO);
-
     String content = objectMapper.writeValueAsString(userLoginRequestDTO);
+
+    doReturn(null).when(userService).login(any(UserLoginRequestDTO.class));
+
     ResultActions resultActions = mockMvc
         .perform(post(LOGIN_URL)
             .content(content)
