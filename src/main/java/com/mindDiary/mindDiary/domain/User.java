@@ -2,10 +2,8 @@ package com.mindDiary.mindDiary.domain;
 
 import com.mindDiary.mindDiary.dto.request.UserJoinRequestDTO;
 import com.mindDiary.mindDiary.dto.response.TokenResponseDTO;
-import com.mindDiary.mindDiary.strategy.jwt.JwtStrategy;
+import com.mindDiary.mindDiary.strategy.jwt.TokenStrategy;
 import java.util.UUID;
-import javax.validation.constraints.Email;
-import javax.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -47,9 +45,9 @@ public class User {
     this.role = UserRole.ROLE_USER.getRole();
   }
 
-  public TokenResponseDTO createToken(JwtStrategy jwtStrategy) {
-    String accessToken = jwtStrategy.createAccessToken(id, role, email);
-    String refreshToken = jwtStrategy.createRefreshToken(id, role, email);
+  public TokenResponseDTO createToken(TokenStrategy tokenStrategy) {
+    String accessToken = tokenStrategy.createAccessToken(id, role, email);
+    String refreshToken = tokenStrategy.createRefreshToken(id, role, email);
 
     TokenResponseDTO tokenResponseDTO = new TokenResponseDTO(accessToken, refreshToken);
     return tokenResponseDTO;

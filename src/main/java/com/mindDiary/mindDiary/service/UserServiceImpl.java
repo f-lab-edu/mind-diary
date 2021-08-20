@@ -1,16 +1,14 @@
 package com.mindDiary.mindDiary.service;
 
 import com.mindDiary.mindDiary.domain.User;
-import com.mindDiary.mindDiary.domain.UserRole;
 import com.mindDiary.mindDiary.dto.request.UserJoinRequestDTO;
 import com.mindDiary.mindDiary.dto.request.UserLoginRequestDTO;
 import com.mindDiary.mindDiary.dto.response.TokenResponseDTO;
 import com.mindDiary.mindDiary.repository.UserRepository;
 import com.mindDiary.mindDiary.strategy.email.EmailStrategy;
-import com.mindDiary.mindDiary.strategy.jwt.JwtStrategy;
+import com.mindDiary.mindDiary.strategy.jwt.TokenStrategy;
 import com.mindDiary.mindDiary.strategy.redis.RedisStrategy;
 import lombok.RequiredArgsConstructor;
-import org.apache.el.parser.Token;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -23,7 +21,7 @@ public class UserServiceImpl implements UserService {
   private final PasswordEncoder passwordEncoder;
   private final RedisStrategy redisStrategy;
   private final EmailStrategy emailStrategy;
-  private final JwtStrategy jwtStrategy;
+  private final TokenStrategy tokenStrategy;
 
   @Value("${jwt.refresh-token-validity-in-seconds}")
   private long refreshTokenValidityInSeconds;
@@ -88,8 +86,7 @@ public class UserServiceImpl implements UserService {
       return null;
     }
 
-    TokenResponseDTO tokenResponseDTO = user.createToken(jwtStrategy);
-
+    TokenResponseDTO tokenResponseDTO = user.createToken(tokenStrategy);
     redisStrategy.setValueExpire(tokenResponseDTO.getRefreshToken(), user.getEmail(),
         refreshTokenValidityInSeconds);
     return tokenResponseDTO;
@@ -97,17 +94,18 @@ public class UserServiceImpl implements UserService {
 
   @Override
   public TokenResponseDTO refresh(String originToken) {
-    if (!jwtStrategy.validateToken(originToken)) {
+
+    if (!tokenStrategy.validateToken(originToken)) {
       return null;
     }
 
     String emailTakenFromCache = redisStrategy.getValueData(originToken);
-    if (!emailTakenFromCache.equals(jwtStrategy.getUserEmail(originToken))) {
+    if (!emailTakenFromCache.equals(tokenStrategy.getUserEmail(originToken))) {
       return null;
     }
 
-    User user = jwtStrategy.getUserByToken(originToken);
-    TokenResponseDTO tokenResponseDTO = user.createToken(jwtStrategy);
+    User user = tokenStrategy.getUserByToken(originToken);
+    TokenResponseDTO tokenResponseDTO = user.createToken(tokenStrategy);
 
     redisStrategy.deleteValue(originToken);
     redisStrategy.setValueExpire(tokenResponseDTO.getRefreshToken(), user.getEmail(),

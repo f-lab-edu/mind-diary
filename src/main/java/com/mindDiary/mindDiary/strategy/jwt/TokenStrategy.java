@@ -1,21 +1,21 @@
 package com.mindDiary.mindDiary.strategy.jwt;
 
-import io.jsonwebtoken.Claims;
-import java.security.Key;
-
+import com.mindDiary.mindDiary.domain.User;
 public interface TokenStrategy {
 
-  Key getSigningKey(String secretKey);
+  String createToken(int id, int role, String email, long validityInSeconds);
 
-  String createToken(int id, int role, long validityInSeconds);
+  String createAccessToken(int id, int role, String email);
 
-  String createAccessToken(int id, int role);
-
-  String createRefreshToken(int id, int role);
-
-  Claims extractAllClaims(String token);
+  String createRefreshToken(int id, int role, String email);
 
   Integer getUserId(String token);
 
   Integer getUserRole(String token);
+
+  String getUserEmail(String originToken);
+
+  User getUserByToken(String originToken);
+
+  boolean validateToken(String originToken);
 }

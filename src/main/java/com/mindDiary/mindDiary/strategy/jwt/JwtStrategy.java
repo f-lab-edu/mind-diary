@@ -15,7 +15,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 @Service
-public class JwtStrategy {
+public class JwtStrategy implements TokenStrategy {
 
   @Value("${jwt.secret}")
   private String secret;
@@ -60,7 +60,7 @@ public class JwtStrategy {
     return createToken(id, role, email, refreshTokenValidityInSeconds);
   }
 
-  public Claims extractAllClaims(String token) {
+  private Claims extractAllClaims(String token) {
     return Jwts.parser()
         .setSigningKey(getSigningKey(secret))
         .parseClaimsJws(token)
