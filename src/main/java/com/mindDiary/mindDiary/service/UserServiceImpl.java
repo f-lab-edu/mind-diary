@@ -10,6 +10,7 @@ import com.mindDiary.mindDiary.strategy.email.EmailStrategy;
 import com.mindDiary.mindDiary.strategy.jwt.JwtStrategy;
 import com.mindDiary.mindDiary.strategy.redis.RedisStrategy;
 import lombok.RequiredArgsConstructor;
+import org.apache.el.parser.Token;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -48,8 +49,9 @@ public class UserServiceImpl implements UserService {
     if (id == 0) {
       return false;
     }
-    redisStrategy.setValueExpire(user.getEmailCheckToken(), String.valueOf(user.getId()), emailValidityInSeconds);
-    emailStrategy.sendMessage(user.getEmail(),user.getEmailCheckToken());
+    redisStrategy.setValueExpire(user.getEmailCheckToken(), String.valueOf(user.getId()),
+        emailValidityInSeconds);
+    emailStrategy.sendMessage(user.getEmail(), user.getEmailCheckToken());
     return true;
   }
 
@@ -85,37 +87,31 @@ public class UserServiceImpl implements UserService {
     if (!passwordEncoder.matches(userLoginRequestDTO.getPassword(), user.getPassword())) {
       return null;
     }
-    String accessToken = jwtStrategy.createAccessToken(user.getId(), user.getRole(), user.getEmail());
-    String refreshToken = jwtStrategy.createRefreshToken(user.getId(), user.getRole(), user.getEmail());
 
-    TokenResponseDTO tokenResponseDTO = new TokenResponseDTO(accessToken, refreshToken);
+    TokenResponseDTO tokenResponseDTO = user.createToken(jwtStrategy);
 
-    redisStrategy.setValueExpire(refreshToken, user.getEmail(), refreshTokenValidityInSeconds);
+    redisStrategy.setValueExpire(tokenResponseDTO.getRefreshToken(), user.getEmail(),
+        refreshTokenValidityInSeconds);
     return tokenResponseDTO;
   }
 
   @Override
-  public TokenResponseDTO refresh(String orginToken) {
-    if (!jwtStrategy.validateToken(orginToken)) {
+  public TokenResponseDTO refresh(String originToken) {
+    if (!jwtStrategy.validateToken(originToken)) {
       return null;
     }
 
-    String emailTakenFromCache = redisStrategy.getValueData(orginToken);
-    if (!emailTakenFromCache.equals(jwtStrategy.getUserEmail(orginToken))) {
+    String emailTakenFromCache = redisStrategy.getValueData(originToken);
+    if (!emailTakenFromCache.equals(jwtStrategy.getUserEmail(originToken))) {
       return null;
     }
+    
+    User user = jwtStrategy.getUserByToken(originToken);
+    TokenResponseDTO tokenResponseDTO = user.createToken(jwtStrategy);
 
-    int userId = jwtStrategy.getUserId(orginToken);
-    int userRole = jwtStrategy.getUserRole(orginToken);
-    String userEmail = jwtStrategy.getUserEmail(orginToken);
-
-    String newAccessToken = jwtStrategy.createAccessToken(userId, userRole, userEmail);
-    String newRefreshToken = jwtStrategy.createRefreshToken(userId, userRole, userEmail);
-
-    TokenResponseDTO tokenResponseDTO = new TokenResponseDTO(newAccessToken, newRefreshToken);
-
-    redisStrategy.deleteValue(orginToken);
-    redisStrategy.setValueExpire(newRefreshToken, userEmail, refreshTokenValidityInSeconds);
+    redisStrategy.deleteValue(originToken);
+    redisStrategy.setValueExpire(tokenResponseDTO.getRefreshToken(), user.getEmail(),
+        refreshTokenValidityInSeconds);
     return tokenResponseDTO;
   }
 

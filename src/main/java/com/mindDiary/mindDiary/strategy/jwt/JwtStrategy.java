@@ -1,5 +1,6 @@
 package com.mindDiary.mindDiary.strategy.jwt;
 
+import com.mindDiary.mindDiary.domain.User;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
@@ -97,5 +98,9 @@ public class JwtStrategy {
       //JWT 토큰이 잘못되었습니다.
       return false;
     }
+  }
+
+  public User getUserByToken(String originToken) {
+    return User.createUserByToken(getUserId(originToken), getUserRole(originToken), getUserEmail(originToken));
   }
 }
