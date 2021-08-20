@@ -40,6 +40,8 @@ public class UserControllerTest {
   private static final String EMAIL = "email@google.com";
   private static final String PASSWORD = "password";
   private static final String NICKNAME = "nickname";
+  private static final String ACCESS_TOKEN = "access";
+  private static final String REFRESH_TOKEN = "refresh";
 
   @Autowired
   private MockMvc mockMvc;
@@ -83,9 +85,7 @@ public class UserControllerTest {
   }
 
   private TokenResponseDTO getTokenResponseDTO() {
-    TokenResponseDTO tokenResponseDTO = new TokenResponseDTO();
-    tokenResponseDTO.setRefreshToken("refresh");
-    tokenResponseDTO.setAccessToken("access");
+    TokenResponseDTO tokenResponseDTO = new TokenResponseDTO(ACCESS_TOKEN, REFRESH_TOKEN);
     return tokenResponseDTO;
   }
   @Test

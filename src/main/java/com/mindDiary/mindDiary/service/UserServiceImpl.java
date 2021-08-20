@@ -41,19 +41,14 @@ public class UserServiceImpl implements UserService {
       return false;
     }
 
-    User user = new User();
-    user.setEmail(userJoinRequestDTO.getEmail());
-    user.setNickname(userJoinRequestDTO.getNickname());
-    user.setPassword(passwordEncoder.encode(userJoinRequestDTO.getPassword()));
-    user.setRole(UserRole.ROLE_NOT_PERMITTED.getRole());
-    user.createEmailCheckToken();
+    userJoinRequestDTO.changePassword(passwordEncoder);
+    User user = User.createUser(userJoinRequestDTO);
 
     int id = userRepository.save(user);
     if (id == 0) {
       return false;
     }
     redisStrategy.setValueExpire(user.getEmailCheckToken(), String.valueOf(user.getId()), emailValidityInSeconds);
-
     emailStrategy.sendMessage(user.getEmail(),user.getEmailCheckToken());
     return true;
   }
@@ -75,7 +70,7 @@ public class UserServiceImpl implements UserService {
       return false;
     }
     redisStrategy.deleteValue(token);
-    user.setRole(UserRole.ROLE_USER.getRole());
+    user.changeRoleUser();
     userRepository.updateRole(user);
     return true;
   }
@@ -93,9 +88,7 @@ public class UserServiceImpl implements UserService {
     String accessToken = jwtStrategy.createAccessToken(user.getId(), user.getRole(), user.getEmail());
     String refreshToken = jwtStrategy.createRefreshToken(user.getId(), user.getRole(), user.getEmail());
 
-    TokenResponseDTO tokenResponseDTO = new TokenResponseDTO();
-    tokenResponseDTO.setAccessToken(accessToken);
-    tokenResponseDTO.setRefreshToken(refreshToken);
+    TokenResponseDTO tokenResponseDTO = new TokenResponseDTO(accessToken, refreshToken);
 
     redisStrategy.setValueExpire(refreshToken, user.getEmail(), refreshTokenValidityInSeconds);
     return tokenResponseDTO;
@@ -119,9 +112,7 @@ public class UserServiceImpl implements UserService {
     String newAccessToken = jwtStrategy.createAccessToken(userId, userRole, userEmail);
     String newRefreshToken = jwtStrategy.createRefreshToken(userId, userRole, userEmail);
 
-    TokenResponseDTO tokenResponseDTO = new TokenResponseDTO();
-    tokenResponseDTO.setAccessToken(newAccessToken);
-    tokenResponseDTO.setRefreshToken(newRefreshToken);
+    TokenResponseDTO tokenResponseDTO = new TokenResponseDTO(newAccessToken, newRefreshToken);
 
     redisStrategy.deleteValue(orginToken);
     redisStrategy.setValueExpire(newRefreshToken, userEmail, refreshTokenValidityInSeconds);

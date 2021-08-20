@@ -4,6 +4,7 @@ import javax.validation.constraints.Email;
 import javax.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 @Getter
 @Setter
@@ -16,4 +17,8 @@ public class UserJoinRequestDTO {
 
   @NotNull
   private String password;
+
+  public void changePassword(PasswordEncoder passwordEncoder) {
+    this.password = passwordEncoder.encode(password);
+  }
 }
