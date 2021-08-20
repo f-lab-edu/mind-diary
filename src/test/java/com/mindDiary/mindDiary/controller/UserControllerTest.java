@@ -12,7 +12,7 @@ import com.mindDiary.mindDiary.dto.request.UserJoinRequestDTO;
 import com.mindDiary.mindDiary.dto.request.UserLoginRequestDTO;
 import com.mindDiary.mindDiary.dto.response.TokenResponseDTO;
 import com.mindDiary.mindDiary.service.UserService;
-import com.mindDiary.mindDiary.strategy.cookie.CookieStrategy;
+import com.mindDiary.mindDiary.strategy.cookie.CreateCookieStrategy;
 import javax.servlet.http.Cookie;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
@@ -54,7 +54,7 @@ public class UserControllerTest {
   private UserService userService;
 
   @Mock
-  private TokenResponseDTO tokenResponseDTO;
+  private CreateCookieStrategy cookieStrategy;
 
   @BeforeEach
   public void init() {
@@ -80,6 +80,13 @@ public class UserControllerTest {
   public Cookie getCookie() {
     Cookie cookie = new Cookie("key", "value");
     return cookie;
+  }
+
+  private TokenResponseDTO getTokenResponseDTO() {
+    TokenResponseDTO tokenResponseDTO = new TokenResponseDTO();
+    tokenResponseDTO.setRefreshToken("refresh");
+    tokenResponseDTO.setAccessToken("access");
+    return tokenResponseDTO;
   }
   @Test
   @DisplayName("회원가입 실패 : 중복 유저")
@@ -155,8 +162,10 @@ public class UserControllerTest {
     String name = cookie.getName();
     String content = objectMapper.writeValueAsString(userLoginRequestDTO);
 
+    TokenResponseDTO tokenResponseDTO = getTokenResponseDTO();
+
     doReturn(tokenResponseDTO).when(userService).login(any(UserLoginRequestDTO.class));
-    doReturn(cookie).when(tokenResponseDTO).createTokenCookie(any(CookieStrategy.class), any());
+    doReturn(cookie).when(cookieStrategy).createCookie(any(), any());
 
     ResultActions resultActions = mockMvc
         .perform(post(LOGIN_URL)
@@ -165,6 +174,8 @@ public class UserControllerTest {
 
     resultActions.andDo(print()).andExpect(status().isOk()).andExpect(cookie().exists(name));
   }
+
+
 
   @Test
   @DisplayName("로그인 실패")
