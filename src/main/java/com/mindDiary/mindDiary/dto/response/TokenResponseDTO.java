@@ -4,7 +4,6 @@ import com.mindDiary.mindDiary.strategy.cookie.CookieStrategy;
 import javax.servlet.http.Cookie;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 
 @EqualsAndHashCode
@@ -20,8 +19,8 @@ public class TokenResponseDTO {
     this.refreshToken = refreshToken;
   }
 
-  public Cookie createTokenCookie(CookieStrategy cookieStrategy, String key) {
-    return cookieStrategy.createCookie(key, refreshToken);
+  public Cookie createRefreshTokenCookie(CookieStrategy cookieStrategy) {
+    return cookieStrategy.createRefreshTokenCookie(refreshToken);
   }
 
   public AccessTokenResponseDTO createAccessTokenResponseDTO() {

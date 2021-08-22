@@ -1,6 +1,7 @@
 package com.mindDiary.mindDiary.controller;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doReturn;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -8,14 +9,18 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.mindDiary.mindDiary.domain.User;
 import com.mindDiary.mindDiary.dto.request.UserJoinRequestDTO;
 import com.mindDiary.mindDiary.dto.request.UserLoginRequestDTO;
 import com.mindDiary.mindDiary.dto.response.TokenResponseDTO;
 import com.mindDiary.mindDiary.service.UserService;
 import com.mindDiary.mindDiary.strategy.cookie.CookieStrategy;
 import com.mindDiary.mindDiary.strategy.cookie.CreateCookieStrategy;
+import com.mindDiary.mindDiary.strategy.jwt.JwtStrategy;
+import com.mindDiary.mindDiary.strategy.jwt.TokenStrategy;
 import javax.servlet.http.Cookie;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.el.parser.Token;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -88,6 +93,16 @@ public class UserControllerTest {
   private TokenResponseDTO getTokenResponseDTO() {
     TokenResponseDTO tokenResponseDTO = new TokenResponseDTO(ACCESS_TOKEN, REFRESH_TOKEN);
     return tokenResponseDTO;
+  }
+
+  public User getUser() {
+    User user = new User();
+    user.setId(1);
+    user.setRole(1);
+    user.setEmail(EMAIL);
+    user.setPassword(PASSWORD);
+    user.setNickname(NICKNAME);
+    return user;
   }
   @Test
   @DisplayName("회원가입 실패 : 중복 유저")
@@ -167,6 +182,57 @@ public class UserControllerTest {
 
     doReturn(tokenResponseDTO).when(userService).login(any(UserLoginRequestDTO.class));
     doReturn(cookie).when(cookieStrategy).createCookie(any(), any());
+
+    ResultActions resultActions = mockMvc
+        .perform(post(LOGIN_URL)
+            .content(content)
+            .contentType(MediaType.APPLICATION_JSON));
+
+    resultActions.andDo(print()).andExpect(status().isOk()).andExpect(cookie().exists(name));
+  }
+  /* @PostMapping("/login")
+  public ResponseEntity login(@RequestBody @Valid UserLoginRequestDTO userLoginRequestDTO,
+      HttpServletResponse httpServletResponse) {
+
+    TokenResponseDTO tokenResponseDTO = userService.login(userLoginRequestDTO);
+
+    if (tokenResponseDTO == null) {
+      return new ResponseEntity(HttpStatus.BAD_REQUEST);
+    }
+
+    Cookie cookie = tokenResponseDTO.createTokenCookie(cookieStrategy, cookieRefreshTokenKey);
+    httpServletResponse.addCookie(cookie);
+
+    return new ResponseEntity(tokenResponseDTO.createAccessTokenResponseDTO(), HttpStatus.OK);
+  }
+
+  User user = userRepository.findByEmail(userLoginRequestDTO.getEmail());
+    if (user == null) {
+      return null;
+    }
+
+    if (!passwordEncoder.matches(userLoginRequestDTO.getPassword(), user.getPassword())) {
+      return null;
+    }
+
+    TokenResponseDTO tokenResponseDTO = user.createToken(tokenStrategy);
+    redisStrategy.setValueExpire(tokenResponseDTO.getRefreshToken(), user.getEmail(),
+        refreshTokenValidityInSeconds);
+    return tokenResponseDTO;
+*/
+  @Test
+  @DisplayName("로그인 성공")
+  public void loginSuccess2() throws Exception {
+    UserLoginRequestDTO userLoginRequestDTO = getUserLoginRequestDTO();
+    Cookie cookie = getCookie();
+    String name = cookie.getName();
+    String content = objectMapper.writeValueAsString(userLoginRequestDTO);
+
+    TokenResponseDTO tokenResponseDTO = getTokenResponseDTO();
+
+    doReturn(tokenResponseDTO).when(userService).login(any(UserLoginRequestDTO.class));
+    //doReturn(cookie).when(cookieStrategy).createCookie(any(), any());
+    doReturn(cookie).when(cookieStrategy).createRefreshTokenCookie(tokenResponseDTO.getRefreshToken());
 
     ResultActions resultActions = mockMvc
         .perform(post(LOGIN_URL)

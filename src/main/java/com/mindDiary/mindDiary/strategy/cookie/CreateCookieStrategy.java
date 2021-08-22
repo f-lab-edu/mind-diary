@@ -13,6 +13,8 @@ public class CreateCookieStrategy implements CookieStrategy {
   @Value("${jwt.refresh-token-validity-in-seconds}")
   private long refreshTokenValidityInSeconds;
 
+  @Value("${cookie.key.refresh-token}")
+  private String refreshTokenCookieKey;
 
   public Cookie createCookie(String key, String value) {
     Cookie cookie = new Cookie(key, value);
@@ -20,6 +22,10 @@ public class CreateCookieStrategy implements CookieStrategy {
     cookie.setPath("/");
     cookie.setMaxAge((int) refreshTokenValidityInSeconds);
     return cookie;
+  }
+
+  public Cookie createRefreshTokenCookie(String value) {
+    return createCookie(refreshTokenCookieKey, value);
   }
 
   @Override
@@ -31,8 +37,9 @@ public class CreateCookieStrategy implements CookieStrategy {
   }
 
   @Override
-  public void deleteCookie(String key, HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) {
-     Arrays.stream(httpServletRequest.getCookies())
+  public void deleteCookie(String key, HttpServletRequest httpServletRequest,
+      HttpServletResponse httpServletResponse) {
+    Arrays.stream(httpServletRequest.getCookies())
         .filter(c -> c.getName().equals(key))
         .findFirst()
         .map(c -> {
@@ -42,5 +49,16 @@ public class CreateCookieStrategy implements CookieStrategy {
           httpServletResponse.addCookie(c);
           return c;
         });
+  }
+
+  @Override
+  public Cookie getRefreshTokenCookie(HttpServletRequest httpServletRequest) {
+    return getCookie(refreshTokenCookieKey, httpServletRequest);
+  }
+
+  @Override
+  public void deleteRefreshTokenCookie(HttpServletRequest httpServletRequest,
+      HttpServletResponse httpServletResponse) {
+    deleteCookie(refreshTokenCookieKey, httpServletRequest, httpServletResponse);
   }
 }

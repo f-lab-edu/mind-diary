@@ -10,7 +10,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -28,9 +27,6 @@ public class UserController {
   private final UserService userService;
   private final CookieStrategy cookieStrategy;
 
-  @Value("${cookie.key.refresh-token}")
-  private String cookieRefreshTokenKey;
-
 
   @PostMapping("/join")
   public ResponseEntity join(@RequestBody @Valid UserJoinRequestDTO userJoinRequestDTO) {
@@ -44,7 +40,7 @@ public class UserController {
   @GetMapping("/check-email-token")
   public ResponseEntity checkEmailToken(@RequestParam(value = "token") String token,
       @RequestParam(value = "email") String email) {
-    boolean check = userService.checkEmailToken(token,email);
+    boolean check = userService.checkEmailToken(token, email);
     if (!check) {
       return new ResponseEntity(HttpStatus.BAD_REQUEST);
     }
@@ -61,16 +57,17 @@ public class UserController {
       return new ResponseEntity(HttpStatus.BAD_REQUEST);
     }
 
-    Cookie cookie = tokenResponseDTO.createTokenCookie(cookieStrategy, cookieRefreshTokenKey);
+    Cookie cookie = tokenResponseDTO.createRefreshTokenCookie(cookieStrategy);
     httpServletResponse.addCookie(cookie);
 
     return new ResponseEntity(tokenResponseDTO.createAccessTokenResponseDTO(), HttpStatus.OK);
   }
 
   @PostMapping("/refresh")
-  public ResponseEntity updateToken(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) {
+  public ResponseEntity updateToken(HttpServletRequest httpServletRequest,
+      HttpServletResponse httpServletResponse) {
 
-    Cookie cookie = cookieStrategy.getCookie(cookieRefreshTokenKey, httpServletRequest);
+    Cookie cookie = cookieStrategy.getRefreshTokenCookie(httpServletRequest);
     String refreshTokenTakenFromCookie = cookie.getValue();
 
     TokenResponseDTO tokenResponseDTO = userService.refresh(refreshTokenTakenFromCookie);
@@ -78,9 +75,9 @@ public class UserController {
       return new ResponseEntity(HttpStatus.FORBIDDEN);
     }
 
-    cookieStrategy.deleteCookie(cookieRefreshTokenKey, httpServletRequest, httpServletResponse);
+    cookieStrategy.deleteRefreshTokenCookie(httpServletRequest, httpServletResponse);
 
-    Cookie newCookie = tokenResponseDTO.createTokenCookie(cookieStrategy, cookieRefreshTokenKey);
+    Cookie newCookie = tokenResponseDTO.createRefreshTokenCookie(cookieStrategy);
     httpServletResponse.addCookie(newCookie);
 
     return new ResponseEntity(tokenResponseDTO.createAccessTokenResponseDTO(), HttpStatus.OK);

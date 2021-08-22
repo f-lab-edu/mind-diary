@@ -95,10 +95,10 @@ public class UserServiceTest {
   @Test
   @DisplayName("회원가입 성공")
   public void join() {
-    User user = getUser();
     doReturn(null).when(userRepository).findByEmail(EMAIL);
     doReturn(null).when(userRepository).findByNickname(NICKNAME);
     doReturn(1).when(userRepository).save(any(User.class));
+
 
     assertThat(userService.join(getUserJoinRequestDTO())).isTrue();
   }
