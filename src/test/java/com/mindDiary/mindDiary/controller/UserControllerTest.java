@@ -1,7 +1,6 @@
 package com.mindDiary.mindDiary.controller;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doReturn;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -9,18 +8,13 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.mindDiary.mindDiary.domain.User;
 import com.mindDiary.mindDiary.dto.request.UserJoinRequestDTO;
 import com.mindDiary.mindDiary.dto.request.UserLoginRequestDTO;
 import com.mindDiary.mindDiary.dto.response.TokenResponseDTO;
 import com.mindDiary.mindDiary.service.UserService;
 import com.mindDiary.mindDiary.strategy.cookie.CookieStrategy;
-import com.mindDiary.mindDiary.strategy.cookie.CreateCookieStrategy;
-import com.mindDiary.mindDiary.strategy.jwt.JwtStrategy;
-import com.mindDiary.mindDiary.strategy.jwt.TokenStrategy;
 import javax.servlet.http.Cookie;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.el.parser.Token;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -64,6 +58,7 @@ public class UserControllerTest {
   @Mock
   private CookieStrategy cookieStrategy;
 
+
   @BeforeEach
   public void init() {
     mockMvc = MockMvcBuilders.standaloneSetup(userController).build();
@@ -94,7 +89,7 @@ public class UserControllerTest {
     TokenResponseDTO tokenResponseDTO = new TokenResponseDTO(ACCESS_TOKEN, REFRESH_TOKEN);
     return tokenResponseDTO;
   }
-  
+
   @Test
   @DisplayName("회원가입 실패 : 중복 유저")
   public void joinFailByEmail() throws Exception {

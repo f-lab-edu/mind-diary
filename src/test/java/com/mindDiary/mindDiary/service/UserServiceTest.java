@@ -2,7 +2,6 @@ package com.mindDiary.mindDiary.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
 
@@ -14,8 +13,6 @@ import com.mindDiary.mindDiary.repository.UserRepository;
 import com.mindDiary.mindDiary.strategy.email.EmailStrategy;
 import com.mindDiary.mindDiary.strategy.jwt.TokenStrategy;
 import com.mindDiary.mindDiary.strategy.redis.RedisStrategy;
-import javax.servlet.http.Cookie;
-import javax.validation.constraints.Email;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -72,10 +69,6 @@ public class UserServiceTest {
     return userLoginRequestDTO;
   }
 
-  public Cookie getCookie() {
-    Cookie cookie = new Cookie("key", "value");
-    return cookie;
-  }
 
   public User getUser() {
     User user = new User();
@@ -160,7 +153,6 @@ public class UserServiceTest {
   @Test
   @DisplayName("로그인 실패 : 유저를 DB에서 찾지 못함")
   public void loginFailByUserNotExists() {
-    User user = getUser();
     UserLoginRequestDTO userLoginRequestDTO = getUserLoginRequestDTO();
     doReturn(null).when(userRepository).findByEmail(EMAIL);
 
@@ -198,8 +190,6 @@ public class UserServiceTest {
   @Test
   @DisplayName("토큰 재발급 실패 : 유효하지 않은 리프레시 토큰이 요청으로 들어옴")
   public void refreshFailByUnvalidToken() {
-    User user = getUser();
-    TokenResponseDTO tokenResponseDTO = getTokenResponseDTO();
     doReturn(false).when(tokenStrategy).validateToken(REFRESH_TOKEN);
 
     assertThat(userService.refresh(REFRESH_TOKEN)).isNull();
@@ -209,8 +199,6 @@ public class UserServiceTest {
   @Test
   @DisplayName("토큰 재발급 실패 : 요청으로 들어온 리프레시 토큰 캐시에 있는 리프레시 토큰과 일치하지 않음")
   public void refreshFailByCache() {
-    User user = getUser();
-    TokenResponseDTO tokenResponseDTO = getTokenResponseDTO();
     doReturn(true).when(tokenStrategy).validateToken(REFRESH_TOKEN);
     doReturn(EMAIL).when(redisStrategy).getValueData(REFRESH_TOKEN);
     doReturn(null).when(tokenStrategy).getUserEmail(REFRESH_TOKEN);

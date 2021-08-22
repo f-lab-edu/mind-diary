@@ -1,6 +1,5 @@
 package com.mindDiary.mindDiary.strategy.redis;
 
-import java.time.Duration;
 
 public interface RedisStrategy {
 
