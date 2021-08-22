@@ -32,12 +32,27 @@ public class JwtStrategy implements TokenStrategy {
     return Keys.hmacShaKeyFor(keyBytes);
   }
 
-  public String createToken(int id, int role, String email, long validityInSeconds) {
+
+  @Override
+  public String createAccessToken(int id, int role, String email) {
     Claims claims = Jwts.claims();
     claims.put("userId", id);
     claims.put("userRole", role);
     claims.put("userEmail", email);
 
+    return createToken( claims , refreshTokenValidityInSeconds);
+  }
+
+
+  @Override
+  public String createRefreshToken(int id) {
+    Claims claims = Jwts.claims();
+    claims.put("userId", id);
+
+    return createToken( claims , refreshTokenValidityInSeconds);
+  }
+
+  public String createToken(Claims claims, long validityInSeconds) {
     long now = System.currentTimeMillis();
     Date nowDate = new Date(now);
     Date validity = new Date(now + (validityInSeconds * 1000));
@@ -48,16 +63,7 @@ public class JwtStrategy implements TokenStrategy {
         .setExpiration(validity)
         .signWith(getSigningKey(secret), SignatureAlgorithm.HS256)
         .compact();
-
     return jwt;
-  }
-
-  public String createAccessToken(int id, int role, String email) {
-    return createToken(id, role, email, accessTokenValidityInSeconds);
-  }
-
-  public String createRefreshToken(int id, int role, String email) {
-    return createToken(id, role, email, refreshTokenValidityInSeconds);
   }
 
   private Claims extractAllClaims(String token) {
@@ -98,9 +104,5 @@ public class JwtStrategy implements TokenStrategy {
       //JWT 토큰이 잘못되었습니다.
       return false;
     }
-  }
-
-  public User getUserByToken(String originToken) {
-    return User.createUserByToken(getUserId(originToken), getUserRole(originToken), getUserEmail(originToken));
   }
 }

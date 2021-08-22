@@ -9,6 +9,10 @@
     SELECT * FROM user WHERE nickname = #{nickname}
   </select>
 
+  <select id = "findById" parameterType="int" resultType="com.mindDiary.mindDiary.domain.User">
+    SELECT * FROM user WHERE id = #{id}
+  </select>
+
   <update id="save" useGeneratedKeys="true" keyProperty="id" parameterType="com.mindDiary.mindDiary.domain.User">
     INSERT INTO user(email,nickname,password,role)
     VALUES(#{email}, #{nickname}, #{password}, #{role})

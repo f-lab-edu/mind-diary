@@ -92,7 +92,6 @@ public class UserServiceTest {
     doReturn(null).when(userRepository).findByNickname(NICKNAME);
     doReturn(1).when(userRepository).save(any(User.class));
 
-
     assertThat(userService.join(getUserJoinRequestDTO())).isTrue();
   }
 
@@ -145,7 +144,7 @@ public class UserServiceTest {
     doReturn(user).when(userRepository).findByEmail(EMAIL);
     doReturn(true).when(passwordEncoder).matches(any(), any());
     doReturn(ACCESS_TOKEN).when(tokenStrategy).createAccessToken(USER_ID, USER_ROLE, EMAIL);
-    doReturn(REFRESH_TOKEN).when(tokenStrategy).createRefreshToken(USER_ID, USER_ROLE, EMAIL);
+    doReturn(REFRESH_TOKEN).when(tokenStrategy).createRefreshToken(USER_ID);
 
     assertThat(userService.login(userLoginRequestDTO)).isEqualTo(tokenResponseDTO);
   }
@@ -174,14 +173,20 @@ public class UserServiceTest {
   @Test
   @DisplayName("토큰 재발급 성공")
   public void refreshSuccess() {
+
     User user = getUser();
     TokenResponseDTO tokenResponseDTO = getTokenResponseDTO();
+
     doReturn(true).when(tokenStrategy).validateToken(REFRESH_TOKEN);
-    doReturn(EMAIL).when(redisStrategy).getValueData(REFRESH_TOKEN);
-    doReturn(EMAIL).when(tokenStrategy).getUserEmail(REFRESH_TOKEN);
-    doReturn(user).when(tokenStrategy).getUserByToken(REFRESH_TOKEN);
+
+    doReturn(String.valueOf(USER_ID)).when(redisStrategy).getValueData(REFRESH_TOKEN);
+
+    doReturn(USER_ID).when(tokenStrategy).getUserId(REFRESH_TOKEN);
+
+    doReturn(user).when(userRepository).findById(USER_ID);
+
     doReturn(ACCESS_TOKEN).when(tokenStrategy).createAccessToken(USER_ID, USER_ROLE, EMAIL);
-    doReturn(REFRESH_TOKEN).when(tokenStrategy).createRefreshToken(USER_ID, USER_ROLE, EMAIL);
+    doReturn(REFRESH_TOKEN).when(tokenStrategy).createRefreshToken(USER_ID);
 
     assertThat(userService.refresh(REFRESH_TOKEN)).isEqualTo(tokenResponseDTO);
 
@@ -193,15 +198,16 @@ public class UserServiceTest {
     doReturn(false).when(tokenStrategy).validateToken(REFRESH_TOKEN);
 
     assertThat(userService.refresh(REFRESH_TOKEN)).isNull();
-
   }
 
   @Test
   @DisplayName("토큰 재발급 실패 : 요청으로 들어온 리프레시 토큰 캐시에 있는 리프레시 토큰과 일치하지 않음")
   public void refreshFailByCache() {
     doReturn(true).when(tokenStrategy).validateToken(REFRESH_TOKEN);
-    doReturn(EMAIL).when(redisStrategy).getValueData(REFRESH_TOKEN);
-    doReturn(null).when(tokenStrategy).getUserEmail(REFRESH_TOKEN);
+
+    doReturn(String.valueOf(USER_ID)).when(redisStrategy).getValueData(REFRESH_TOKEN);
+    doReturn(USER_ID - 1).when(tokenStrategy).getUserId(REFRESH_TOKEN);
+
 
     assertThat(userService.refresh(REFRESH_TOKEN)).isNull();
 

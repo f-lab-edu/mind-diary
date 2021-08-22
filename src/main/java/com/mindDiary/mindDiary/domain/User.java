@@ -33,22 +33,14 @@ public class User {
     return user;
   }
 
-  public static User createUserByToken(int id, int role, String email) {
-    User user = new User();
-    user.setId(id);
-    user.setEmail(email);
-    user.setRole(role);
-    return user;
-  }
-
   public void changeRoleUser() {
     this.role = UserRole.ROLE_USER.getRole();
   }
 
   public TokenResponseDTO createToken(TokenStrategy tokenStrategy) {
-    String accessToken = tokenStrategy.createAccessToken(id, role, email);
-    String refreshToken = tokenStrategy.createRefreshToken(id, role, email);
 
+    String accessToken = tokenStrategy.createAccessToken(id, role, email);
+    String refreshToken = tokenStrategy.createRefreshToken(id);
     TokenResponseDTO tokenResponseDTO = new TokenResponseDTO(accessToken, refreshToken);
     return tokenResponseDTO;
   }

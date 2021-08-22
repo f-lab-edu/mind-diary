@@ -87,8 +87,8 @@ public class UserServiceImpl implements UserService {
     }
 
     TokenResponseDTO tokenResponseDTO = user.createToken(tokenStrategy);
-    redisStrategy.setValueExpire(tokenResponseDTO.getRefreshToken(), user.getEmail(),
-        refreshTokenValidityInSeconds);
+
+    redisStrategy.setValueExpire(tokenResponseDTO.getRefreshToken(), String.valueOf(user.getId()),refreshTokenValidityInSeconds);
     return tokenResponseDTO;
   }
 
@@ -99,18 +99,23 @@ public class UserServiceImpl implements UserService {
       return null;
     }
 
-    String emailTakenFromCache = redisStrategy.getValueData(originToken);
-    if (!emailTakenFromCache.equals(tokenStrategy.getUserEmail(originToken))) {
+    String idTakenFromCache = redisStrategy.getValueData(originToken);
+    int id = Integer.parseInt(idTakenFromCache);
+
+    if (id != tokenStrategy.getUserId(originToken)) {
       return null;
     }
 
-    User user = tokenStrategy.getUserByToken(originToken);
+
+    User user = userRepository.findById(id);
     TokenResponseDTO tokenResponseDTO = user.createToken(tokenStrategy);
 
     redisStrategy.deleteValue(originToken);
-    redisStrategy.setValueExpire(tokenResponseDTO.getRefreshToken(), user.getEmail(),
+
+    redisStrategy.setValueExpire(tokenResponseDTO.getRefreshToken(), String.valueOf(user.getId()),
         refreshTokenValidityInSeconds);
     return tokenResponseDTO;
+
   }
 
 
