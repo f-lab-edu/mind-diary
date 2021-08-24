@@ -6,6 +6,7 @@ import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
 
 import com.mindDiary.mindDiary.domain.User;
+import com.mindDiary.mindDiary.domain.UserRole;
 import com.mindDiary.mindDiary.dto.request.UserJoinRequestDTO;
 import com.mindDiary.mindDiary.dto.request.UserLoginRequestDTO;
 import com.mindDiary.mindDiary.dto.response.TokenResponseDTO;
@@ -31,7 +32,7 @@ public class UserServiceTest {
   private static final String NICKNAME = "nickname";
   private static final String ACCESS_TOKEN = "access";
   private static final String REFRESH_TOKEN = "refresh";
-  private static final int USER_ROLE = 1;
+  private static final String USER_ROLE = UserRole.ROLE_USER.getRole();
   private static final int USER_ID = 1;
   private static final String EMAIL_TOKEN = "emailToken";
 

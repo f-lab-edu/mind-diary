@@ -1,17 +1,17 @@
 package com.mindDiary.mindDiary.domain;
 
 public enum UserRole {
-  ROLE_NOT_PERMITTED(0),
-  ROLE_USER(1),
-  ROLE_ADMIN(2);
+  ROLE_NOT_PERMITTED("NOT_PERMITTED"),
+  ROLE_USER("USER"),
+  ROLE_ADMIN("ADMIN");
 
-  private int role;
+  private String role;
 
-  UserRole(int role) {
+  UserRole(String role) {
     this.role = role;
   }
 
-  public int getRole() {
+  public String getRole() {
     return role;
   }
 }

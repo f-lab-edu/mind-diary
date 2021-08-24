@@ -34,13 +34,13 @@ public class JwtStrategy implements TokenStrategy {
 
 
   @Override
-  public String createAccessToken(int id, int role, String email) {
+  public String createAccessToken(int id, String role, String email) {
     Claims claims = Jwts.claims();
     claims.put("userId", id);
     claims.put("userRole", role);
     claims.put("userEmail", email);
 
-    return createToken( claims , refreshTokenValidityInSeconds);
+    return createToken( claims , accessTokenValidityInSeconds);
   }
 
 
@@ -77,8 +77,8 @@ public class JwtStrategy implements TokenStrategy {
     return extractAllClaims(token).get("userId",Integer.class);
   }
 
-  public Integer getUserRole(String token) {
-    return extractAllClaims(token).get("userRole",Integer.class);
+  public String getUserRole(String token) {
+    return extractAllClaims(token).get("userRole",String.class);
   }
 
   public String getUserEmail(String token) {

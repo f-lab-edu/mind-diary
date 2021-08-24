@@ -8,7 +8,7 @@ public interface TokenStrategy {
 
   Integer getUserId(String token);
 
-  Integer getUserRole(String token);
+  String getUserRole(String token);
 
   String getUserEmail(String originToken);
 
@@ -16,5 +16,5 @@ public interface TokenStrategy {
 
   String createRefreshToken(int id);
 
-  String createAccessToken(int id, int role, String email);
+  String createAccessToken(int id, String role, String email);
 }
