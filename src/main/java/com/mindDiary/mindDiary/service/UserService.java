@@ -7,7 +7,7 @@ import com.mindDiary.mindDiary.dto.response.TokenResponseDTO;
 
 public interface UserService {
 
-  boolean join(UserJoinRequestDTO userJoinRequestDTO);
+  void join(UserJoinRequestDTO userJoinRequestDTO);
 
   boolean checkEmailToken(String token, String email);
 

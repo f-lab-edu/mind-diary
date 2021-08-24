@@ -4,15 +4,19 @@ import com.mindDiary.mindDiary.domain.User;
 import com.mindDiary.mindDiary.dto.request.UserJoinRequestDTO;
 import com.mindDiary.mindDiary.dto.request.UserLoginRequestDTO;
 import com.mindDiary.mindDiary.dto.response.TokenResponseDTO;
+import com.mindDiary.mindDiary.exception.EmailDuplicatedException;
+import com.mindDiary.mindDiary.exception.NicknameDuplicatedException;
 import com.mindDiary.mindDiary.repository.UserRepository;
 import com.mindDiary.mindDiary.strategy.email.EmailStrategy;
 import com.mindDiary.mindDiary.strategy.jwt.TokenStrategy;
 import com.mindDiary.mindDiary.strategy.redis.RedisStrategy;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
@@ -30,27 +34,24 @@ public class UserServiceImpl implements UserService {
   private long emailValidityInSeconds;
 
   @Override
-  public boolean join(UserJoinRequestDTO userJoinRequestDTO) {
+  public void join(UserJoinRequestDTO userJoinRequestDTO) {
 
     if (isEmailDuplicate(userJoinRequestDTO.getEmail())) {
-      return false;
+      throw new EmailDuplicatedException();
     }
 
     if (isNicknameDuplicate(userJoinRequestDTO.getNickname())) {
-      return false;
+      throw new NicknameDuplicatedException();
     }
 
     userJoinRequestDTO.changePassword(passwordEncoder);
     User user = User.createUser(userJoinRequestDTO);
 
-    int id = userRepository.save(user);
-    if (id == 0) {
-      return false;
-    }
+    userRepository.save(user);
     redisStrategy.setValue(user.getEmailCheckToken(), String.valueOf(user.getId()),
         emailValidityInSeconds);
     emailStrategy.sendMessage(user.getEmail(), user.getEmailCheckToken());
-    return true;
+
   }
 
   private boolean isNicknameDuplicate(String nickname) {
@@ -65,7 +66,6 @@ public class UserServiceImpl implements UserService {
   public boolean checkEmailToken(String token, String email) {
     int id = Integer.parseInt(redisStrategy.getValue(token));
     User user = userRepository.findByEmail(email);
-
     if (user.getId() != id) {
       return false;
     }
