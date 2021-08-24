@@ -42,6 +42,9 @@ dependencies {
 
 	implementation group: 'org.springframework.boot', name: 'spring-boot-starter-data-redis', version: '2.5.3'
 
+	implementation 'io.jsonwebtoken:jjwt-api:0.10.7'
+	implementation 'io.jsonwebtoken:jjwt-impl:0.10.7'
+	implementation 'io.jsonwebtoken:jjwt-jackson:0.10.7'
 }
 
 test {

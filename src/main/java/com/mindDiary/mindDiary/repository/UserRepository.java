@@ -13,4 +13,6 @@ public interface UserRepository {
   int save(User user);
 
   void updateRole(User user);
+
+  User findById(int id);
 }

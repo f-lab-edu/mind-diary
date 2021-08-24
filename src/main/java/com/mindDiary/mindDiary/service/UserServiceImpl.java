@@ -1,11 +1,15 @@
 package com.mindDiary.mindDiary.service;
 
 import com.mindDiary.mindDiary.domain.User;
-import com.mindDiary.mindDiary.domain.UserRole;
+import com.mindDiary.mindDiary.dto.request.UserJoinRequestDTO;
+import com.mindDiary.mindDiary.dto.request.UserLoginRequestDTO;
+import com.mindDiary.mindDiary.dto.response.TokenResponseDTO;
 import com.mindDiary.mindDiary.repository.UserRepository;
-import com.mindDiary.mindDiary.utils.RedisUtil;
-import java.util.UUID;
+import com.mindDiary.mindDiary.strategy.email.EmailStrategy;
+import com.mindDiary.mindDiary.strategy.jwt.TokenStrategy;
+import com.mindDiary.mindDiary.strategy.redis.RedisStrategy;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -15,51 +19,104 @@ public class UserServiceImpl implements UserService {
 
   private final UserRepository userRepository;
   private final PasswordEncoder passwordEncoder;
-  private final RedisUtil redisUtil;
-  private final EmailService emailService;
+  private final RedisStrategy redisStrategy;
+  private final EmailStrategy emailStrategy;
+  private final TokenStrategy tokenStrategy;
 
-  /**
-   * 회원 가입 로직
-   * 사용자의 패스워드 암호화 - bcrypt( 자동으로 salt 생성해줌 )
-   * 사용자가 회원가입을 한다. (회원가입을 한 사용자의 권한은 0 (not_permitted))
-   * 캐시에 {이메일 토큰 : user_id } 저장
-   * 회원가입 완료와 동시에 사용자에게 인증 메일을 보낸다 ( GET /check-email-token )
-   * 사용자는 메일로 받은 링크를 클릭하면 권한을 user로 변경한다.
-   * */
+  @Value("${jwt.refresh-token-validity-in-seconds}")
+  private long refreshTokenValidityInSeconds;
+
+  @Value("${mailInfo.email-validity-in-seconds}")
+  private long emailValidityInSeconds;
+
   @Override
-  public void join(User user) {
+  public boolean join(UserJoinRequestDTO userJoinRequestDTO) {
 
-    user.setPassword(passwordEncoder.encode(user.getPassword()));
-    user.setRole(UserRole.ROLE_NOT_PERMITTED.getRole());
+    if (isEmailDuplicate(userJoinRequestDTO.getEmail())) {
+      return false;
+    }
 
-    userRepository.save(user);
+    if (isNicknameDuplicate(userJoinRequestDTO.getNickname())) {
+      return false;
+    }
 
-    user.createEmailCheckToken();
+    userJoinRequestDTO.changePassword(passwordEncoder);
+    User user = User.createUser(userJoinRequestDTO);
 
-    redisUtil.setValueExpire(user.getEmailCheckToken(), String.valueOf(user.getId()), 60 * 30L);
+    int id = userRepository.save(user);
+    if (id == 0) {
+      return false;
+    }
+    redisStrategy.setValueExpire(user.getEmailCheckToken(), String.valueOf(user.getId()),
+        emailValidityInSeconds);
+    emailStrategy.sendMessage(user.getEmail(), user.getEmailCheckToken());
+    return true;
+  }
 
-    emailService.sendMessage(user.getEmail(),user.getEmailCheckToken());
+  private boolean isNicknameDuplicate(String nickname) {
+    return userRepository.findByNickname(nickname) != null;
+  }
+
+  private boolean isEmailDuplicate(String email) {
+    return userRepository.findByEmail(email) != null;
   }
 
   @Override
   public boolean checkEmailToken(String token, String email) {
-    int id = Integer.parseInt(redisUtil.getValueData(token));
+    int id = Integer.parseInt(redisStrategy.getValueData(token));
     User user = userRepository.findByEmail(email);
 
     if (user.getId() != id) {
       return false;
     }
-    redisUtil.deleteValue(token);
-    user.setRole(UserRole.ROLE_USER.getRole());
+    redisStrategy.deleteValue(token);
+    user.changeRoleUser();
     userRepository.updateRole(user);
     return true;
   }
 
-  public boolean isEmailDuplicate(String email) {
-    return userRepository.findByEmail(email) != null;
+  @Override
+  public TokenResponseDTO login(UserLoginRequestDTO userLoginRequestDTO) {
+    User user = userRepository.findByEmail(userLoginRequestDTO.getEmail());
+    if (user == null) {
+      return null;
+    }
+
+    if (!passwordEncoder.matches(userLoginRequestDTO.getPassword(), user.getPassword())) {
+      return null;
+    }
+
+    TokenResponseDTO tokenResponseDTO = user.createToken(tokenStrategy);
+
+    redisStrategy.setValueExpire(tokenResponseDTO.getRefreshToken(), String.valueOf(user.getId()),refreshTokenValidityInSeconds);
+    return tokenResponseDTO;
   }
 
-  public boolean isNicknameDuplicate(String nickname) {
-    return userRepository.findByNickname(nickname) != null;
+  @Override
+  public TokenResponseDTO refresh(String originToken) {
+
+    if (!tokenStrategy.validateToken(originToken)) {
+      return null;
+    }
+
+    String idTakenFromCache = redisStrategy.getValueData(originToken);
+    int id = Integer.parseInt(idTakenFromCache);
+
+    if (id != tokenStrategy.getUserId(originToken)) {
+      return null;
+    }
+
+
+    User user = userRepository.findById(id);
+    TokenResponseDTO tokenResponseDTO = user.createToken(tokenStrategy);
+
+    redisStrategy.deleteValue(originToken);
+
+    redisStrategy.setValueExpire(tokenResponseDTO.getRefreshToken(), String.valueOf(user.getId()),
+        refreshTokenValidityInSeconds);
+    return tokenResponseDTO;
+
   }
+
+
 }
