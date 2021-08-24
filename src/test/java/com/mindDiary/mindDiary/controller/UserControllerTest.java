@@ -89,41 +89,7 @@ public class UserControllerTest {
     TokenResponseDTO tokenResponseDTO = new TokenResponseDTO(ACCESS_TOKEN, REFRESH_TOKEN);
     return tokenResponseDTO;
   }
-
-  @Test
-  @DisplayName("회원가입 실패 : 중복 유저")
-  public void joinFailByEmail() throws Exception {
-    String content = objectMapper.writeValueAsString(getUserJoinRequestDTO());
-
-    doReturn(false).when(userService).join(any(UserJoinRequestDTO.class));
-
-    ResultActions resultActions = mockMvc
-        .perform(post(JOIN_URL)
-            .content(content)
-            .contentType(MediaType.APPLICATION_JSON));
-
-    resultActions.andDo(print()).andExpect(status().isConflict());
-  }
-
-  @Test
-  @DisplayName("회원가입 성공")
-  public void join() throws Exception {
-    UserJoinRequestDTO userJoinRequestDTO = getUserJoinRequestDTO();
-    String content = objectMapper.writeValueAsString(userJoinRequestDTO);
-
-    doReturn(true).when(userService).join(any(UserJoinRequestDTO.class));
-
-    ResultActions resultActions = mockMvc
-        .perform(post(JOIN_URL)
-            .content(content)
-            .contentType(MediaType.APPLICATION_JSON))
-        .andExpect(result -> {
-          MockHttpServletResponse response = result.getResponse();
-          log.info(response.getContentAsString());
-        });
-
-    resultActions.andExpect(status().isOk()).andDo(print());
-  }
+  
 
   @Test
   @DisplayName("인증 메일 전송 성공 : 입력값 정상")

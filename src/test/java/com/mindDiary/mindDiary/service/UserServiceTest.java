@@ -1,15 +1,20 @@
 package com.mindDiary.mindDiary.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 import com.mindDiary.mindDiary.domain.User;
 import com.mindDiary.mindDiary.domain.UserRole;
 import com.mindDiary.mindDiary.dto.request.UserJoinRequestDTO;
 import com.mindDiary.mindDiary.dto.request.UserLoginRequestDTO;
 import com.mindDiary.mindDiary.dto.response.TokenResponseDTO;
+import com.mindDiary.mindDiary.exception.EmailDuplicatedException;
+import com.mindDiary.mindDiary.exception.NicknameDuplicatedException;
 import com.mindDiary.mindDiary.repository.UserRepository;
 import com.mindDiary.mindDiary.strategy.email.EmailStrategy;
 import com.mindDiary.mindDiary.strategy.jwt.TokenStrategy;
@@ -89,38 +94,46 @@ public class UserServiceTest {
   @Test
   @DisplayName("회원가입 성공")
   public void join() {
-    /*
-    doReturn(null).when(userRepository).findByEmail(EMAIL);
-    doReturn(null).when(userRepository).findByNickname(NICKNAME);
-    doReturn(1).when(userRepository).save(any(User.class));
 
-    assertThat(userService.join(getUserJoinRequestDTO())).isTrue();
+    User user = getUser();
 
-     */
+    doReturn(null).when(userRepository).findByEmail(user.getEmail());
+    doReturn(null).when(userRepository).findByNickname(user.getNickname());
+    doNothing().when(userRepository).save(any(User.class));
+
+    userService.join(getUserJoinRequestDTO());
+
+    verify(userRepository, times(1)).save(any(User.class));
+
   }
 
   @Test
   @DisplayName("회원가입 실패 : 이메일 중복")
   public void joinFailByEmailDuplicate() {
-    /*
+
     User user = getUser();
-    doReturn(user).when(userRepository).findByEmail(EMAIL);
+    UserJoinRequestDTO userJoinRequestDTO = getUserJoinRequestDTO();
 
-    assertThat(userService.join(getUserJoinRequestDTO())).isFalse();
+    doReturn(user).when(userRepository).findByEmail(user.getEmail());
 
-     */
+    assertThatThrownBy(() -> {
+      userService.join(userJoinRequestDTO);
+    }).isInstanceOf(EmailDuplicatedException.class);
   }
 
   @Test
   @DisplayName("회원가입 실패 : 닉네임 중복")
   public void joinFailByNicknameDuplicate() {
-    /*
+
     User user = getUser();
+    UserJoinRequestDTO userJoinRequestDTO = getUserJoinRequestDTO();
+
     doReturn(null).when(userRepository).findByEmail(EMAIL);
     doReturn(user).when(userRepository).findByNickname(NICKNAME);
 
-    assertThat(userService.join(getUserJoinRequestDTO())).isFalse();
-     */
+    assertThatThrownBy(() -> {
+      userService.join(userJoinRequestDTO);
+    }).isInstanceOf(NicknameDuplicatedException.class);
   }
 
   @Test
