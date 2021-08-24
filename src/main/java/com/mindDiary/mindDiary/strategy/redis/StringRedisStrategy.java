@@ -11,15 +11,15 @@ public class StringRedisStrategy implements RedisStrategy {
   @Autowired
   private StringRedisTemplate redisTemplate;
 
-  public void setValudData(String key, String value) {
+  public void setValue(String key, String value) {
     redisTemplate.opsForValue().set(key, value);
   }
 
-  public String getValueData(String key) {
+  public String getValue(String key) {
     return redisTemplate.opsForValue().get(key);
   }
 
-  public void setValueExpire(String key, String value, long duration) {
+  public void setValue(String key, String value, long duration) {
     Duration expireDuration = Duration.ofSeconds(duration);
     redisTemplate.opsForValue().set(key,value,expireDuration);
   }

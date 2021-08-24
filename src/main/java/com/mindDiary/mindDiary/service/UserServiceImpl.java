@@ -47,7 +47,7 @@ public class UserServiceImpl implements UserService {
     if (id == 0) {
       return false;
     }
-    redisStrategy.setValueExpire(user.getEmailCheckToken(), String.valueOf(user.getId()),
+    redisStrategy.setValue(user.getEmailCheckToken(), String.valueOf(user.getId()),
         emailValidityInSeconds);
     emailStrategy.sendMessage(user.getEmail(), user.getEmailCheckToken());
     return true;
@@ -63,7 +63,7 @@ public class UserServiceImpl implements UserService {
 
   @Override
   public boolean checkEmailToken(String token, String email) {
-    int id = Integer.parseInt(redisStrategy.getValueData(token));
+    int id = Integer.parseInt(redisStrategy.getValue(token));
     User user = userRepository.findByEmail(email);
 
     if (user.getId() != id) {
@@ -88,7 +88,7 @@ public class UserServiceImpl implements UserService {
 
     TokenResponseDTO tokenResponseDTO = user.createToken(tokenStrategy);
 
-    redisStrategy.setValueExpire(tokenResponseDTO.getRefreshToken(), String.valueOf(user.getId()),refreshTokenValidityInSeconds);
+    redisStrategy.setValue(tokenResponseDTO.getRefreshToken(), String.valueOf(user.getId()),refreshTokenValidityInSeconds);
     return tokenResponseDTO;
   }
 
@@ -99,7 +99,7 @@ public class UserServiceImpl implements UserService {
       return null;
     }
 
-    String idTakenFromCache = redisStrategy.getValueData(originToken);
+    String idTakenFromCache = redisStrategy.getValue(originToken);
     int id = Integer.parseInt(idTakenFromCache);
 
     if (id != tokenStrategy.getUserId(originToken)) {
@@ -112,7 +112,7 @@ public class UserServiceImpl implements UserService {
 
     redisStrategy.deleteValue(originToken);
 
-    redisStrategy.setValueExpire(tokenResponseDTO.getRefreshToken(), String.valueOf(user.getId()),
+    redisStrategy.setValue(tokenResponseDTO.getRefreshToken(), String.valueOf(user.getId()),
         refreshTokenValidityInSeconds);
     return tokenResponseDTO;
 

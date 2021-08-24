@@ -118,7 +118,7 @@ public class UserServiceTest {
   @DisplayName("이메일 인증 확인")
   public void checkEmailTokenSuccess() {
     User user = getUser();
-    doReturn("1").when(redisStrategy).getValueData(EMAIL_TOKEN);
+    doReturn("1").when(redisStrategy).getValue(EMAIL_TOKEN);
     doReturn(user).when(userRepository).findByEmail(EMAIL);
     doNothing().when(userRepository).updateRole(user);
 
@@ -129,7 +129,7 @@ public class UserServiceTest {
   @DisplayName("이메일 인증 실패")
   public void checkEmailTokenFail() {
     User user = getUser();
-    doReturn("110").when(redisStrategy).getValueData(EMAIL_TOKEN);
+    doReturn("110").when(redisStrategy).getValue(EMAIL_TOKEN);
     doReturn(user).when(userRepository).findByEmail(EMAIL);
 
     assertThat(userService.checkEmailToken(EMAIL_TOKEN, EMAIL)).isFalse();
@@ -179,7 +179,7 @@ public class UserServiceTest {
 
     doReturn(true).when(tokenStrategy).validateToken(REFRESH_TOKEN);
 
-    doReturn(String.valueOf(USER_ID)).when(redisStrategy).getValueData(REFRESH_TOKEN);
+    doReturn(String.valueOf(USER_ID)).when(redisStrategy).getValue(REFRESH_TOKEN);
 
     doReturn(USER_ID).when(tokenStrategy).getUserId(REFRESH_TOKEN);
 
@@ -205,7 +205,7 @@ public class UserServiceTest {
   public void refreshFailByCache() {
     doReturn(true).when(tokenStrategy).validateToken(REFRESH_TOKEN);
 
-    doReturn(String.valueOf(USER_ID)).when(redisStrategy).getValueData(REFRESH_TOKEN);
+    doReturn(String.valueOf(USER_ID)).when(redisStrategy).getValue(REFRESH_TOKEN);
     doReturn(USER_ID - 1).when(tokenStrategy).getUserId(REFRESH_TOKEN);
 
 
