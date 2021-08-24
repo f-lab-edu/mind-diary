@@ -50,10 +50,6 @@ public class UserController {
 
     TokenResponseDTO tokenResponseDTO = userService.login(userLoginRequestDTO);
 
-    if (tokenResponseDTO == null) {
-      return new ResponseEntity(HttpStatus.BAD_REQUEST);
-    }
-
     Cookie cookie = tokenResponseDTO.createRefreshTokenCookie(cookieStrategy);
     httpServletResponse.addCookie(cookie);
 

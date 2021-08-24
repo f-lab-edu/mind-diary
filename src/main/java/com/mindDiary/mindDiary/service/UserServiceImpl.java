@@ -7,6 +7,7 @@ import com.mindDiary.mindDiary.dto.response.TokenResponseDTO;
 import com.mindDiary.mindDiary.exception.EmailDuplicatedException;
 import com.mindDiary.mindDiary.exception.NicknameDuplicatedException;
 import com.mindDiary.mindDiary.exception.InvalidEmailTokenException;
+import com.mindDiary.mindDiary.exception.NotMatchedPasswordException;
 import com.mindDiary.mindDiary.repository.UserRepository;
 import com.mindDiary.mindDiary.strategy.email.EmailStrategy;
 import com.mindDiary.mindDiary.strategy.jwt.TokenStrategy;
@@ -78,12 +79,9 @@ public class UserServiceImpl implements UserService {
   @Override
   public TokenResponseDTO login(UserLoginRequestDTO userLoginRequestDTO) {
     User user = userRepository.findByEmail(userLoginRequestDTO.getEmail());
-    if (user == null) {
-      return null;
-    }
 
     if (!passwordEncoder.matches(userLoginRequestDTO.getPassword(), user.getPassword())) {
-      return null;
+      throw new NotMatchedPasswordException();
     }
 
     TokenResponseDTO tokenResponseDTO = user.createToken(tokenStrategy);

@@ -91,44 +91,4 @@ public class UserControllerTest {
     return tokenResponseDTO;
   }
 
-
-  @Test
-  @DisplayName("로그인 성공")
-  public void loginSuccess() throws Exception {
-    UserLoginRequestDTO userLoginRequestDTO = getUserLoginRequestDTO();
-    Cookie cookie = getCookie();
-    String name = cookie.getName();
-    String content = objectMapper.writeValueAsString(userLoginRequestDTO);
-
-    TokenResponseDTO tokenResponseDTO = getTokenResponseDTO();
-
-    doReturn(tokenResponseDTO).when(userService).login(any(UserLoginRequestDTO.class));
-    doReturn(cookie).when(cookieStrategy).createRefreshTokenCookie(tokenResponseDTO.getRefreshToken());
-
-    ResultActions resultActions = mockMvc
-        .perform(post(LOGIN_URL)
-            .content(content)
-            .contentType(MediaType.APPLICATION_JSON));
-
-    resultActions.andDo(print()).andExpect(status().isOk()).andExpect(cookie().exists(name));
-  }
-
-
-
-  @Test
-  @DisplayName("로그인 실패")
-  public void loginFailByUserNotExist() throws Exception {
-    UserLoginRequestDTO userLoginRequestDTO = getUserLoginRequestDTO();
-    String content = objectMapper.writeValueAsString(userLoginRequestDTO);
-
-    doReturn(null).when(userService).login(any(UserLoginRequestDTO.class));
-
-    ResultActions resultActions = mockMvc
-        .perform(post(LOGIN_URL)
-            .content(content)
-            .contentType(MediaType.APPLICATION_JSON));
-
-    resultActions.andDo(print()).andExpect(status().isBadRequest());
-  }
-
 }

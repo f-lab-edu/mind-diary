@@ -16,6 +16,7 @@ import com.mindDiary.mindDiary.dto.response.TokenResponseDTO;
 import com.mindDiary.mindDiary.exception.EmailDuplicatedException;
 import com.mindDiary.mindDiary.exception.InvalidEmailTokenException;
 import com.mindDiary.mindDiary.exception.NicknameDuplicatedException;
+import com.mindDiary.mindDiary.exception.NotMatchedPasswordException;
 import com.mindDiary.mindDiary.repository.UserRepository;
 import com.mindDiary.mindDiary.strategy.email.EmailStrategy;
 import com.mindDiary.mindDiary.strategy.jwt.TokenStrategy;
@@ -27,6 +28,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.dao.DataAccessException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 @Slf4j
@@ -182,15 +184,6 @@ public class UserServiceTest {
   }
 
   @Test
-  @DisplayName("로그인 실패 : 유저를 DB에서 찾지 못함")
-  public void loginFailByUserNotExists() {
-    UserLoginRequestDTO userLoginRequestDTO = getUserLoginRequestDTO();
-    doReturn(null).when(userRepository).findByEmail(EMAIL);
-
-    assertThat(userService.login(userLoginRequestDTO)).isNull();
-  }
-
-  @Test
   @DisplayName("로그인 실패 : 패스워드가 일치하지 않음")
   public void loginFail() {
     User user = getUser();
@@ -198,7 +191,9 @@ public class UserServiceTest {
     doReturn(user).when(userRepository).findByEmail(EMAIL);
     doReturn(false).when(passwordEncoder).matches(any(), any());
 
-    assertThat(userService.login(userLoginRequestDTO)).isNull();
+    assertThatThrownBy(() -> {
+      userService.login(userLoginRequestDTO);
+    }).isInstanceOf(NotMatchedPasswordException.class);
   }
 
 
