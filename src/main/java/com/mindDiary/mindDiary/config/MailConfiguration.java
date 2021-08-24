@@ -21,8 +21,8 @@ public class MailConfiguration {
     Properties properties = new Properties();
     properties.put("mail.smtp.auth", true);
     properties.put("mail.transport.protocol", "smtp");
+    properties.put("mail.smtp.auth", "true");
     properties.put("mail.smtp.starttls.enable", true);
-    properties.put("mail.smtp.starttls.required", true);
     properties.put("mail.debug", true);
 
     JavaMailSenderImpl mailSender = new JavaMailSenderImpl();

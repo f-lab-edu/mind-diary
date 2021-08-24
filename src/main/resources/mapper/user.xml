@@ -8,4 +8,15 @@
   <select id = "findByNickname" parameterType="String" resultType="com.mindDiary.mindDiary.domain.User">
     SELECT * FROM user WHERE nickname = #{nickname}
   </select>
+
+  <update id="save" useGeneratedKeys="true" keyProperty="id" parameterType="com.mindDiary.mindDiary.domain.User">
+    INSERT INTO user(email,nickname,password,role)
+    VALUES(#{email}, #{nickname}, #{password}, #{role})
+  </update>
+
+  <update id = "updateRole" parameterType="com.mindDiary.mindDiary.domain.User">
+    UPDATE user
+    SET role = #{role}
+    WHERE id = #{id}
+  </update>
 </mapper>

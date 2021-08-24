@@ -1,6 +1,9 @@
 package com.mindDiary.mindDiary.service;
 
-import static org.mockito.Mockito.when;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.doReturn;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -8,49 +11,90 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mindDiary.mindDiary.controller.UserController;
-import com.mindDiary.mindDiary.dto.request.UserJoinRequestDTO;
+import com.mindDiary.mindDiary.domain.User;
 import com.mindDiary.mindDiary.repository.UserRepository;
-import lombok.extern.slf4j.Slf4j;
+import com.mindDiary.mindDiary.utils.RedisUtil;
+import java.util.UUID;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.Spy;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.http.MediaType;
-import org.springframework.mock.web.MockHttpServletResponse;
-import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 @AutoConfigureMockMvc
 @SpringBootTest
 public class UserServiceTest {
 
-  @Autowired
-  private MockMvc mockMvc;
+  @InjectMocks
+  private UserServiceImpl userService;
+
+  @Mock
+  private UserRepository userRepository;
+
+  @Spy
+  private PasswordEncoder passwordEncoder;
 
   @Autowired
-  private ObjectMapper objectMapper;
+  private RedisUtil redisUtil;
 
   @Test
-  @DisplayName("회원가입 실패 : 중복 닉네임, 중복 이메일")
-  public void joinFail() throws Exception {
-    UserJoinRequestDTO userJoinRequestDTO = new UserJoinRequestDTO();
-    userJoinRequestDTO.setPassword("ssss");
-    userJoinRequestDTO.setEmail("meme@naver.com");
-    userJoinRequestDTO.setNickname("aaaaa");
+  @DisplayName("bcrypt 비밀번호 생성 및 매칭 테스트")
+  public void passwordEncoder() {
+    String encodePassword = passwordEncoder.encode("meme");
+    System.out.println(encodePassword);
 
-
-    String url = "/auth/join";
-    String content = objectMapper.writeValueAsString(userJoinRequestDTO);
-    mockMvc
-        .perform(post(url)
-            .content(content)
-            .contentType(MediaType.APPLICATION_JSON))
-            .andDo(print())
-            .andExpect(status().isConflict());
-
+    assertThat(passwordEncoder.matches("meme", encodePassword)).isTrue();
   }
+
+
+  @Test
+  @DisplayName("중복 이메일 확인")
+  void isEmailDuplicate() {
+    User user = new User();
+    user.setPassword("new");
+    user.setEmail("new@naver.com");
+    user.setNickname("구우");
+    doReturn(user).when(userRepository).findByEmail(user.getEmail());
+
+    boolean isDuplicated = userService.isEmailDuplicate(user.getEmail());
+
+    assertThat(isDuplicated).isTrue();
+  }
+
+  @Test
+  @DisplayName("중복 닉네임 확인")
+  void isNicknameDuplicate() {
+    User user = new User();
+    user.setPassword("new");
+    user.setEmail("new@naver.com");
+    user.setNickname("구우");
+    doReturn(user).when(userRepository).findByNickname(user.getNickname());
+
+    boolean isDuplicated = userService.isNicknameDuplicate(user.getNickname());
+
+    assertThat(isDuplicated).isTrue();
+  }
+
+
+  @Test
+  @DisplayName("redis 키 값 저장 테스트")
+  public void redisSetValue() {
+    String email = "meme@naver.com";
+    User user = new User();
+    user.setEmail(email);
+    String uuid = UUID.randomUUID().toString();
+
+    redisUtil.setValudData(uuid, user.getEmail());
+
+    assertThat(redisUtil.getValueData(uuid)).isEqualTo(email);
+  }
+
+
 }

@@ -1,11 +1,15 @@
 package com.mindDiary.mindDiary.service;
 
-import com.mindDiary.mindDiary.dto.request.UserJoinRequestDTO;
-import org.springframework.stereotype.Service;
+
+import com.mindDiary.mindDiary.domain.User;
 
 public interface UserService {
 
-  boolean isDuplicate(UserJoinRequestDTO userJoinRequestDTO);
+  boolean isEmailDuplicate(String email);
 
-  void join(UserJoinRequestDTO userJoinRequestDTO);
+  boolean isNicknameDuplicate(String nickname);
+
+  void join(User user);
+
+  boolean checkEmailToken(String token, String email);
 }
