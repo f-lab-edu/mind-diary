@@ -6,6 +6,7 @@ import com.mindDiary.mindDiary.dto.request.UserLoginRequestDTO;
 import com.mindDiary.mindDiary.dto.response.TokenResponseDTO;
 import com.mindDiary.mindDiary.exception.EmailDuplicatedException;
 import com.mindDiary.mindDiary.exception.NicknameDuplicatedException;
+import com.mindDiary.mindDiary.exception.InvalidEmailTokenException;
 import com.mindDiary.mindDiary.repository.UserRepository;
 import com.mindDiary.mindDiary.strategy.email.EmailStrategy;
 import com.mindDiary.mindDiary.strategy.jwt.TokenStrategy;
@@ -63,16 +64,15 @@ public class UserServiceImpl implements UserService {
   }
 
   @Override
-  public boolean checkEmailToken(String token, String email) {
+  public void checkEmailToken(String token, String email) {
     int id = Integer.parseInt(redisStrategy.getValue(token));
     User user = userRepository.findByEmail(email);
     if (user.getId() != id) {
-      return false;
+      throw new InvalidEmailTokenException();
     }
     redisStrategy.deleteValue(token);
     user.changeRoleUser();
     userRepository.updateRole(user);
-    return true;
   }
 
   @Override

@@ -39,10 +39,8 @@ public class UserController {
   @GetMapping("/check-email-token")
   public ResponseEntity checkEmailToken(@RequestParam(value = "token") String token,
       @RequestParam(value = "email") String email) {
-    boolean check = userService.checkEmailToken(token, email);
-    if (!check) {
-      return new ResponseEntity(HttpStatus.BAD_REQUEST);
-    }
+    userService.checkEmailToken(token, email);
+
     return new ResponseEntity(HttpStatus.OK);
   }
 

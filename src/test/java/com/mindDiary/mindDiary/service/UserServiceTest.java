@@ -14,6 +14,7 @@ import com.mindDiary.mindDiary.dto.request.UserJoinRequestDTO;
 import com.mindDiary.mindDiary.dto.request.UserLoginRequestDTO;
 import com.mindDiary.mindDiary.dto.response.TokenResponseDTO;
 import com.mindDiary.mindDiary.exception.EmailDuplicatedException;
+import com.mindDiary.mindDiary.exception.InvalidEmailTokenException;
 import com.mindDiary.mindDiary.exception.NicknameDuplicatedException;
 import com.mindDiary.mindDiary.repository.UserRepository;
 import com.mindDiary.mindDiary.strategy.email.EmailStrategy;
@@ -83,6 +84,7 @@ public class UserServiceTest {
     user.setEmail(EMAIL);
     user.setPassword(PASSWORD);
     user.setNickname(NICKNAME);
+    user.setEmailCheckToken(EMAIL_TOKEN);
     return user;
   }
 
@@ -139,13 +141,19 @@ public class UserServiceTest {
   @Test
   @DisplayName("이메일 인증 확인")
   public void checkEmailTokenSuccess() {
+
     User user = getUser();
+
     doReturn("1").when(redisStrategy).getValue(EMAIL_TOKEN);
     doReturn(user).when(userRepository).findByEmail(EMAIL);
     doNothing().when(userRepository).updateRole(user);
 
-    assertThat(userService.checkEmailToken(EMAIL_TOKEN, EMAIL)).isTrue();
+    userService.checkEmailToken(EMAIL_TOKEN, EMAIL);
+
+    verify(userRepository, times(1)).findByEmail(EMAIL);
+    verify(userRepository, times(1)).updateRole(user);
   }
+
 
   @Test
   @DisplayName("이메일 인증 실패")
@@ -154,7 +162,9 @@ public class UserServiceTest {
     doReturn("110").when(redisStrategy).getValue(EMAIL_TOKEN);
     doReturn(user).when(userRepository).findByEmail(EMAIL);
 
-    assertThat(userService.checkEmailToken(EMAIL_TOKEN, EMAIL)).isFalse();
+    assertThatThrownBy(() -> {
+      userService.checkEmailToken(EMAIL_TOKEN, EMAIL);
+    }).isInstanceOf(InvalidEmailTokenException.class);
   }
 
   @Test

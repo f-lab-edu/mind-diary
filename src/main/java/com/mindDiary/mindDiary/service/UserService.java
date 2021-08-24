@@ -9,7 +9,7 @@ public interface UserService {
 
   void join(UserJoinRequestDTO userJoinRequestDTO);
 
-  boolean checkEmailToken(String token, String email);
+  void checkEmailToken(String token, String email);
 
   TokenResponseDTO login(UserLoginRequestDTO userLoginRequestDTO);
 

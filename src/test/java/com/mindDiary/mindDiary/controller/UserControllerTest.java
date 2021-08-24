@@ -1,6 +1,7 @@
 package com.mindDiary.mindDiary.controller;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -89,38 +90,7 @@ public class UserControllerTest {
     TokenResponseDTO tokenResponseDTO = new TokenResponseDTO(ACCESS_TOKEN, REFRESH_TOKEN);
     return tokenResponseDTO;
   }
-  
 
-  @Test
-  @DisplayName("인증 메일 전송 성공 : 입력값 정상")
-  public void sendMailSuccess() throws Exception {
-    String token = "xxxx";
-    String email = "xxxx";
-    doReturn(true).when(userService).checkEmailToken(token, email);
-
-    ResultActions resultActions = mockMvc
-        .perform(get(CHECK_EMAIL_TOKEN_URL)
-            .param("token",token)
-            .param("email",email));
-
-    resultActions.andDo(print()).andExpect(status().isOk());
-  }
-
-  @Test
-  @DisplayName("인증 메일 전송 실패 : 입력값 오류")
-  public void sendMailFail() throws Exception {
-    String token = "xxxx";
-    String email = "xxxx";
-    doReturn(false).when(userService).checkEmailToken(token, email);
-
-    ResultActions resultActions = mockMvc
-        .perform(get(CHECK_EMAIL_TOKEN_URL)
-            .param("token",token)
-            .param("email",email));
-
-    resultActions.andDo(print()).andExpect(status().isBadRequest());
-
-  }
 
   @Test
   @DisplayName("로그인 성공")
