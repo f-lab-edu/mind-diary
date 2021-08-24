@@ -30,7 +30,7 @@ public class JwtStrategyTest {
   @DisplayName("access token으로 userRole 가져오는지 확인")
   public void getUserRoleByToken(int id, String role, String email) {
     String token = jwtUtil.createAccessToken(id,role,email);
-    assertThat(jwtUtil.getUserRole(token)).isSameAs(role);
+    assertThat(jwtUtil.getUserRole(token)).isEqualTo(role);
   }
 
   @ParameterizedTest
