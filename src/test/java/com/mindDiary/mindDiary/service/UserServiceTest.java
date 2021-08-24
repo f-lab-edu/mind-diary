@@ -16,6 +16,7 @@ import com.mindDiary.mindDiary.dto.response.TokenResponseDTO;
 import com.mindDiary.mindDiary.exception.EmailDuplicatedException;
 import com.mindDiary.mindDiary.exception.InvalidEmailTokenException;
 import com.mindDiary.mindDiary.exception.NicknameDuplicatedException;
+import com.mindDiary.mindDiary.exception.NotMatchedIdException;
 import com.mindDiary.mindDiary.exception.NotMatchedPasswordException;
 import com.mindDiary.mindDiary.repository.UserRepository;
 import com.mindDiary.mindDiary.strategy.email.EmailStrategy;
@@ -28,7 +29,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.dao.DataAccessException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 @Slf4j
@@ -220,24 +220,16 @@ public class UserServiceTest {
   }
 
   @Test
-  @DisplayName("토큰 재발급 실패 : 유효하지 않은 리프레시 토큰이 요청으로 들어옴")
-  public void refreshFailByUnvalidToken() {
-    doReturn(false).when(tokenStrategy).validateToken(REFRESH_TOKEN);
-
-    assertThat(userService.refresh(REFRESH_TOKEN)).isNull();
-  }
-
-  @Test
   @DisplayName("토큰 재발급 실패 : 요청으로 들어온 리프레시 토큰 캐시에 있는 리프레시 토큰과 일치하지 않음")
   public void refreshFailByCache() {
     doReturn(true).when(tokenStrategy).validateToken(REFRESH_TOKEN);
 
     doReturn(String.valueOf(USER_ID)).when(redisStrategy).getValue(REFRESH_TOKEN);
-    doReturn(USER_ID - 1).when(tokenStrategy).getUserId(REFRESH_TOKEN);
+    doReturn(1000).when(tokenStrategy).getUserId(REFRESH_TOKEN);
 
-
-    assertThat(userService.refresh(REFRESH_TOKEN)).isNull();
-
+    assertThatThrownBy(() -> {
+      userService.refresh(REFRESH_TOKEN);
+    }).isInstanceOf(NotMatchedIdException.class);
   }
 
 

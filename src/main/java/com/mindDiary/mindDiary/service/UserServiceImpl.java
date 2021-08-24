@@ -7,6 +7,7 @@ import com.mindDiary.mindDiary.dto.response.TokenResponseDTO;
 import com.mindDiary.mindDiary.exception.EmailDuplicatedException;
 import com.mindDiary.mindDiary.exception.NicknameDuplicatedException;
 import com.mindDiary.mindDiary.exception.InvalidEmailTokenException;
+import com.mindDiary.mindDiary.exception.NotMatchedIdException;
 import com.mindDiary.mindDiary.exception.NotMatchedPasswordException;
 import com.mindDiary.mindDiary.repository.UserRepository;
 import com.mindDiary.mindDiary.strategy.email.EmailStrategy;
@@ -93,15 +94,13 @@ public class UserServiceImpl implements UserService {
   @Override
   public TokenResponseDTO refresh(String originToken) {
 
-    if (!tokenStrategy.validateToken(originToken)) {
-      return null;
-    }
+    tokenStrategy.validateToken(originToken);
 
     String idTakenFromCache = redisStrategy.getValue(originToken);
     int id = Integer.parseInt(idTakenFromCache);
 
     if (id != tokenStrategy.getUserId(originToken)) {
-      return null;
+      throw new NotMatchedIdException();
     }
 
 

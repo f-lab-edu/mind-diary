@@ -15,4 +15,11 @@ public class ErrorResponseDTO {
     errorResponseDTO.setMessage(errorCode.getMessage());
     return errorResponseDTO;
   }
+
+  public static ErrorResponseDTO of(int status, String message) {
+    ErrorResponseDTO errorResponseDTO = new ErrorResponseDTO();
+    errorResponseDTO.setStatus(status);
+    errorResponseDTO.setMessage(message);
+    return errorResponseDTO;
+  }
 }

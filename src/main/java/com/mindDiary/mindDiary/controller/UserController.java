@@ -64,9 +64,6 @@ public class UserController {
     String refreshTokenTakenFromCookie = cookie.getValue();
 
     TokenResponseDTO tokenResponseDTO = userService.refresh(refreshTokenTakenFromCookie);
-    if (tokenResponseDTO == null) {
-      return new ResponseEntity(HttpStatus.FORBIDDEN);
-    }
 
     cookieStrategy.deleteRefreshTokenCookie(httpServletRequest, httpServletResponse);
 
