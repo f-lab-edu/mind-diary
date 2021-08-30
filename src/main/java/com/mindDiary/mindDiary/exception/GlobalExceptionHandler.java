@@ -1,6 +1,7 @@
 package com.mindDiary.mindDiary.exception;
 
-import io.jsonwebtoken.JwtException;
+import com.mindDiary.mindDiary.dto.ErrorResponseDTO;
+import com.mindDiary.mindDiary.exception.businessException.BusinessException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataAccessException;
 import org.springframework.http.HttpStatus;

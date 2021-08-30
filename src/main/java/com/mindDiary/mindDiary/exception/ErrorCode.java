@@ -18,11 +18,11 @@ public enum ErrorCode {
     this.message = message;
   }
 
-  int getStatus() {
+  public int getStatus() {
     return status;
   }
 
-  String getMessage() {
+  public String getMessage() {
     return message;
   }
 }

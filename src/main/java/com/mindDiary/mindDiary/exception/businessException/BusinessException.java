@@ -1,4 +1,6 @@
-package com.mindDiary.mindDiary.exception;
+package com.mindDiary.mindDiary.exception.businessException;
+
+import com.mindDiary.mindDiary.exception.ErrorCode;
 
 public class BusinessException extends RuntimeException {
 

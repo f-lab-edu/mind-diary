@@ -1,5 +1,6 @@
-package com.mindDiary.mindDiary.exception;
+package com.mindDiary.mindDiary.dto;
 
+import com.mindDiary.mindDiary.exception.ErrorCode;
 import lombok.Getter;
 import lombok.Setter;
 

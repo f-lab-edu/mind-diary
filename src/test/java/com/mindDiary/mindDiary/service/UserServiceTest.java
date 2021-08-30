@@ -12,11 +12,11 @@ import com.mindDiary.mindDiary.domain.User;
 import com.mindDiary.mindDiary.domain.UserRole;
 import com.mindDiary.mindDiary.dto.request.UserJoinRequestDTO;
 import com.mindDiary.mindDiary.dto.request.UserLoginRequestDTO;
-import com.mindDiary.mindDiary.exception.EmailDuplicatedException;
-import com.mindDiary.mindDiary.exception.InvalidEmailTokenException;
-import com.mindDiary.mindDiary.exception.NicknameDuplicatedException;
-import com.mindDiary.mindDiary.exception.NotMatchedIdException;
-import com.mindDiary.mindDiary.exception.NotMatchedPasswordException;
+import com.mindDiary.mindDiary.exception.businessException.EmailDuplicatedException;
+import com.mindDiary.mindDiary.exception.businessException.InvalidEmailTokenException;
+import com.mindDiary.mindDiary.exception.businessException.NicknameDuplicatedException;
+import com.mindDiary.mindDiary.exception.businessException.NotMatchedIdException;
+import com.mindDiary.mindDiary.exception.businessException.NotMatchedPasswordException;
 import com.mindDiary.mindDiary.repository.UserRepository;
 import com.mindDiary.mindDiary.strategy.email.EmailStrategy;
 import com.mindDiary.mindDiary.strategy.jwt.TokenStrategy;
@@ -230,5 +230,5 @@ public class UserServiceTest {
       userService.refresh(REFRESH_TOKEN);
     }).isInstanceOf(NotMatchedIdException.class);
   }
-  
+
 }
