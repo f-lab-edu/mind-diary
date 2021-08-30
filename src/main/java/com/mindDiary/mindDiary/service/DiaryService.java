@@ -1,14 +1,13 @@
 package com.mindDiary.mindDiary.service;
 
-import com.mindDiary.mindDiary.dto.request.DiaryUpdateRequestDTO;
-import com.mindDiary.mindDiary.dto.response.DiaryResponseDTO;
+import com.mindDiary.mindDiary.dto.DiaryDTO;
 import java.util.List;
 
 public interface DiaryService {
 
-  List<DiaryResponseDTO> readDiaries(int userId);
+  List<DiaryDTO> readDiaries(int userId);
 
-  DiaryResponseDTO readOneDiary(int userId);
+  DiaryDTO readOneDiary(int userId);
 
-  void updateDiary(DiaryUpdateRequestDTO diaryUpdateRequestDTO, int userId);
+  void updateDiary(DiaryDTO diaryDTO, int userId);
 }
