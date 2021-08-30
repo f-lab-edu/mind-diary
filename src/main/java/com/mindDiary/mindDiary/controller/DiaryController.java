@@ -1,6 +1,6 @@
 package com.mindDiary.mindDiary.controller;
 
-import com.mindDiary.mindDiary.dto.request.DiaryUpdateRequestDTO;
+import com.mindDiary.mindDiary.dto.DiaryDTO;
 import com.mindDiary.mindDiary.dto.response.DiaryResponseDTO;
 import com.mindDiary.mindDiary.service.DiaryService;
 import com.mindDiary.mindDiary.strategy.jwt.TokenStrategy;
@@ -34,10 +34,7 @@ public class DiaryController {
     tokenStrategy.validateToken(token);
     int userId = tokenStrategy.getUserId(token);
 
-    log.info(token);
-    log.info("userId : " + userId);
-
-    List<DiaryResponseDTO> diaries = diaryService.readDiaries(userId);
+    List<DiaryDTO> diaries = diaryService.readDiaries(userId);
 
     return new ResponseEntity(diaries, HttpStatus.OK);
   }
@@ -48,27 +45,19 @@ public class DiaryController {
 
     tokenStrategy.validateToken(token);
 
-    int userId = tokenStrategy.getUserId(token);
-
-    log.info(token);
-    log.info("userId : " + userId);
-
-    DiaryResponseDTO diary = diaryService.readOneDiary(userId);
+    DiaryDTO diary = diaryService.readOneDiary(diaryId);
     return new ResponseEntity(diary, HttpStatus.OK);
   }
 
   @PostMapping
   public ResponseEntity updateDiary(@RequestHeader(name = "Authorization") @Valid String token,
-      @RequestBody @Valid DiaryUpdateRequestDTO diaryUpdateRequestDTO) {
+      @RequestBody @Valid DiaryDTO diaryDTO) {
 
     tokenStrategy.validateToken(token);
 
     int userId = tokenStrategy.getUserId(token);
 
-    log.info(token);
-    log.info("userId : " + userId);
-
-    diaryService.updateDiary(diaryUpdateRequestDTO, userId);
+    diaryService.updateDiary(diaryDTO, userId);
     return new ResponseEntity(HttpStatus.OK);
   }
 }
