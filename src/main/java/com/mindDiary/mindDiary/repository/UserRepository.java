@@ -10,7 +10,7 @@ public interface UserRepository {
 
   User findByNickname(String nickname);
 
-  int save(User user);
+  void save(User user);
 
   void updateRole(User user);
 

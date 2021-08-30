@@ -1,7 +1,10 @@
 package com.mindDiary.mindDiary.strategy;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import com.mindDiary.mindDiary.exception.InvalidJwtException;
+import com.mindDiary.mindDiary.exception.NotMatchedPasswordException;
 import com.mindDiary.mindDiary.strategy.jwt.JwtStrategy;
 import io.jsonwebtoken.Jwts;
 import org.junit.jupiter.api.DisplayName;
@@ -47,6 +50,7 @@ public class JwtStrategyTest {
   public void validateTokenSuccess(int seconds) {
     String token1 = jwtUtil.createToken(Jwts.claims(), seconds);
     assertThat(jwtUtil.validateToken(token1)).isTrue();
+
   }
 
   @ParameterizedTest
@@ -54,7 +58,9 @@ public class JwtStrategyTest {
   @DisplayName("토큰 유효성 실패")
   public void validateTokenFail(int seconds) {
     String token2 = jwtUtil.createToken(Jwts.claims(), seconds);
-    assertThat(jwtUtil.validateToken(token2)).isFalse();
+    assertThatThrownBy(() -> {
+      jwtUtil.validateToken(token2);
+    }).isInstanceOf(InvalidJwtException.class);
   }
 
 }
