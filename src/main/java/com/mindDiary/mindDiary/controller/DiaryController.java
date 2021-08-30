@@ -1,7 +1,6 @@
 package com.mindDiary.mindDiary.controller;
 
 import com.mindDiary.mindDiary.dto.DiaryDTO;
-import com.mindDiary.mindDiary.dto.response.DiaryResponseDTO;
 import com.mindDiary.mindDiary.service.DiaryService;
 import com.mindDiary.mindDiary.strategy.jwt.TokenStrategy;
 import java.util.List;
@@ -28,7 +27,7 @@ public class DiaryController {
   private final DiaryService diaryService;
 
   @GetMapping
-  public ResponseEntity<List<DiaryResponseDTO>> readDiaries(
+  public ResponseEntity<List<DiaryDTO>> readDiaries(
       @RequestHeader(name = "Authorization") @Valid String token) {
 
     tokenStrategy.validateToken(token);

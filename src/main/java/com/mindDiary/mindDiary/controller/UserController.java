@@ -1,8 +1,7 @@
 package com.mindDiary.mindDiary.controller;
 
-import com.mindDiary.mindDiary.dto.request.UserJoinRequestDTO;
-import com.mindDiary.mindDiary.dto.request.UserLoginRequestDTO;
-import com.mindDiary.mindDiary.dto.response.TokenResponseDTO;
+import com.mindDiary.mindDiary.dto.TokenDTO;
+import com.mindDiary.mindDiary.dto.UserDTO;
 import com.mindDiary.mindDiary.service.UserService;
 import com.mindDiary.mindDiary.strategy.cookie.CookieStrategy;
 import javax.servlet.http.Cookie;
@@ -31,8 +30,8 @@ public class UserController {
 
 
   @PostMapping("/join")
-  public ResponseEntity join(@RequestBody @Valid UserJoinRequestDTO userJoinRequestDTO) {
-    userService.join(userJoinRequestDTO);
+  public ResponseEntity join(@RequestBody @Valid UserDTO userDTO) {
+    userService.join(userDTO);
     return new ResponseEntity(HttpStatus.OK);
   }
 
@@ -44,17 +43,19 @@ public class UserController {
     return new ResponseEntity(HttpStatus.OK);
   }
 
+
   @PostMapping("/login")
-  public ResponseEntity login(@RequestBody @Valid UserLoginRequestDTO userLoginRequestDTO,
+  public ResponseEntity login(@RequestBody @Valid UserDTO userDTO,
       HttpServletResponse httpServletResponse) {
 
-    TokenResponseDTO tokenResponseDTO = userService.login(userLoginRequestDTO);
+    TokenDTO tokenDTO = userService.login(userDTO);
 
-    Cookie cookie = tokenResponseDTO.createRefreshTokenCookie(cookieStrategy);
+    Cookie cookie = tokenDTO.createRefreshTokenCookie(cookieStrategy);
     httpServletResponse.addCookie(cookie);
 
-    return new ResponseEntity(tokenResponseDTO.createAccessTokenResponseDTO(), HttpStatus.OK);
+    return new ResponseEntity(tokenDTO.createAccessTokenDTO(), HttpStatus.OK);
   }
+
 
   @PostMapping("/refresh")
   public ResponseEntity updateToken(HttpServletRequest httpServletRequest,
@@ -63,14 +64,13 @@ public class UserController {
     Cookie cookie = cookieStrategy.getRefreshTokenCookie(httpServletRequest);
     String refreshTokenTakenFromCookie = cookie.getValue();
 
-    TokenResponseDTO tokenResponseDTO = userService.refresh(refreshTokenTakenFromCookie);
+    TokenDTO tokenDTO = userService.refresh(refreshTokenTakenFromCookie);
 
     cookieStrategy.deleteRefreshTokenCookie(httpServletRequest, httpServletResponse);
 
-    Cookie newCookie = tokenResponseDTO.createRefreshTokenCookie(cookieStrategy);
+    Cookie newCookie = tokenDTO.createRefreshTokenCookie(cookieStrategy);
     httpServletResponse.addCookie(newCookie);
 
-    return new ResponseEntity(tokenResponseDTO.createAccessTokenResponseDTO(), HttpStatus.OK);
+    return new ResponseEntity(tokenDTO.createAccessTokenDTO(), HttpStatus.OK);
   }
-
 }
