@@ -39,10 +39,8 @@ public class UserController {
   @GetMapping("/check-email-token")
   public ResponseEntity checkEmailToken(@RequestParam(value = "token") String token,
       @RequestParam(value = "email") String email) {
-    boolean check = userService.checkEmailToken(token, email);
-    if (!check) {
-      return new ResponseEntity(HttpStatus.BAD_REQUEST);
-    }
+    userService.checkEmailToken(token, email);
+
     return new ResponseEntity(HttpStatus.OK);
   }
 
@@ -51,10 +49,6 @@ public class UserController {
       HttpServletResponse httpServletResponse) {
 
     TokenResponseDTO tokenResponseDTO = userService.login(userLoginRequestDTO);
-
-    if (tokenResponseDTO == null) {
-      return new ResponseEntity(HttpStatus.BAD_REQUEST);
-    }
 
     Cookie cookie = tokenResponseDTO.createRefreshTokenCookie(cookieStrategy);
     httpServletResponse.addCookie(cookie);
@@ -70,9 +64,6 @@ public class UserController {
     String refreshTokenTakenFromCookie = cookie.getValue();
 
     TokenResponseDTO tokenResponseDTO = userService.refresh(refreshTokenTakenFromCookie);
-    if (tokenResponseDTO == null) {
-      return new ResponseEntity(HttpStatus.FORBIDDEN);
-    }
 
     cookieStrategy.deleteRefreshTokenCookie(httpServletRequest, httpServletResponse);
 

@@ -6,6 +6,9 @@ import com.mindDiary.mindDiary.dto.request.UserLoginRequestDTO;
 import com.mindDiary.mindDiary.dto.response.TokenResponseDTO;
 import com.mindDiary.mindDiary.exception.EmailDuplicatedException;
 import com.mindDiary.mindDiary.exception.NicknameDuplicatedException;
+import com.mindDiary.mindDiary.exception.InvalidEmailTokenException;
+import com.mindDiary.mindDiary.exception.NotMatchedIdException;
+import com.mindDiary.mindDiary.exception.NotMatchedPasswordException;
 import com.mindDiary.mindDiary.repository.UserRepository;
 import com.mindDiary.mindDiary.strategy.email.EmailStrategy;
 import com.mindDiary.mindDiary.strategy.jwt.TokenStrategy;
@@ -63,27 +66,23 @@ public class UserServiceImpl implements UserService {
   }
 
   @Override
-  public boolean checkEmailToken(String token, String email) {
+  public void checkEmailToken(String token, String email) {
     int id = Integer.parseInt(redisStrategy.getValue(token));
     User user = userRepository.findByEmail(email);
     if (user.getId() != id) {
-      return false;
+      throw new InvalidEmailTokenException();
     }
     redisStrategy.deleteValue(token);
     user.changeRoleUser();
     userRepository.updateRole(user);
-    return true;
   }
 
   @Override
   public TokenResponseDTO login(UserLoginRequestDTO userLoginRequestDTO) {
     User user = userRepository.findByEmail(userLoginRequestDTO.getEmail());
-    if (user == null) {
-      return null;
-    }
 
     if (!passwordEncoder.matches(userLoginRequestDTO.getPassword(), user.getPassword())) {
-      return null;
+      throw new NotMatchedPasswordException();
     }
 
     TokenResponseDTO tokenResponseDTO = user.createToken(tokenStrategy);
@@ -95,15 +94,13 @@ public class UserServiceImpl implements UserService {
   @Override
   public TokenResponseDTO refresh(String originToken) {
 
-    if (!tokenStrategy.validateToken(originToken)) {
-      return null;
-    }
+    tokenStrategy.validateToken(originToken);
 
     String idTakenFromCache = redisStrategy.getValue(originToken);
     int id = Integer.parseInt(idTakenFromCache);
 
     if (id != tokenStrategy.getUserId(originToken)) {
-      return null;
+      throw new NotMatchedIdException();
     }
 
 

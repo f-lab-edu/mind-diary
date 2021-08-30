@@ -1,5 +1,6 @@
 package com.mindDiary.mindDiary.exception;
 
+import io.jsonwebtoken.JwtException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataAccessException;
 import org.springframework.http.HttpStatus;
@@ -32,4 +33,11 @@ public class GlobalExceptionHandler {
     ErrorResponseDTO response = ErrorResponseDTO.of(errorCode);
     return new ResponseEntity<>(response, HttpStatus.valueOf(errorCode.getStatus()));
   }
+
+  @ExceptionHandler(InvalidJwtException.class)
+  protected ResponseEntity<ErrorResponseDTO> handleBusinessException(InvalidJwtException e) {
+    ErrorResponseDTO response = ErrorResponseDTO.of(HttpStatus.UNAUTHORIZED.value(), e.getMessage());
+    return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
+  }
+
 }

@@ -14,7 +14,10 @@ import com.mindDiary.mindDiary.dto.request.UserJoinRequestDTO;
 import com.mindDiary.mindDiary.dto.request.UserLoginRequestDTO;
 import com.mindDiary.mindDiary.dto.response.TokenResponseDTO;
 import com.mindDiary.mindDiary.exception.EmailDuplicatedException;
+import com.mindDiary.mindDiary.exception.InvalidEmailTokenException;
 import com.mindDiary.mindDiary.exception.NicknameDuplicatedException;
+import com.mindDiary.mindDiary.exception.NotMatchedIdException;
+import com.mindDiary.mindDiary.exception.NotMatchedPasswordException;
 import com.mindDiary.mindDiary.repository.UserRepository;
 import com.mindDiary.mindDiary.strategy.email.EmailStrategy;
 import com.mindDiary.mindDiary.strategy.jwt.TokenStrategy;
@@ -83,6 +86,7 @@ public class UserServiceTest {
     user.setEmail(EMAIL);
     user.setPassword(PASSWORD);
     user.setNickname(NICKNAME);
+    user.setEmailCheckToken(EMAIL_TOKEN);
     return user;
   }
 
@@ -139,13 +143,19 @@ public class UserServiceTest {
   @Test
   @DisplayName("이메일 인증 확인")
   public void checkEmailTokenSuccess() {
+
     User user = getUser();
+
     doReturn("1").when(redisStrategy).getValue(EMAIL_TOKEN);
     doReturn(user).when(userRepository).findByEmail(EMAIL);
     doNothing().when(userRepository).updateRole(user);
 
-    assertThat(userService.checkEmailToken(EMAIL_TOKEN, EMAIL)).isTrue();
+    userService.checkEmailToken(EMAIL_TOKEN, EMAIL);
+
+    verify(userRepository, times(1)).findByEmail(EMAIL);
+    verify(userRepository, times(1)).updateRole(user);
   }
+
 
   @Test
   @DisplayName("이메일 인증 실패")
@@ -154,7 +164,9 @@ public class UserServiceTest {
     doReturn("110").when(redisStrategy).getValue(EMAIL_TOKEN);
     doReturn(user).when(userRepository).findByEmail(EMAIL);
 
-    assertThat(userService.checkEmailToken(EMAIL_TOKEN, EMAIL)).isFalse();
+    assertThatThrownBy(() -> {
+      userService.checkEmailToken(EMAIL_TOKEN, EMAIL);
+    }).isInstanceOf(InvalidEmailTokenException.class);
   }
 
   @Test
@@ -172,15 +184,6 @@ public class UserServiceTest {
   }
 
   @Test
-  @DisplayName("로그인 실패 : 유저를 DB에서 찾지 못함")
-  public void loginFailByUserNotExists() {
-    UserLoginRequestDTO userLoginRequestDTO = getUserLoginRequestDTO();
-    doReturn(null).when(userRepository).findByEmail(EMAIL);
-
-    assertThat(userService.login(userLoginRequestDTO)).isNull();
-  }
-
-  @Test
   @DisplayName("로그인 실패 : 패스워드가 일치하지 않음")
   public void loginFail() {
     User user = getUser();
@@ -188,7 +191,9 @@ public class UserServiceTest {
     doReturn(user).when(userRepository).findByEmail(EMAIL);
     doReturn(false).when(passwordEncoder).matches(any(), any());
 
-    assertThat(userService.login(userLoginRequestDTO)).isNull();
+    assertThatThrownBy(() -> {
+      userService.login(userLoginRequestDTO);
+    }).isInstanceOf(NotMatchedPasswordException.class);
   }
 
 
@@ -215,24 +220,16 @@ public class UserServiceTest {
   }
 
   @Test
-  @DisplayName("토큰 재발급 실패 : 유효하지 않은 리프레시 토큰이 요청으로 들어옴")
-  public void refreshFailByUnvalidToken() {
-    doReturn(false).when(tokenStrategy).validateToken(REFRESH_TOKEN);
-
-    assertThat(userService.refresh(REFRESH_TOKEN)).isNull();
-  }
-
-  @Test
   @DisplayName("토큰 재발급 실패 : 요청으로 들어온 리프레시 토큰 캐시에 있는 리프레시 토큰과 일치하지 않음")
   public void refreshFailByCache() {
     doReturn(true).when(tokenStrategy).validateToken(REFRESH_TOKEN);
 
     doReturn(String.valueOf(USER_ID)).when(redisStrategy).getValue(REFRESH_TOKEN);
-    doReturn(USER_ID - 1).when(tokenStrategy).getUserId(REFRESH_TOKEN);
+    doReturn(1000).when(tokenStrategy).getUserId(REFRESH_TOKEN);
 
-
-    assertThat(userService.refresh(REFRESH_TOKEN)).isNull();
-
+    assertThatThrownBy(() -> {
+      userService.refresh(REFRESH_TOKEN);
+    }).isInstanceOf(NotMatchedIdException.class);
   }
 
 
