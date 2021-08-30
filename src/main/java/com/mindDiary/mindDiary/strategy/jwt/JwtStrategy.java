@@ -1,6 +1,6 @@
 package com.mindDiary.mindDiary.strategy.jwt;
 
-import com.mindDiary.mindDiary.domain.User;
+import com.mindDiary.mindDiary.exception.InvalidJwtException;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
@@ -34,13 +34,13 @@ public class JwtStrategy implements TokenStrategy {
 
 
   @Override
-  public String createAccessToken(int id, int role, String email) {
+  public String createAccessToken(int id, String role, String email) {
     Claims claims = Jwts.claims();
     claims.put("userId", id);
     claims.put("userRole", role);
     claims.put("userEmail", email);
 
-    return createToken( claims , refreshTokenValidityInSeconds);
+    return createToken( claims , accessTokenValidityInSeconds);
   }
 
 
@@ -77,8 +77,8 @@ public class JwtStrategy implements TokenStrategy {
     return extractAllClaims(token).get("userId",Integer.class);
   }
 
-  public Integer getUserRole(String token) {
-    return extractAllClaims(token).get("userRole",Integer.class);
+  public String getUserRole(String token) {
+    return extractAllClaims(token).get("userRole",String.class);
   }
 
   public String getUserEmail(String token) {
@@ -93,16 +93,16 @@ public class JwtStrategy implements TokenStrategy {
       return true;
     } catch (io.jsonwebtoken.security.SecurityException | MalformedJwtException e) {
       //잘못된 JWT 서명
-      return false;
+      throw new InvalidJwtException(e);
     } catch (ExpiredJwtException e) {
       //만료된 JWT 토큰
-      return false;
+      throw new InvalidJwtException(e);
     } catch (UnsupportedJwtException e) {
       //지원되지 않는 JWT 토큰
-      return false;
+      throw new InvalidJwtException(e);
     } catch (IllegalArgumentException e) {
       //JWT 토큰이 잘못되었습니다.
-      return false;
+      throw new InvalidJwtException(e);
     }
   }
 }

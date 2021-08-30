@@ -24,8 +24,8 @@ public class RedisStrategyTest {
     user.setEmail(email);
     String uuid = UUID.randomUUID().toString();
 
-    redisStrategy.setValudData(uuid, user.getEmail());
+    redisStrategy.setValue(uuid, user.getEmail());
 
-    assertThat(redisStrategy.getValueData(uuid)).isEqualTo(email);
+    assertThat(redisStrategy.getValue(uuid)).isEqualTo(email);
   }
 }

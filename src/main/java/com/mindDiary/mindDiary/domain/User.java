@@ -19,7 +19,7 @@ public class User {
 
   private String password;
 
-  private int role;
+  private String role;
 
   private String emailCheckToken;
 
