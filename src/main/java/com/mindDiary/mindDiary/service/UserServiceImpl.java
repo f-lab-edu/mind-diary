@@ -1,9 +1,7 @@
 package com.mindDiary.mindDiary.service;
 
-import com.mindDiary.mindDiary.domain.User;
-import com.mindDiary.mindDiary.dto.request.UserJoinRequestDTO;
-import com.mindDiary.mindDiary.dto.request.UserLoginRequestDTO;
-import com.mindDiary.mindDiary.dto.response.TokenResponseDTO;
+import com.mindDiary.mindDiary.dto.TokenDTO;
+import com.mindDiary.mindDiary.dto.UserDTO;
 import com.mindDiary.mindDiary.exception.EmailDuplicatedException;
 import com.mindDiary.mindDiary.exception.NicknameDuplicatedException;
 import com.mindDiary.mindDiary.exception.InvalidEmailTokenException;
@@ -36,26 +34,27 @@ public class UserServiceImpl implements UserService {
   @Value("${mailInfo.email-validity-in-seconds}")
   private long emailValidityInSeconds;
 
-  @Override
-  public void join(UserJoinRequestDTO userJoinRequestDTO) {
 
-    if (isEmailDuplicate(userJoinRequestDTO.getEmail())) {
+  @Override
+  public void join(UserDTO user) {
+
+    if (isEmailDuplicate(user.getEmail())) {
       throw new EmailDuplicatedException();
     }
 
-    if (isNicknameDuplicate(userJoinRequestDTO.getNickname())) {
+    if (isNicknameDuplicate(user.getNickname())) {
       throw new NicknameDuplicatedException();
     }
 
-    userJoinRequestDTO.changePassword(passwordEncoder);
-    User user = User.createUser(userJoinRequestDTO);
+    user.changeHashedPassword(passwordEncoder);
+    UserDTO newUser = UserDTO.createNotPermittedUserWithEmailToken(user);
 
-    userRepository.save(user);
-    redisStrategy.setValue(user.getEmailCheckToken(), String.valueOf(user.getId()),
+    userRepository.save(newUser);
+    redisStrategy.setValue(newUser.getEmailCheckToken(), String.valueOf(newUser.getId()),
         emailValidityInSeconds);
-    emailStrategy.sendMessage(user.getEmail(), user.getEmailCheckToken());
-
+    emailStrategy.sendMessage(newUser.getEmail(), newUser.getEmailCheckToken());
   }
+
 
   private boolean isNicknameDuplicate(String nickname) {
     return userRepository.findByNickname(nickname) != null;
@@ -68,7 +67,10 @@ public class UserServiceImpl implements UserService {
   @Override
   public void checkEmailToken(String token, String email) {
     int id = Integer.parseInt(redisStrategy.getValue(token));
-    User user = userRepository.findByEmail(email);
+    log.info("redis id : " + id);
+
+    UserDTO user = userRepository.findByEmail(email);
+    log.info("user id : " + user.getId());
     if (user.getId() != id) {
       throw new InvalidEmailTokenException();
     }
@@ -78,21 +80,23 @@ public class UserServiceImpl implements UserService {
   }
 
   @Override
-  public TokenResponseDTO login(UserLoginRequestDTO userLoginRequestDTO) {
-    User user = userRepository.findByEmail(userLoginRequestDTO.getEmail());
+  public TokenDTO login(UserDTO user) {
+    UserDTO findUser = userRepository.findByEmail(user.getEmail());
 
-    if (!passwordEncoder.matches(userLoginRequestDTO.getPassword(), user.getPassword())) {
+    if (!passwordEncoder.matches(user.getPassword(), findUser.getPassword())) {
       throw new NotMatchedPasswordException();
     }
 
-    TokenResponseDTO tokenResponseDTO = user.createToken(tokenStrategy);
-
-    redisStrategy.setValue(tokenResponseDTO.getRefreshToken(), String.valueOf(user.getId()),refreshTokenValidityInSeconds);
-    return tokenResponseDTO;
+    TokenDTO token = TokenDTO.createToken(findUser, tokenStrategy);
+    redisStrategy.setValue(token.getRefreshToken(), String.valueOf(findUser.getId()),
+        refreshTokenValidityInSeconds);
+    return token;
   }
 
+
+
   @Override
-  public TokenResponseDTO refresh(String originToken) {
+  public TokenDTO refresh(String originToken) {
 
     tokenStrategy.validateToken(originToken);
 
@@ -103,17 +107,14 @@ public class UserServiceImpl implements UserService {
       throw new NotMatchedIdException();
     }
 
+    UserDTO user = userRepository.findById(id);
 
-    User user = userRepository.findById(id);
-    TokenResponseDTO tokenResponseDTO = user.createToken(tokenStrategy);
-
+    TokenDTO token = TokenDTO.createToken(user, tokenStrategy);
     redisStrategy.deleteValue(originToken);
 
-    redisStrategy.setValue(tokenResponseDTO.getRefreshToken(), String.valueOf(user.getId()),
+    redisStrategy.setValue(token.getRefreshToken(), String.valueOf(user.getId()),
         refreshTokenValidityInSeconds);
-    return tokenResponseDTO;
-
+    return token;
   }
-
 
 }
