@@ -1,18 +1,17 @@
 package com.mindDiary.mindDiary.repository;
 
-import com.mindDiary.mindDiary.domain.User;
+import com.mindDiary.mindDiary.dto.UserDTO;
 import org.apache.ibatis.annotations.Mapper;
 
 @Mapper
 public interface UserRepository {
 
-  User findByEmail(String email);
+  UserDTO findByNickname(String nickname);
 
-  User findByNickname(String nickname);
+  UserDTO findByEmail(String email);
+  void save(UserDTO user);
 
-  void save(User user);
+  void updateRole(UserDTO user);
 
-  void updateRole(User user);
-
-  User findById(int id);
+  UserDTO findById(int id);
 }
