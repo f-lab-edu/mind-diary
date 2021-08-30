@@ -36,8 +36,8 @@ public class GlobalExceptionHandler {
 
   @ExceptionHandler(InvalidJwtException.class)
   protected ResponseEntity<ErrorResponseDTO> handleBusinessException(InvalidJwtException e) {
-    ErrorResponseDTO response = ErrorResponseDTO.of(HttpStatus.FORBIDDEN.value(), e.getMessage());
-    return new ResponseEntity<>(response, HttpStatus.FORBIDDEN);
+    ErrorResponseDTO response = ErrorResponseDTO.of(HttpStatus.UNAUTHORIZED.value(), e.getMessage());
+    return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
   }
 
 }
