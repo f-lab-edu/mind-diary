@@ -6,7 +6,7 @@ import javax.servlet.http.HttpServletResponse;
 
 public interface CookieStrategy {
 
-  Cookie createCookie(String key, String value);
+  Cookie createCookie(String key, String value, int duration);
 
   Cookie createRefreshTokenCookie(String value);
 
