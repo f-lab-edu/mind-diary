@@ -1,5 +1,6 @@
 package com.mindDiary.mindDiary.controller;
 
+import com.mindDiary.mindDiary.dto.AccessTokenDTO;
 import com.mindDiary.mindDiary.dto.TokenDTO;
 import com.mindDiary.mindDiary.dto.UserDTO;
 import com.mindDiary.mindDiary.service.UserService;
@@ -28,7 +29,6 @@ public class UserController {
   private final UserService userService;
   private final CookieStrategy cookieStrategy;
 
-
   @PostMapping("/join")
   public ResponseEntity join(@RequestBody @Valid UserDTO userDTO) {
     userService.join(userDTO);
@@ -50,10 +50,11 @@ public class UserController {
 
     TokenDTO tokenDTO = userService.login(userDTO);
 
-    Cookie cookie = tokenDTO.createRefreshTokenCookie(cookieStrategy);
+    Cookie cookie = cookieStrategy.createRefreshTokenCookie(tokenDTO.getRefreshToken());
     httpServletResponse.addCookie(cookie);
 
-    return new ResponseEntity(tokenDTO.createAccessTokenDTO(), HttpStatus.OK);
+    AccessTokenDTO accessTokenDTO = AccessTokenDTO.create(tokenDTO.getAccessToken());
+    return new ResponseEntity(accessTokenDTO, HttpStatus.OK);
   }
 
 
@@ -67,10 +68,10 @@ public class UserController {
     TokenDTO tokenDTO = userService.refresh(refreshTokenTakenFromCookie);
 
     cookieStrategy.deleteRefreshTokenCookie(httpServletRequest, httpServletResponse);
-
-    Cookie newCookie = tokenDTO.createRefreshTokenCookie(cookieStrategy);
+    Cookie newCookie = cookieStrategy.createRefreshTokenCookie(tokenDTO.getRefreshToken());
     httpServletResponse.addCookie(newCookie);
 
-    return new ResponseEntity(tokenDTO.createAccessTokenDTO(), HttpStatus.OK);
+    AccessTokenDTO accessTokenDTO = AccessTokenDTO.create(tokenDTO.getAccessToken());
+    return new ResponseEntity(accessTokenDTO, HttpStatus.OK);
   }
 }
