@@ -7,4 +7,10 @@ import lombok.Setter;
 @Setter
 public class AccessTokenDTO {
   String accessToken;
+
+  public static AccessTokenDTO create(String accessToken) {
+    AccessTokenDTO accessTokenDTO = new AccessTokenDTO();
+    accessTokenDTO.setAccessToken(accessToken);
+    return accessTokenDTO;
+  }
 }

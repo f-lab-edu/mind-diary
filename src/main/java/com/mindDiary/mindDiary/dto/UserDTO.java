@@ -3,10 +3,13 @@ package com.mindDiary.mindDiary.dto;
 import java.util.UUID;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotNull;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+@ToString
 @Getter
 @Setter
 public class UserDTO {

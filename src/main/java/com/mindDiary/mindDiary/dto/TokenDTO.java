@@ -3,9 +3,11 @@ package com.mindDiary.mindDiary.dto;
 import com.mindDiary.mindDiary.strategy.cookie.CookieStrategy;
 import com.mindDiary.mindDiary.strategy.jwt.TokenStrategy;
 import javax.servlet.http.Cookie;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 
+@EqualsAndHashCode
 @Getter
 @Setter
 public class TokenDTO {
@@ -13,27 +15,11 @@ public class TokenDTO {
   private String accessToken;
   private String refreshToken;
 
-  public static TokenDTO createToken(UserDTO userDTO, TokenStrategy tokenStrategy) {
-
-    String accessToken = tokenStrategy.createAccessToken(userDTO.getId(),
-        userDTO.getRole().toString(),
-        userDTO.getEmail());
-
-    String refreshToken = tokenStrategy.createRefreshToken(userDTO.getId());
-
+  public static TokenDTO create(UserDTO user, TokenStrategy tokenStrategy) {
     TokenDTO tokenDTO = new TokenDTO();
-    tokenDTO.setAccessToken(accessToken);
-    tokenDTO.setRefreshToken(refreshToken);
+    tokenDTO.setAccessToken(
+        tokenStrategy.createAccessToken(user.getId(), user.getRole().toString(), user.getEmail()));
+    tokenDTO.setRefreshToken(tokenStrategy.createRefreshToken(user.getId()));
     return tokenDTO;
-  }
-
-  public Cookie createRefreshTokenCookie(CookieStrategy cookieStrategy) {
-    return cookieStrategy.createRefreshTokenCookie(refreshToken);
-  }
-
-  public AccessTokenDTO createAccessTokenDTO() {
-    AccessTokenDTO accessTokenDTO = new AccessTokenDTO();
-    accessTokenDTO.setAccessToken(accessToken);
-    return accessTokenDTO;
   }
 }
