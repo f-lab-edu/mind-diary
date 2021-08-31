@@ -12,4 +12,8 @@ public interface UserService {
   TokenDTO login(UserDTO userDTO);
 
   TokenDTO refresh(String refreshTokenTakenFromCookie);
+
+  void isNicknameDuplicate(String nickname);
+
+  void isEmailDuplicate(String email);
 }
