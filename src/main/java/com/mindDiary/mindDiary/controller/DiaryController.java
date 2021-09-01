@@ -4,7 +4,6 @@ import com.mindDiary.mindDiary.annotation.LoginCheck;
 import com.mindDiary.mindDiary.annotation.LoginCheck.CheckLevel;
 import com.mindDiary.mindDiary.dto.DiaryDTO;
 import com.mindDiary.mindDiary.service.DiaryService;
-import com.mindDiary.mindDiary.strategy.jwt.TokenStrategy;
 import java.util.List;
 import javax.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -15,7 +14,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -29,8 +27,7 @@ public class DiaryController {
 
   @GetMapping
   @LoginCheck(checkLevel = CheckLevel.USER)
-  public ResponseEntity<List<DiaryDTO>> readDiaries(
-      Integer userId) {
+  public ResponseEntity<List<DiaryDTO>> readDiaries(Integer userId) {
 
     List<DiaryDTO> diaries = diaryService.readDiaries(userId);
 

@@ -5,12 +5,15 @@ import com.mindDiary.mindDiary.annotation.LoginCheck.CheckLevel;
 import com.mindDiary.mindDiary.dto.Role;
 import com.mindDiary.mindDiary.exception.businessException.PermissionDeniedException;
 import com.mindDiary.mindDiary.strategy.jwt.TokenStrategy;
+import java.lang.reflect.Method;
+import java.util.Arrays;
 import javax.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
+import org.aspectj.lang.reflect.MethodSignature;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.request.RequestContextHolder;
@@ -24,6 +27,7 @@ public class LoginCheckAspect {
 
   @Value("${jwt.header}")
   private String requestHeaderKey;
+  private static final String USER_ID = "userId";
 
   private final TokenStrategy tokenStrategy;
 
@@ -48,17 +52,26 @@ public class LoginCheckAspect {
       checkUser(role);
     }
 
-    Object[] modifiedArgs = modifyArgsWithUserID(tokenStrategy.getUserId(token), proceedingJoinPoint.getArgs());
+    Object[] modifiedArgs = modifyArgsWithUserID(tokenStrategy.getUserId(token),proceedingJoinPoint);
 
     return proceedingJoinPoint.proceed(modifiedArgs);
 
   }
 
-  private Object[] modifyArgsWithUserID(int id, Object[] args) {
-    if(args != null) {
-      args[args.length - 1] = id;
+  private Object[] modifyArgsWithUserID(int id, ProceedingJoinPoint proceedingJoinPoint) {
+    Object[] parameters = proceedingJoinPoint.getArgs();
+
+    MethodSignature signature = (MethodSignature) proceedingJoinPoint.getSignature();
+    Method method = signature.getMethod();
+
+    for (int i = 0; i < method.getParameters().length; i++) {
+      String parameterName = method.getParameters()[i].getName();
+      if (parameterName.equals(USER_ID)) {
+        parameters[i] = id;
+      }
     }
-    return args;
+
+    return parameters;
   }
 
   private void checkAdmin(String role) {
