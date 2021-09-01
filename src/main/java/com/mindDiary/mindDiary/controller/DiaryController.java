@@ -25,15 +25,12 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/diary")
 public class DiaryController {
 
-  private final TokenStrategy tokenStrategy;
   private final DiaryService diaryService;
 
   @GetMapping
   @LoginCheck(checkLevel = CheckLevel.USER)
   public ResponseEntity<List<DiaryDTO>> readDiaries(
-      @RequestHeader(name = "Authorization") @Valid String token) {
-
-    int userId = tokenStrategy.getUserId(token);
+      Integer userId) {
 
     List<DiaryDTO> diaries = diaryService.readDiaries(userId);
 
@@ -42,20 +39,14 @@ public class DiaryController {
 
   @GetMapping("/{diaryId}")
   @LoginCheck(checkLevel = CheckLevel.USER)
-  public ResponseEntity readOneDiary(@RequestHeader(name = "Authorization") @Valid String token,
-      @PathVariable("diaryId") @Valid int diaryId) {
-
+  public ResponseEntity readOneDiary(@PathVariable("diaryId") @Valid int diaryId) {
     DiaryDTO diary = diaryService.readOneDiary(diaryId);
     return new ResponseEntity(diary, HttpStatus.OK);
   }
 
   @PostMapping
   @LoginCheck(checkLevel = CheckLevel.USER)
-  public ResponseEntity updateDiary(@RequestHeader(name = "Authorization") @Valid String token,
-      @RequestBody @Valid DiaryDTO diaryDTO) {
-
-    int userId = tokenStrategy.getUserId(token);
-
+  public ResponseEntity updateDiary(@RequestBody @Valid DiaryDTO diaryDTO, Integer userId) {
     diaryService.updateDiary(diaryDTO, userId);
     return new ResponseEntity(HttpStatus.OK);
   }

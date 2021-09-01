@@ -8,9 +8,9 @@ import com.mindDiary.mindDiary.strategy.jwt.TokenStrategy;
 import javax.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.aspectj.lang.JoinPoint;
+import org.aspectj.lang.ProceedingJoinPoint;
+import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
-import org.aspectj.lang.annotation.Before;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.request.RequestContextHolder;
@@ -27,8 +27,9 @@ public class LoginCheckAspect {
 
   private final TokenStrategy tokenStrategy;
 
-  @Before("@annotation(loginCheck)")
-  public void loginCheck(JoinPoint joinPoint, LoginCheck loginCheck) {
+  @Around("@annotation(loginCheck)")
+  public Object loginCheck(ProceedingJoinPoint proceedingJoinPoint, LoginCheck loginCheck)
+      throws Throwable {
 
     ServletRequestAttributes requestAttributes =
         (ServletRequestAttributes) RequestContextHolder.currentRequestAttributes();
@@ -46,6 +47,13 @@ public class LoginCheckAspect {
     if (loginCheck.checkLevel() == CheckLevel.USER) {
       checkUser(role);
     }
+    int id = tokenStrategy.getUserId(token);
+
+    Object[] modifiedArgs = proceedingJoinPoint.getArgs();
+    if(proceedingJoinPoint.getArgs()!=null) {
+      modifiedArgs[modifiedArgs.length - 1] = id;
+    }
+    return proceedingJoinPoint.proceed(modifiedArgs);
 
   }
 
