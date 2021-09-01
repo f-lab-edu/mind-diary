@@ -47,14 +47,18 @@ public class LoginCheckAspect {
     if (loginCheck.checkLevel() == CheckLevel.USER) {
       checkUser(role);
     }
-    int id = tokenStrategy.getUserId(token);
 
-    Object[] modifiedArgs = proceedingJoinPoint.getArgs();
-    if(proceedingJoinPoint.getArgs()!=null) {
-      modifiedArgs[modifiedArgs.length - 1] = id;
-    }
+    Object[] modifiedArgs = modifyArgsWithUserID(tokenStrategy.getUserId(token), proceedingJoinPoint.getArgs());
+
     return proceedingJoinPoint.proceed(modifiedArgs);
 
+  }
+
+  private Object[] modifyArgsWithUserID(int id, Object[] args) {
+    if(args != null) {
+      args[args.length - 1] = id;
+    }
+    return args;
   }
 
   private void checkAdmin(String role) {
