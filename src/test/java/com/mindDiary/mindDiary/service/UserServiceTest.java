@@ -8,9 +8,9 @@ import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
+import com.mindDiary.mindDiary.dto.Role;
 import com.mindDiary.mindDiary.dto.TokenDTO;
 import com.mindDiary.mindDiary.dto.UserDTO;
-import com.mindDiary.mindDiary.dto.UserDTO.Role;
 import com.mindDiary.mindDiary.exception.businessException.EmailDuplicatedException;
 import com.mindDiary.mindDiary.exception.businessException.InvalidEmailTokenException;
 import com.mindDiary.mindDiary.exception.businessException.NicknameDuplicatedException;
@@ -20,7 +20,6 @@ import com.mindDiary.mindDiary.repository.UserRepository;
 import com.mindDiary.mindDiary.strategy.email.EmailStrategy;
 import com.mindDiary.mindDiary.strategy.jwt.TokenStrategy;
 import com.mindDiary.mindDiary.strategy.redis.RedisStrategy;
-import java.nio.channels.OverlappingFileLockException;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

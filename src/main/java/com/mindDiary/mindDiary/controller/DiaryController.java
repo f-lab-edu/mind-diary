@@ -1,5 +1,7 @@
 package com.mindDiary.mindDiary.controller;
 
+import com.mindDiary.mindDiary.annotation.LoginCheck;
+import com.mindDiary.mindDiary.annotation.LoginCheck.CheckLevel;
 import com.mindDiary.mindDiary.dto.DiaryDTO;
 import com.mindDiary.mindDiary.service.DiaryService;
 import com.mindDiary.mindDiary.strategy.jwt.TokenStrategy;
@@ -27,10 +29,10 @@ public class DiaryController {
   private final DiaryService diaryService;
 
   @GetMapping
+  @LoginCheck(checkLevel = CheckLevel.USER)
   public ResponseEntity<List<DiaryDTO>> readDiaries(
       @RequestHeader(name = "Authorization") @Valid String token) {
 
-    tokenStrategy.validateToken(token);
     int userId = tokenStrategy.getUserId(token);
 
     List<DiaryDTO> diaries = diaryService.readDiaries(userId);
@@ -39,20 +41,18 @@ public class DiaryController {
   }
 
   @GetMapping("/{diaryId}")
+  @LoginCheck(checkLevel = CheckLevel.USER)
   public ResponseEntity readOneDiary(@RequestHeader(name = "Authorization") @Valid String token,
       @PathVariable("diaryId") @Valid int diaryId) {
-
-    tokenStrategy.validateToken(token);
 
     DiaryDTO diary = diaryService.readOneDiary(diaryId);
     return new ResponseEntity(diary, HttpStatus.OK);
   }
 
   @PostMapping
+  @LoginCheck(checkLevel = CheckLevel.USER)
   public ResponseEntity updateDiary(@RequestHeader(name = "Authorization") @Valid String token,
       @RequestBody @Valid DiaryDTO diaryDTO) {
-
-    tokenStrategy.validateToken(token);
 
     int userId = tokenStrategy.getUserId(token);
 
