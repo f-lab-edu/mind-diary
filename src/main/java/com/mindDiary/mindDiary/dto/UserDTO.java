@@ -28,10 +28,6 @@ public class UserDTO {
 
   private String emailCheckToken;
 
-  public enum Role {
-    NOT_PERMITTED, USER, ADMIN;
-  }
-
   public static UserDTO createNotPermittedUserWithEmailToken(UserDTO userDTO) {
     UserDTO newUserDTO = new UserDTO();
     newUserDTO.setEmail(userDTO.getEmail());
