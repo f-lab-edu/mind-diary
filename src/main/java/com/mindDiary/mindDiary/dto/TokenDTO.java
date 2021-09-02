@@ -21,4 +21,8 @@ public class TokenDTO {
     tokenDTO.setRefreshToken(user.turnUserinfoToRefreshToken(tokenStrategy));
     return tokenDTO;
   }
+
+  public AccessTokenDTO turnAccessTokenIntoAccessTokenDTO() {
+    return AccessTokenDTO.create(accessToken);
+  }
 }
