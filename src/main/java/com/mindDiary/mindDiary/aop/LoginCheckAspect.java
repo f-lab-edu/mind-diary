@@ -1,15 +1,10 @@
 package com.mindDiary.mindDiary.aop;
 
 import com.mindDiary.mindDiary.annotation.LoginCheck;
-import com.mindDiary.mindDiary.annotation.LoginCheck.CheckLevel;
 import com.mindDiary.mindDiary.dto.Role;
 import com.mindDiary.mindDiary.exception.businessException.PermissionDeniedException;
 import com.mindDiary.mindDiary.strategy.jwt.TokenStrategy;
 import java.lang.reflect.Method;
-import java.util.Arrays;
-import java.util.stream.Collector;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 import javax.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -47,11 +42,11 @@ public class LoginCheckAspect {
     tokenStrategy.validateToken(token);
 
     String role = tokenStrategy.getUserRole(token);
-    if (loginCheck.checkLevel() == CheckLevel.ADMIN) {
+    if (loginCheck.checkLevel() == Role.ADMIN) {
       checkAdmin(role);
     }
 
-    if (loginCheck.checkLevel() == CheckLevel.USER) {
+    if (loginCheck.checkLevel() == Role.USER) {
       checkUser(role);
     }
 
