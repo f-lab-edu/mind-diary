@@ -50,7 +50,7 @@ public class UserController {
 
     TokenDTO tokenDTO = userService.login(userDTO);
 
-    Cookie cookie = cookieStrategy.createRefreshTokenCookie(tokenDTO.getRefreshToken());
+    Cookie cookie = tokenDTO.turnRefreshTokenInfoCookie(cookieStrategy);
     httpServletResponse.addCookie(cookie);
 
     AccessTokenDTO accessTokenDTO = tokenDTO.turnAccessTokenIntoAccessTokenDTO();
@@ -68,9 +68,9 @@ public class UserController {
     TokenDTO tokenDTO = userService.refresh(refreshTokenTakenFromCookie);
 
     cookieStrategy.deleteRefreshTokenCookie(httpServletRequest, httpServletResponse);
-    Cookie newCookie = cookieStrategy.createRefreshTokenCookie(tokenDTO.getRefreshToken());
+    Cookie newCookie = tokenDTO.turnRefreshTokenInfoCookie(cookieStrategy);
     httpServletResponse.addCookie(newCookie);
-    
+
     AccessTokenDTO accessTokenDTO = tokenDTO.turnAccessTokenIntoAccessTokenDTO();
     return new ResponseEntity(accessTokenDTO, HttpStatus.OK);
   }

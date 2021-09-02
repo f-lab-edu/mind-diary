@@ -25,4 +25,8 @@ public class TokenDTO {
   public AccessTokenDTO turnAccessTokenIntoAccessTokenDTO() {
     return AccessTokenDTO.create(accessToken);
   }
+
+  public Cookie turnRefreshTokenInfoCookie(CookieStrategy cookieStrategy) {
+    return cookieStrategy.createRefreshTokenCookie(refreshToken);
+  }
 }
