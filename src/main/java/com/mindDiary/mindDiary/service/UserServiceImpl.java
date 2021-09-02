@@ -35,7 +35,7 @@ public class UserServiceImpl implements UserService {
     isEmailDuplicate(user.getEmail());
 
     isNicknameDuplicate(user.getNickname());
-    
+
     UserDTO newUser = user.createNotPermittedUserWithEmailToken();
     newUser.changeHashedPassword(passwordEncoder);
 

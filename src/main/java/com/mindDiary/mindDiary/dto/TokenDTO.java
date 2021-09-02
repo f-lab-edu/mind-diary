@@ -17,9 +17,8 @@ public class TokenDTO {
 
   public static TokenDTO create(UserDTO user, TokenStrategy tokenStrategy) {
     TokenDTO tokenDTO = new TokenDTO();
-    tokenDTO.setAccessToken(
-        tokenStrategy.createAccessToken(user.getId(), user.getRole().toString(), user.getEmail()));
-    tokenDTO.setRefreshToken(tokenStrategy.createRefreshToken(user.getId()));
+    tokenDTO.setAccessToken(user.turnUserinfoToAccessToken(tokenStrategy));
+    tokenDTO.setRefreshToken(user.turnUserinfoToRefreshToken(tokenStrategy));
     return tokenDTO;
   }
 }

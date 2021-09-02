@@ -1,5 +1,6 @@
 package com.mindDiary.mindDiary.dto;
 
+import com.mindDiary.mindDiary.strategy.jwt.TokenStrategy;
 import java.util.UUID;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotNull;
@@ -44,5 +45,13 @@ public class UserDTO {
 
   public void changeRoleUser() {
     this.role = Role.USER;
+  }
+
+  public String turnUserinfoToAccessToken(TokenStrategy tokenStrategy) {
+    return tokenStrategy.createAccessToken(id, role.toString(), email);
+  }
+
+  public String turnUserinfoToRefreshToken(TokenStrategy tokenStrategy) {
+    return tokenStrategy.createRefreshToken(id);
   }
 }
