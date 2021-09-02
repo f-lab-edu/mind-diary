@@ -28,11 +28,11 @@ public class UserDTO {
 
   private String emailCheckToken;
 
-  public static UserDTO createNotPermittedUserWithEmailToken(UserDTO userDTO) {
+  public UserDTO createNotPermittedUserWithEmailToken() {
     UserDTO newUserDTO = new UserDTO();
-    newUserDTO.setEmail(userDTO.getEmail());
-    newUserDTO.setNickname(userDTO.getNickname());
-    newUserDTO.setPassword(userDTO.getPassword());
+    newUserDTO.setEmail(email);
+    newUserDTO.setNickname(nickname);
+    newUserDTO.setPassword(password);
     newUserDTO.setRole(Role.NOT_PERMITTED);
     newUserDTO.setEmailCheckToken(UUID.randomUUID().toString());
     return newUserDTO;
@@ -45,5 +45,4 @@ public class UserDTO {
   public void changeRoleUser() {
     this.role = Role.USER;
   }
-
 }

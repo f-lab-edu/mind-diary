@@ -106,7 +106,7 @@ public class UserServiceTest {
     doReturn(null).when(userRepository).findByEmail(user.getEmail());
     doReturn(null).when(userRepository).findByNickname(user.getNickname());
 
-    UserDTO newUser = UserDTO.createNotPermittedUserWithEmailToken(user);
+    UserDTO newUser = user.createNotPermittedUserWithEmailToken();
     newUser.changeHashedPassword(passwordEncoder);
 
     doNothing().when(userRepository).save(any(UserDTO.class));
