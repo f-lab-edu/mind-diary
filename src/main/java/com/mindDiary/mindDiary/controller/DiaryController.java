@@ -3,8 +3,12 @@ package com.mindDiary.mindDiary.controller;
 import com.mindDiary.mindDiary.annotation.LoginCheck;
 import com.mindDiary.mindDiary.dto.DiaryDTO;
 import com.mindDiary.mindDiary.dto.Role;
+import com.mindDiary.mindDiary.dto.request.CreateDiaryRequestDTO;
+import com.mindDiary.mindDiary.dto.response.DiaryReponseDTO;
+import com.mindDiary.mindDiary.entity.Diary;
 import com.mindDiary.mindDiary.service.DiaryService;
 import java.util.List;
+import java.util.stream.Collectors;
 import javax.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -27,24 +31,30 @@ public class DiaryController {
 
   @GetMapping
   @LoginCheck(checkLevel = Role.USER)
-  public ResponseEntity<List<DiaryDTO>> readDiaries(Integer userId) {
+  public ResponseEntity<List<DiaryReponseDTO>> readDiaries(Integer userId) {
 
-    List<DiaryDTO> diaries = diaryService.readDiaries(userId);
+    List<Diary> diaries = diaryService.readDiaries(userId);
 
-    return new ResponseEntity(diaries, HttpStatus.OK);
+    List<DiaryReponseDTO> diaryReponseDTOs
+        = diaries.stream()
+        .map(diary -> diary.turnIntoDiaryResponseDTO())
+        .collect(Collectors.toList());
+    return new ResponseEntity(diaryReponseDTOs, HttpStatus.OK);
   }
 
   @GetMapping("/{diaryId}")
   @LoginCheck(checkLevel = Role.USER)
   public ResponseEntity readOneDiary(@PathVariable("diaryId") @Valid int diaryId) {
-    DiaryDTO diary = diaryService.readOneDiary(diaryId);
-    return new ResponseEntity(diary, HttpStatus.OK);
+    Diary diary = diaryService.readOneDiary(diaryId);
+    DiaryReponseDTO diaryReponseDTO = diary.turnIntoDiaryResponseDTO();
+    return new ResponseEntity(diaryReponseDTO, HttpStatus.OK);
   }
 
   @PostMapping
   @LoginCheck(checkLevel = Role.USER)
-  public ResponseEntity updateDiary(@RequestBody @Valid DiaryDTO diaryDTO, Integer userId) {
-    diaryService.updateDiary(diaryDTO, userId);
+  public ResponseEntity createDiary(@RequestBody @Valid CreateDiaryRequestDTO createDiaryRequestDTO, Integer userId) {
+    Diary diary = createDiaryRequestDTO.turnIntoDiaryEntity();
+    diaryService.createDiary(diary, userId);
     return new ResponseEntity(HttpStatus.OK);
   }
 }
