@@ -2,26 +2,27 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.mindDiary.mindDiary.repository.UserRepository">
 
-  <update id="save" useGeneratedKeys="true" keyProperty="id" parameterType="com.mindDiary.mindDiary.dto.UserDTO">
+  <update id="save" useGeneratedKeys="true" keyProperty="id" parameterType="com.mindDiary.mindDiary.entity.User">
     INSERT INTO user(email,nickname,password,role)
     VALUES(#{email}, #{nickname}, #{password}, #{role})
   </update>
 
-  <select id = "findByEmail" parameterType="String" resultType="com.mindDiary.mindDiary.dto.UserDTO">
+  <select id = "findByEmail" parameterType="String" resultType="com.mindDiary.mindDiary.entity.User">
     SELECT * FROM user WHERE email = #{email}
   </select>
 
-  <select id = "findByNickname" parameterType="String" resultType="com.mindDiary.mindDiary.dto.UserDTO">
+  <select id = "findByNickname" parameterType="String" resultType="com.mindDiary.mindDiary.entity.User">
     SELECT * FROM user WHERE nickname = #{nickname}
   </select>
 
-  <update id = "updateRole" parameterType="com.mindDiary.mindDiary.dto.UserDTO">
+  <update id = "updateRole" parameterType="com.mindDiary.mindDiary.entity.User">
     UPDATE user
     SET role = #{role}
     WHERE id = #{id}
   </update>
 
-  <select id = "findById" parameterType="int" resultType="com.mindDiary.mindDiary.dto.UserDTO">
+  <select id = "findById" parameterType="int" resultType="com.mindDiary.mindDiary.entity.User">
     SELECT * FROM user WHERE id = #{id}
   </select>
+
 </mapper>
