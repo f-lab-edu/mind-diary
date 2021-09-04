@@ -1,4 +1,4 @@
-package com.mindDiary.mindDiary.dto;
+package com.mindDiary.mindDiary.entity;
 
 public enum Role {
   NOT_PERMITTED, USER, ADMIN;

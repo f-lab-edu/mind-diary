@@ -1,6 +1,5 @@
 package com.mindDiary.mindDiary.entity;
 
-import com.mindDiary.mindDiary.dto.Role;
 import com.mindDiary.mindDiary.strategy.jwt.TokenStrategy;
 import java.util.UUID;
 import lombok.Getter;

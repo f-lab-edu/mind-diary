@@ -8,9 +8,7 @@ import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
-import com.mindDiary.mindDiary.dto.Role;
-import com.mindDiary.mindDiary.dto.TokenDTO;
-import com.mindDiary.mindDiary.dto.UserDTO;
+import com.mindDiary.mindDiary.entity.Role;
 import com.mindDiary.mindDiary.exception.businessException.EmailDuplicatedException;
 import com.mindDiary.mindDiary.exception.businessException.InvalidEmailTokenException;
 import com.mindDiary.mindDiary.exception.businessException.NicknameDuplicatedException;

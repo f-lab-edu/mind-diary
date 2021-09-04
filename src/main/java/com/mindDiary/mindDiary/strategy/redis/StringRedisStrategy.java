@@ -1,7 +1,5 @@
 package com.mindDiary.mindDiary.strategy.redis;
 
-import com.mindDiary.mindDiary.dto.TokenDTO;
-import com.mindDiary.mindDiary.dto.UserDTO;
 import com.mindDiary.mindDiary.entity.Token;
 import com.mindDiary.mindDiary.entity.User;
 import com.mindDiary.mindDiary.exception.businessException.RedisAddValueException;

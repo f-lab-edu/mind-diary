@@ -1,7 +1,6 @@
 package com.mindDiary.mindDiary.entity;
 
-import com.mindDiary.mindDiary.dto.FeelingStatus;
-import com.mindDiary.mindDiary.dto.response.DiaryReponseDTO;
+import com.mindDiary.mindDiary.dto.response.DiaryResponseDTO;
 import java.time.LocalDateTime;
 import lombok.Getter;
 import lombok.Setter;
@@ -30,8 +29,8 @@ public class Diary {
     return diary;
   }
 
-  public DiaryReponseDTO turnIntoDiaryResponseDTO() {
-    return DiaryReponseDTO.create(id, createdAt, feelingStatus, title, content);
+  public DiaryResponseDTO turnIntoDiaryResponseDTO() {
+    return DiaryResponseDTO.create(id, createdAt, feelingStatus, title, content);
   }
 
 }

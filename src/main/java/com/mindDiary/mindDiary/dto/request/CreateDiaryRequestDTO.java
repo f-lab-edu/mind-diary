@@ -1,6 +1,6 @@
 package com.mindDiary.mindDiary.dto.request;
 
-import com.mindDiary.mindDiary.dto.FeelingStatus;
+import com.mindDiary.mindDiary.entity.FeelingStatus;
 import com.mindDiary.mindDiary.entity.Diary;
 import javax.validation.constraints.NotNull;
 import lombok.Getter;
