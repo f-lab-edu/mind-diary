@@ -1,7 +1,5 @@
 package com.mindDiary.mindDiary.dto;
 
-import lombok.extern.slf4j.Slf4j;
-
 public enum Role {
   NOT_PERMITTED, USER, ADMIN;
 
