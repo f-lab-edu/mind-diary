@@ -1,7 +1,7 @@
 package com.mindDiary.mindDiary.aop;
 
 import com.mindDiary.mindDiary.annotation.LoginCheck;
-import com.mindDiary.mindDiary.dto.Role;
+import com.mindDiary.mindDiary.entity.Role;
 import com.mindDiary.mindDiary.exception.businessException.PermissionDeniedException;
 import com.mindDiary.mindDiary.strategy.jwt.TokenStrategy;
 import java.lang.reflect.Method;

@@ -1,8 +1,8 @@
 package com.mindDiary.mindDiary.strategy.redis;
 
 
-import com.mindDiary.mindDiary.dto.TokenDTO;
-import com.mindDiary.mindDiary.dto.UserDTO;
+import com.mindDiary.mindDiary.entity.Token;
+import com.mindDiary.mindDiary.entity.User;
 
 public interface RedisStrategy {
 
@@ -18,7 +18,8 @@ public interface RedisStrategy {
 
   void validateDuration(long duration);
 
-  void addRefreshToken(TokenDTO token, UserDTO findUser);
+  void addRefreshToken(Token token, User user);
 
-  void addEmailToken(UserDTO user);
+  void addEmailToken(User user);
+
 }

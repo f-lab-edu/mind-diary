@@ -1,6 +1,6 @@
 package com.mindDiary.mindDiary.annotation;
 
-import com.mindDiary.mindDiary.dto.Role;
+import com.mindDiary.mindDiary.entity.Role;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
