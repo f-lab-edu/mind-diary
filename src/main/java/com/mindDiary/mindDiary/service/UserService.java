@@ -1,17 +1,20 @@
 package com.mindDiary.mindDiary.service;
 
-
-import com.mindDiary.mindDiary.dto.request.UserJoinRequestDTO;
-import com.mindDiary.mindDiary.dto.request.UserLoginRequestDTO;
-import com.mindDiary.mindDiary.dto.response.TokenResponseDTO;
+import com.mindDiary.mindDiary.entity.Token;
+import com.mindDiary.mindDiary.entity.User;
 
 public interface UserService {
 
-  void join(UserJoinRequestDTO userJoinRequestDTO);
+  void join(User user);
 
   void checkEmailToken(String token, String email);
 
-  TokenResponseDTO login(UserLoginRequestDTO userLoginRequestDTO);
+  Token login(User user);
 
-  TokenResponseDTO refresh(String originToken);
+  Token refresh(String refreshTokenTakenFromCookie);
+
+  void isNicknameDuplicate(String nickname);
+
+  void isEmailDuplicate(String email);
+
 }

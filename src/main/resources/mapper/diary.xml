@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mindDiary.mindDiary.repository.DiaryRepository">
+
+  <update id="save" parameterType="com.mindDiary.mindDiary.entity.Diary">
+    INSERT INTO diary(user_id, created_at, feeling_status, title, content)
+    VALUES(#{userId}, #{createdAt}, #{feelingStatus}, #{title}, #{content})
+  </update>
+
+  <select id = "findById" parameterType="int" resultType="com.mindDiary.mindDiary.entity.Diary">
+    SELECT created_at, feeling_status, title, content
+    FROM diary
+    WHERE id = #{diaryId}
+  </select>
+
+  <select id = "findByUserId" parameterType="int" resultType="com.mindDiary.mindDiary.entity.Diary">
+    SELECT id, created_at, feeling_status, title
+    FROM diary
+    WHERE user_id = #{userId}
+  </select>
+
+</mapper>
