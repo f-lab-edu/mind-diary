@@ -16,16 +16,19 @@ public class CreateCookieStrategy implements CookieStrategy {
   @Value("${cookie.key.refresh-token}")
   private String refreshTokenCookieKey;
 
-  public Cookie createCookie(String key, String value) {
+  private static final String PATH = "/";
+  private static final int ZERO = 0;
+
+  public Cookie createCookie(String key, String value, int duration) {
     Cookie cookie = new Cookie(key, value);
     cookie.setHttpOnly(true);
-    cookie.setPath("/");
-    cookie.setMaxAge((int) refreshTokenValidityInSeconds);
+    cookie.setPath(PATH);
+    cookie.setMaxAge(duration);
     return cookie;
   }
 
   public Cookie createRefreshTokenCookie(String value) {
-    return createCookie(refreshTokenCookieKey, value);
+    return createCookie(refreshTokenCookieKey, value, (int) refreshTokenValidityInSeconds);
   }
 
   @Override
@@ -44,8 +47,8 @@ public class CreateCookieStrategy implements CookieStrategy {
         .findFirst()
         .map(c -> {
           c.setValue(null);
-          c.setMaxAge(0);
-          c.setPath("/");
+          c.setMaxAge(ZERO);
+          c.setPath(PATH);
           httpServletResponse.addCookie(c);
           return c;
         });

@@ -8,15 +8,12 @@ import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
-import com.mindDiary.mindDiary.domain.User;
-import com.mindDiary.mindDiary.domain.UserRole;
-import com.mindDiary.mindDiary.dto.request.UserJoinRequestDTO;
-import com.mindDiary.mindDiary.dto.request.UserLoginRequestDTO;
-import com.mindDiary.mindDiary.exception.EmailDuplicatedException;
-import com.mindDiary.mindDiary.exception.InvalidEmailTokenException;
-import com.mindDiary.mindDiary.exception.NicknameDuplicatedException;
-import com.mindDiary.mindDiary.exception.NotMatchedIdException;
-import com.mindDiary.mindDiary.exception.NotMatchedPasswordException;
+import com.mindDiary.mindDiary.entity.Role;
+import com.mindDiary.mindDiary.exception.businessException.EmailDuplicatedException;
+import com.mindDiary.mindDiary.exception.businessException.InvalidEmailTokenException;
+import com.mindDiary.mindDiary.exception.businessException.NicknameDuplicatedException;
+import com.mindDiary.mindDiary.exception.businessException.NotMatchedIdException;
+import com.mindDiary.mindDiary.exception.businessException.NotMatchedPasswordException;
 import com.mindDiary.mindDiary.repository.UserRepository;
 import com.mindDiary.mindDiary.strategy.email.EmailStrategy;
 import com.mindDiary.mindDiary.strategy.jwt.TokenStrategy;
@@ -27,7 +24,9 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 @Slf4j
@@ -39,7 +38,6 @@ public class UserServiceTest {
   private static final String NICKNAME = "nickname";
   private static final String ACCESS_TOKEN = "access";
   private static final String REFRESH_TOKEN = "refresh";
-  private static final String USER_ROLE = UserRole.ROLE_USER.getRole();
   private static final int USER_ID = 1;
   private static final String EMAIL_TOKEN = "emailToken";
 
@@ -49,7 +47,7 @@ public class UserServiceTest {
   @InjectMocks
   UserServiceImpl userService;
 
-  @Mock
+  @Spy
   PasswordEncoder passwordEncoder;
 
   @Mock
@@ -61,27 +59,18 @@ public class UserServiceTest {
   @Mock
   EmailStrategy emailStrategy;
 
-  public UserJoinRequestDTO getUserJoinRequestDTO() {
-    UserJoinRequestDTO userJoinRequestDTO = new UserJoinRequestDTO();
-    userJoinRequestDTO.setPassword(PASSWORD);
-    userJoinRequestDTO.setEmail(EMAIL);
-    userJoinRequestDTO.setNickname(NICKNAME);
-    return userJoinRequestDTO;
+
+  private TokenDTO getTokenDTO() {
+    TokenDTO tokenDTO = new TokenDTO();
+    tokenDTO.setAccessToken(ACCESS_TOKEN);
+    tokenDTO.setRefreshToken(REFRESH_TOKEN);
+    return tokenDTO;
   }
 
-
-  public UserLoginRequestDTO getUserLoginRequestDTO() {
-    UserLoginRequestDTO userLoginRequestDTO = new UserLoginRequestDTO();
-    userLoginRequestDTO.setPassword(PASSWORD);
-    userLoginRequestDTO.setEmail(EMAIL);
-    return userLoginRequestDTO;
-  }
-
-
-  public User getUser() {
-    User user = new User();
+  public UserDTO getUser() {
+    UserDTO user = new UserDTO();
     user.setId(USER_ID);
-    user.setRole(USER_ROLE);
+    user.setRole(Role.USER);
     user.setEmail(EMAIL);
     user.setPassword(PASSWORD);
     user.setNickname(NICKNAME);
@@ -89,38 +78,60 @@ public class UserServiceTest {
     return user;
   }
 
-  private TokenResponseDTO getTokenResponseDTO() {
-    TokenResponseDTO tokenResponseDTO = new TokenResponseDTO(ACCESS_TOKEN, REFRESH_TOKEN);
-    return tokenResponseDTO;
+  public UserDTO joinUser() {
+    UserDTO user = new UserDTO();
+    user.setEmail(EMAIL);
+    user.setPassword(PASSWORD);
+    user.setNickname(NICKNAME);
+    return user;
   }
+
+  public UserDTO loginUser() {
+    UserDTO user = new UserDTO();
+    user.setEmail(EMAIL);
+    user.setPassword(PASSWORD);
+    return user;
+  }
+
 
   @Test
   @DisplayName("회원가입 성공")
   public void join() {
 
-    User user = getUser();
+    UserDTO user = joinUser();
+    passwordEncoder = new BCryptPasswordEncoder();
 
     doReturn(null).when(userRepository).findByEmail(user.getEmail());
     doReturn(null).when(userRepository).findByNickname(user.getNickname());
-    doNothing().when(userRepository).save(any(User.class));
 
-    userService.join(getUserJoinRequestDTO());
+    UserDTO newUser = user.createNotPermittedUserWithEmailToken();
+    newUser.changeHashedPassword(passwordEncoder);
 
-    verify(userRepository, times(1)).save(any(User.class));
+    doNothing().when(userRepository).save(any(UserDTO.class));
+    doNothing().when(redisStrategy).addEmailToken(any(UserDTO.class));
+    doNothing().when(emailStrategy).sendUserJoinMessage(any(UserDTO.class));
 
+    userService.join(user);
+
+    verify(userRepository, times(1)).findByEmail(user.getEmail());
+    verify(userRepository, times(1)).findByNickname(user.getNickname());
+    verify(userRepository, times(1)).save(any(UserDTO.class));
+    verify(redisStrategy, times(1)).addEmailToken(any(UserDTO.class));
+    verify(emailStrategy, times(1)).sendUserJoinMessage(any(UserDTO.class));
+
+    assertThat(passwordEncoder.matches(user.getPassword(), newUser.getPassword())).isTrue();
   }
 
   @Test
   @DisplayName("회원가입 실패 : 이메일 중복")
   public void joinFailByEmailDuplicate() {
 
-    User user = getUser();
-    UserJoinRequestDTO userJoinRequestDTO = getUserJoinRequestDTO();
+    UserDTO user = joinUser();
 
     doReturn(user).when(userRepository).findByEmail(user.getEmail());
 
     assertThatThrownBy(() -> {
-      userService.join(userJoinRequestDTO);
+      userService.join(user);
     }).isInstanceOf(EmailDuplicatedException.class);
   }
 
@@ -128,14 +139,13 @@ public class UserServiceTest {
   @DisplayName("회원가입 실패 : 닉네임 중복")
   public void joinFailByNicknameDuplicate() {
 
-    User user = getUser();
-    UserJoinRequestDTO userJoinRequestDTO = getUserJoinRequestDTO();
+    UserDTO user = joinUser();
 
-    doReturn(null).when(userRepository).findByEmail(EMAIL);
-    doReturn(user).when(userRepository).findByNickname(NICKNAME);
+    doReturn(null).when(userRepository).findByEmail(user.getEmail());
+    doReturn(user).when(userRepository).findByNickname(user.getNickname());
 
     assertThatThrownBy(() -> {
-      userService.join(userJoinRequestDTO);
+      userService.join(user);
     }).isInstanceOf(NicknameDuplicatedException.class);
   }
 
@@ -143,14 +153,15 @@ public class UserServiceTest {
   @DisplayName("이메일 인증 확인")
   public void checkEmailTokenSuccess() {
 
-    User user = getUser();
+    UserDTO user = getUser();
 
-    doReturn("1").when(redisStrategy).getValue(EMAIL_TOKEN);
+    doReturn(String.valueOf(USER_ID)).when(redisStrategy).getValue(EMAIL_TOKEN);
     doReturn(user).when(userRepository).findByEmail(EMAIL);
     doNothing().when(userRepository).updateRole(user);
 
     userService.checkEmailToken(EMAIL_TOKEN, EMAIL);
 
+    verify(redisStrategy, times(1)).getValue(EMAIL_TOKEN);
     verify(userRepository, times(1)).findByEmail(EMAIL);
     verify(userRepository, times(1)).updateRole(user);
   }
@@ -159,7 +170,8 @@ public class UserServiceTest {
   @Test
   @DisplayName("이메일 인증 실패")
   public void checkEmailTokenFail() {
-    User user = getUser();
+    UserDTO user = getUser();
+
     doReturn("110").when(redisStrategy).getValue(EMAIL_TOKEN);
     doReturn(user).when(userRepository).findByEmail(EMAIL);
 
@@ -171,27 +183,42 @@ public class UserServiceTest {
   @Test
   @DisplayName("로그인 성공")
   public void loginSuccess() {
-    User user = getUser();
-    UserLoginRequestDTO userLoginRequestDTO = getUserLoginRequestDTO();
-    TokenResponseDTO tokenResponseDTO = getTokenResponseDTO();
-    doReturn(user).when(userRepository).findByEmail(EMAIL);
-    doReturn(true).when(passwordEncoder).matches(any(), any());
-    doReturn(ACCESS_TOKEN).when(tokenStrategy).createAccessToken(USER_ID, USER_ROLE, EMAIL);
-    doReturn(REFRESH_TOKEN).when(tokenStrategy).createRefreshToken(USER_ID);
 
-    assertThat(userService.login(userLoginRequestDTO)).isEqualTo(tokenResponseDTO);
+    UserDTO user = loginUser();
+
+    UserDTO findUser = getUser();
+    TokenDTO token = getTokenDTO();
+
+    doReturn(findUser).when(userRepository).findByEmail(user.getEmail());
+    doReturn(true).when(passwordEncoder).matches(user.getPassword(), findUser.getPassword());
+    doReturn(token.getAccessToken()).when(tokenStrategy)
+        .createAccessToken(findUser.getId(), findUser.getRole().toString(), findUser.getEmail());
+    doReturn(token.getRefreshToken()).when(tokenStrategy).createRefreshToken(findUser.getId());
+    doNothing().when(redisStrategy).addRefreshToken(token, findUser);
+
+    assertThat(userService.login(user)).isEqualTo(token);
+
+    verify(userRepository, times(1)).findByEmail(user.getEmail());
+    verify(passwordEncoder, times(1)).matches(user.getPassword(), findUser.getPassword());
+    verify(tokenStrategy, times(1))
+        .createAccessToken(findUser.getId(), findUser.getRole().toString(), findUser.getEmail());
+    verify(tokenStrategy, times(1)).createRefreshToken(findUser.getId());
+    verify(redisStrategy, times(1)).addRefreshToken(token, findUser);
   }
+
 
   @Test
   @DisplayName("로그인 실패 : 패스워드가 일치하지 않음")
   public void loginFail() {
-    User user = getUser();
-    UserLoginRequestDTO userLoginRequestDTO = getUserLoginRequestDTO();
-    doReturn(user).when(userRepository).findByEmail(EMAIL);
-    doReturn(false).when(passwordEncoder).matches(any(), any());
+
+    UserDTO user = loginUser();
+    UserDTO findUser = getUser();
+
+    doReturn(findUser).when(userRepository).findByEmail(user.getEmail());
+    doReturn(false).when(passwordEncoder).matches(user.getPassword(), findUser.getPassword());
 
     assertThatThrownBy(() -> {
-      userService.login(userLoginRequestDTO);
+      userService.login(user);
     }).isInstanceOf(NotMatchedPasswordException.class);
   }
 
@@ -200,28 +227,30 @@ public class UserServiceTest {
   @DisplayName("토큰 재발급 성공")
   public void refreshSuccess() {
 
-    User user = getUser();
-    TokenResponseDTO tokenResponseDTO = getTokenResponseDTO();
-
-    doReturn(true).when(tokenStrategy).validateToken(REFRESH_TOKEN);
+    UserDTO user = getUser();
+    TokenDTO token = getTokenDTO();
 
     doReturn(String.valueOf(USER_ID)).when(redisStrategy).getValue(REFRESH_TOKEN);
-
     doReturn(USER_ID).when(tokenStrategy).getUserId(REFRESH_TOKEN);
-
     doReturn(user).when(userRepository).findById(USER_ID);
+    doReturn(token.getAccessToken()).when(tokenStrategy)
+        .createAccessToken(user.getId(), user.getRole().toString(), user.getEmail());
+    doReturn(token.getRefreshToken()).when(tokenStrategy).createRefreshToken(user.getId());
 
-    doReturn(ACCESS_TOKEN).when(tokenStrategy).createAccessToken(USER_ID, USER_ROLE, EMAIL);
-    doReturn(REFRESH_TOKEN).when(tokenStrategy).createRefreshToken(USER_ID);
+    assertThat(userService.refresh(REFRESH_TOKEN)).isEqualTo(token);
 
-    assertThat(userService.refresh(REFRESH_TOKEN)).isEqualTo(tokenResponseDTO);
+    verify(redisStrategy, times(1)).getValue(REFRESH_TOKEN);
+    verify(tokenStrategy, times(1)).getUserId(REFRESH_TOKEN);
+    verify(userRepository, times(1)).findById(USER_ID);
+    verify(tokenStrategy, times(1))
+        .createAccessToken(user.getId(), user.getRole().toString(), user.getEmail());
+    verify(tokenStrategy, times(1)).createRefreshToken(user.getId());
 
   }
 
   @Test
   @DisplayName("토큰 재발급 실패 : 요청으로 들어온 리프레시 토큰 캐시에 있는 리프레시 토큰과 일치하지 않음")
   public void refreshFailByCache() {
-    doReturn(true).when(tokenStrategy).validateToken(REFRESH_TOKEN);
 
     doReturn(String.valueOf(USER_ID)).when(redisStrategy).getValue(REFRESH_TOKEN);
     doReturn(1000).when(tokenStrategy).getUserId(REFRESH_TOKEN);
@@ -230,5 +259,5 @@ public class UserServiceTest {
       userService.refresh(REFRESH_TOKEN);
     }).isInstanceOf(NotMatchedIdException.class);
   }
-  
+
 }

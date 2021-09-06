@@ -17,4 +17,5 @@ public interface TokenStrategy {
   String createRefreshToken(int id);
 
   String createAccessToken(int id, String role, String email);
+
 }

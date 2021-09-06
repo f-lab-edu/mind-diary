@@ -1,6 +1,6 @@
 package com.mindDiary.mindDiary.service;
 
-import com.mindDiary.mindDiary.dto.DiaryDTO;
+import com.mindDiary.mindDiary.entity.Diary;
 import com.mindDiary.mindDiary.repository.DiaryRepository;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -16,19 +16,19 @@ public class DiaryServiceImpl implements DiaryService {
   private final DiaryRepository diaryRepository;
 
   @Override
-  public List<DiaryDTO> readDiaries(int userId) {
+  public List<Diary> readDiaries(int userId) {
     return diaryRepository.findByUserId(userId);
   }
 
   @Override
-  public DiaryDTO readOneDiary(int diaryId) {
+  public Diary readOneDiary(int diaryId) {
     return diaryRepository.findById(diaryId);
   }
 
   @Override
-  public void updateDiary(DiaryDTO diaryDTO, int userId) {
-    diaryDTO.setUserId(userId);
-    diaryDTO.setCreatedAt(LocalDateTime.now());
-    diaryRepository.save(diaryDTO);
+  public void createDiary(Diary diary, int userId) {
+    diary.setUserId(userId);
+    diary.setCreatedAt(LocalDateTime.now());
+    diaryRepository.save(diary);
   }
 }

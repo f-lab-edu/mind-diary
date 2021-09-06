@@ -4,7 +4,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.mindDiary.mindDiary.exception.InvalidJwtException;
-import com.mindDiary.mindDiary.exception.NotMatchedPasswordException;
 import com.mindDiary.mindDiary.strategy.jwt.JwtStrategy;
 import io.jsonwebtoken.Jwts;
 import org.junit.jupiter.api.DisplayName;
