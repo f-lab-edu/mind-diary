@@ -1,21 +1,18 @@
 package com.mindDiary.mindDiary.service;
 
-import com.mindDiary.mindDiary.domain.User;
-import com.mindDiary.mindDiary.dto.request.UserJoinRequestDTO;
-import com.mindDiary.mindDiary.dto.request.UserLoginRequestDTO;
-import com.mindDiary.mindDiary.dto.response.TokenResponseDTO;
-import com.mindDiary.mindDiary.exception.EmailDuplicatedException;
-import com.mindDiary.mindDiary.exception.NicknameDuplicatedException;
-import com.mindDiary.mindDiary.exception.InvalidEmailTokenException;
-import com.mindDiary.mindDiary.exception.NotMatchedIdException;
-import com.mindDiary.mindDiary.exception.NotMatchedPasswordException;
+import com.mindDiary.mindDiary.entity.Token;
+import com.mindDiary.mindDiary.entity.User;
+import com.mindDiary.mindDiary.exception.businessException.EmailDuplicatedException;
+import com.mindDiary.mindDiary.exception.businessException.NicknameDuplicatedException;
+import com.mindDiary.mindDiary.exception.businessException.InvalidEmailTokenException;
+import com.mindDiary.mindDiary.exception.businessException.NotMatchedIdException;
+import com.mindDiary.mindDiary.exception.businessException.NotMatchedPasswordException;
 import com.mindDiary.mindDiary.repository.UserRepository;
 import com.mindDiary.mindDiary.strategy.email.EmailStrategy;
 import com.mindDiary.mindDiary.strategy.jwt.TokenStrategy;
 import com.mindDiary.mindDiary.strategy.redis.RedisStrategy;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -30,45 +27,43 @@ public class UserServiceImpl implements UserService {
   private final EmailStrategy emailStrategy;
   private final TokenStrategy tokenStrategy;
 
-  @Value("${jwt.refresh-token-validity-in-seconds}")
-  private long refreshTokenValidityInSeconds;
-
-  @Value("${mailInfo.email-validity-in-seconds}")
-  private long emailValidityInSeconds;
 
   @Override
-  public void join(UserJoinRequestDTO userJoinRequestDTO) {
+  public void join(User user) {
 
-    if (isEmailDuplicate(userJoinRequestDTO.getEmail())) {
-      throw new EmailDuplicatedException();
-    }
+    isEmailDuplicate(user.getEmail());
 
-    if (isNicknameDuplicate(userJoinRequestDTO.getNickname())) {
+    isNicknameDuplicate(user.getNickname());
+
+    User newUser = user.createNotPermittedUserWithEmailToken();
+    newUser.changeHashedPassword(passwordEncoder);
+
+    userRepository.save(newUser);
+    redisStrategy.addEmailToken(newUser);
+    emailStrategy.sendUserJoinMessage(newUser);
+
+  }
+
+  public void isNicknameDuplicate(String nickname) {
+    if (userRepository.findByNickname(nickname) != null) {
       throw new NicknameDuplicatedException();
     }
-
-    userJoinRequestDTO.changePassword(passwordEncoder);
-    User user = User.createUser(userJoinRequestDTO);
-
-    userRepository.save(user);
-    redisStrategy.setValue(user.getEmailCheckToken(), String.valueOf(user.getId()),
-        emailValidityInSeconds);
-    emailStrategy.sendMessage(user.getEmail(), user.getEmailCheckToken());
-
   }
 
-  private boolean isNicknameDuplicate(String nickname) {
-    return userRepository.findByNickname(nickname) != null;
+  public void isEmailDuplicate(String email) {
+    if (userRepository.findByEmail(email) != null) {
+      throw new EmailDuplicatedException();
+    }
   }
 
-  private boolean isEmailDuplicate(String email) {
-    return userRepository.findByEmail(email) != null;
-  }
 
   @Override
   public void checkEmailToken(String token, String email) {
+
     int id = Integer.parseInt(redisStrategy.getValue(token));
+
     User user = userRepository.findByEmail(email);
+
     if (user.getId() != id) {
       throw new InvalidEmailTokenException();
     }
@@ -78,21 +73,25 @@ public class UserServiceImpl implements UserService {
   }
 
   @Override
-  public TokenResponseDTO login(UserLoginRequestDTO userLoginRequestDTO) {
-    User user = userRepository.findByEmail(userLoginRequestDTO.getEmail());
+  public Token login(User user) {
+    User findUser = userRepository.findByEmail(user.getEmail());
 
-    if (!passwordEncoder.matches(userLoginRequestDTO.getPassword(), user.getPassword())) {
+    validatePassword(user.getPassword(), findUser.getPassword());
+
+    Token token = Token.create(findUser, tokenStrategy);
+    redisStrategy.addRefreshToken(token, findUser);
+
+    return token;
+  }
+
+  private void validatePassword(String originPassword, String newPassword) {
+    if (!passwordEncoder.matches(originPassword, newPassword)) {
       throw new NotMatchedPasswordException();
     }
-
-    TokenResponseDTO tokenResponseDTO = user.createToken(tokenStrategy);
-
-    redisStrategy.setValue(tokenResponseDTO.getRefreshToken(), String.valueOf(user.getId()),refreshTokenValidityInSeconds);
-    return tokenResponseDTO;
   }
 
   @Override
-  public TokenResponseDTO refresh(String originToken) {
+  public Token refresh(String originToken) {
 
     tokenStrategy.validateToken(originToken);
 
@@ -103,17 +102,11 @@ public class UserServiceImpl implements UserService {
       throw new NotMatchedIdException();
     }
 
-
     User user = userRepository.findById(id);
-    TokenResponseDTO tokenResponseDTO = user.createToken(tokenStrategy);
 
+    Token token = Token.create(user, tokenStrategy);
     redisStrategy.deleteValue(originToken);
-
-    redisStrategy.setValue(tokenResponseDTO.getRefreshToken(), String.valueOf(user.getId()),
-        refreshTokenValidityInSeconds);
-    return tokenResponseDTO;
-
+    redisStrategy.addRefreshToken(token, user);
+    return token;
   }
-
-
 }

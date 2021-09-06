@@ -1,8 +1,10 @@
 package com.mindDiary.mindDiary.controller;
 
-import com.mindDiary.mindDiary.dto.request.UserJoinRequestDTO;
-import com.mindDiary.mindDiary.dto.request.UserLoginRequestDTO;
-import com.mindDiary.mindDiary.dto.response.TokenResponseDTO;
+import com.mindDiary.mindDiary.dto.request.JoinUserRequestDTO;
+import com.mindDiary.mindDiary.dto.request.LoginUserRequestDTO;
+import com.mindDiary.mindDiary.dto.response.AccessTokenResponseDTO;
+import com.mindDiary.mindDiary.entity.Token;
+import com.mindDiary.mindDiary.entity.User;
 import com.mindDiary.mindDiary.service.UserService;
 import com.mindDiary.mindDiary.strategy.cookie.CookieStrategy;
 import javax.servlet.http.Cookie;
@@ -29,10 +31,10 @@ public class UserController {
   private final UserService userService;
   private final CookieStrategy cookieStrategy;
 
-
   @PostMapping("/join")
-  public ResponseEntity join(@RequestBody @Valid UserJoinRequestDTO userJoinRequestDTO) {
-    userService.join(userJoinRequestDTO);
+  public ResponseEntity join(@RequestBody @Valid JoinUserRequestDTO joinUserRequestDTO) {
+    User user = joinUserRequestDTO.turnIntoUserEntity();
+    userService.join(user);
     return new ResponseEntity(HttpStatus.OK);
   }
 
@@ -40,21 +42,24 @@ public class UserController {
   public ResponseEntity checkEmailToken(@RequestParam(value = "token") String token,
       @RequestParam(value = "email") String email) {
     userService.checkEmailToken(token, email);
-
     return new ResponseEntity(HttpStatus.OK);
   }
 
+
   @PostMapping("/login")
-  public ResponseEntity login(@RequestBody @Valid UserLoginRequestDTO userLoginRequestDTO,
+  public ResponseEntity login(@RequestBody @Valid LoginUserRequestDTO loginUserRequestDTO,
       HttpServletResponse httpServletResponse) {
 
-    TokenResponseDTO tokenResponseDTO = userService.login(userLoginRequestDTO);
-
-    Cookie cookie = tokenResponseDTO.createRefreshTokenCookie(cookieStrategy);
+    User user = loginUserRequestDTO.turnIntoUserEntity();
+    Token token = userService.login(user);
+    Cookie cookie = token.turnRefreshTokenInfoCookie(cookieStrategy);
     httpServletResponse.addCookie(cookie);
 
-    return new ResponseEntity(tokenResponseDTO.createAccessTokenResponseDTO(), HttpStatus.OK);
+    AccessTokenResponseDTO accessTokenResponseDTO = token.turnIntoAccessTokenResponseDTO();
+
+    return new ResponseEntity(accessTokenResponseDTO, HttpStatus.OK);
   }
+
 
   @PostMapping("/refresh")
   public ResponseEntity updateToken(HttpServletRequest httpServletRequest,
@@ -63,14 +68,16 @@ public class UserController {
     Cookie cookie = cookieStrategy.getRefreshTokenCookie(httpServletRequest);
     String refreshTokenTakenFromCookie = cookie.getValue();
 
-    TokenResponseDTO tokenResponseDTO = userService.refresh(refreshTokenTakenFromCookie);
+    Token token = userService.refresh(refreshTokenTakenFromCookie);
 
     cookieStrategy.deleteRefreshTokenCookie(httpServletRequest, httpServletResponse);
-
-    Cookie newCookie = tokenResponseDTO.createRefreshTokenCookie(cookieStrategy);
+    Cookie newCookie = token.turnRefreshTokenInfoCookie(cookieStrategy);
     httpServletResponse.addCookie(newCookie);
 
-    return new ResponseEntity(tokenResponseDTO.createAccessTokenResponseDTO(), HttpStatus.OK);
+    AccessTokenResponseDTO accessTokenResponseDTO = token.turnIntoAccessTokenResponseDTO();
+
+    return new ResponseEntity(accessTokenResponseDTO, HttpStatus.OK);
+
   }
 
 }

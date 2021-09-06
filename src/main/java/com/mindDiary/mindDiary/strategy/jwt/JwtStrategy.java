@@ -26,6 +26,10 @@ public class JwtStrategy implements TokenStrategy {
   @Value("${jwt.refresh-token-validity-in-seconds}")
   private long refreshTokenValidityInSeconds;
 
+  private static final String USER_ID = "userId";
+  private static final String USER_ROLE = "userRole";
+  private static final String USER_EMAIL = "userEmail";
+
 
   private Key getSigningKey(String secretKey) {
     byte[] keyBytes = secretKey.getBytes(StandardCharsets.UTF_8);
@@ -36,20 +40,19 @@ public class JwtStrategy implements TokenStrategy {
   @Override
   public String createAccessToken(int id, String role, String email) {
     Claims claims = Jwts.claims();
-    claims.put("userId", id);
-    claims.put("userRole", role);
-    claims.put("userEmail", email);
+    claims.put(USER_ID, id);
+    claims.put(USER_ROLE, role);
+    claims.put(USER_EMAIL, email);
 
-    return createToken( claims , accessTokenValidityInSeconds);
+    return createToken(claims, accessTokenValidityInSeconds);
   }
-
 
   @Override
   public String createRefreshToken(int id) {
     Claims claims = Jwts.claims();
-    claims.put("userId", id);
+    claims.put(USER_ID, id);
 
-    return createToken( claims , refreshTokenValidityInSeconds);
+    return createToken(claims, refreshTokenValidityInSeconds);
   }
 
   public String createToken(Claims claims, long validityInSeconds) {
@@ -74,15 +77,15 @@ public class JwtStrategy implements TokenStrategy {
   }
 
   public Integer getUserId(String token) {
-    return extractAllClaims(token).get("userId",Integer.class);
+    return extractAllClaims(token).get(USER_ID, Integer.class);
   }
 
   public String getUserRole(String token) {
-    return extractAllClaims(token).get("userRole",String.class);
+    return extractAllClaims(token).get(USER_ROLE, String.class);
   }
 
   public String getUserEmail(String token) {
-    return extractAllClaims(token).get("userEmail",String.class);
+    return extractAllClaims(token).get(USER_EMAIL, String.class);
   }
 
   public boolean validateToken(String token) {
