@@ -1,15 +1,15 @@
 package com.mindDiary.mindDiary.repository;
 
-import com.mindDiary.mindDiary.dto.DiaryDTO;
+import com.mindDiary.mindDiary.entity.Diary;
 import java.util.List;
 import org.apache.ibatis.annotations.Mapper;
 
 @Mapper
 public interface DiaryRepository {
 
-  void save(DiaryDTO diaryDTO);
+  void save(Diary diary);
 
-  DiaryDTO findById(int diaryId);
+  Diary findById(int diaryId);
 
-  List<DiaryDTO> findByUserId(int userId);
+  List<Diary> findByUserId(int userId);
 }

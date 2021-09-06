@@ -1,8 +1,7 @@
 package com.mindDiary.mindDiary.service;
 
-import com.mindDiary.mindDiary.dto.TokenDTO;
-import com.mindDiary.mindDiary.dto.UserDTO;
-import com.mindDiary.mindDiary.exception.InvalidJwtException;
+import com.mindDiary.mindDiary.entity.Token;
+import com.mindDiary.mindDiary.entity.User;
 import com.mindDiary.mindDiary.exception.businessException.EmailDuplicatedException;
 import com.mindDiary.mindDiary.exception.businessException.NicknameDuplicatedException;
 import com.mindDiary.mindDiary.exception.businessException.InvalidEmailTokenException;
@@ -30,13 +29,13 @@ public class UserServiceImpl implements UserService {
 
 
   @Override
-  public void join(UserDTO user) {
+  public void join(User user) {
 
     isEmailDuplicate(user.getEmail());
 
     isNicknameDuplicate(user.getNickname());
 
-    UserDTO newUser = UserDTO.createNotPermittedUserWithEmailToken(user);
+    User newUser = user.createNotPermittedUserWithEmailToken();
     newUser.changeHashedPassword(passwordEncoder);
 
     userRepository.save(newUser);
@@ -44,7 +43,6 @@ public class UserServiceImpl implements UserService {
     emailStrategy.sendUserJoinMessage(newUser);
 
   }
-
 
   public void isNicknameDuplicate(String nickname) {
     if (userRepository.findByNickname(nickname) != null) {
@@ -58,11 +56,13 @@ public class UserServiceImpl implements UserService {
     }
   }
 
+
   @Override
   public void checkEmailToken(String token, String email) {
+
     int id = Integer.parseInt(redisStrategy.getValue(token));
 
-    UserDTO user = userRepository.findByEmail(email);
+    User user = userRepository.findByEmail(email);
 
     if (user.getId() != id) {
       throw new InvalidEmailTokenException();
@@ -73,12 +73,12 @@ public class UserServiceImpl implements UserService {
   }
 
   @Override
-  public TokenDTO login(UserDTO user) {
-    UserDTO findUser = userRepository.findByEmail(user.getEmail());
+  public Token login(User user) {
+    User findUser = userRepository.findByEmail(user.getEmail());
 
     validatePassword(user.getPassword(), findUser.getPassword());
 
-    TokenDTO token = TokenDTO.create(findUser, tokenStrategy);
+    Token token = Token.create(findUser, tokenStrategy);
     redisStrategy.addRefreshToken(token, findUser);
 
     return token;
@@ -91,7 +91,7 @@ public class UserServiceImpl implements UserService {
   }
 
   @Override
-  public TokenDTO refresh(String originToken) {
+  public Token refresh(String originToken) {
 
     tokenStrategy.validateToken(originToken);
 
@@ -102,9 +102,9 @@ public class UserServiceImpl implements UserService {
       throw new NotMatchedIdException();
     }
 
-    UserDTO user = userRepository.findById(id);
+    User user = userRepository.findById(id);
 
-    TokenDTO token = TokenDTO.create(user, tokenStrategy);
+    Token token = Token.create(user, tokenStrategy);
     redisStrategy.deleteValue(originToken);
     redisStrategy.addRefreshToken(token, user);
     return token;

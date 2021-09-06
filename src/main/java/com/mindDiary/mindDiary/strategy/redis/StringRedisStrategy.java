@@ -1,7 +1,7 @@
 package com.mindDiary.mindDiary.strategy.redis;
 
-import com.mindDiary.mindDiary.dto.TokenDTO;
-import com.mindDiary.mindDiary.dto.UserDTO;
+import com.mindDiary.mindDiary.entity.Token;
+import com.mindDiary.mindDiary.entity.User;
 import com.mindDiary.mindDiary.exception.businessException.RedisAddValueException;
 import java.time.Duration;
 import lombok.extern.slf4j.Slf4j;
@@ -64,13 +64,14 @@ public class StringRedisStrategy implements RedisStrategy {
   }
 
   @Override
-  public void addEmailToken(UserDTO user) {
+  public void addEmailToken(User user) {
     setValue(user.getEmailCheckToken(), String.valueOf(user.getId()), emailValidityInSeconds);
   }
 
+
   @Override
-  public void addRefreshToken(TokenDTO token, UserDTO findUser) {
-    setValue(token.getRefreshToken(), String.valueOf(findUser.getId()),
+  public void addRefreshToken(Token token, User user) {
+    setValue(token.getRefreshToken(), String.valueOf(user.getId()),
         refreshTokenValidityInSeconds);
   }
 }

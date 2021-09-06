@@ -1,6 +1,6 @@
 package com.mindDiary.mindDiary.strategy.email;
 
-import com.mindDiary.mindDiary.dto.UserDTO;
+import com.mindDiary.mindDiary.entity.User;
 import com.mindDiary.mindDiary.exception.businessException.MailSendFailedException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -44,9 +44,10 @@ public class SendEmailStrategy implements EmailStrategy {
   }
 
   @Override
-  public void sendUserJoinMessage(UserDTO user) {
+  public void sendUserJoinMessage(User user) {
     String text = "?token=" + user.getEmailCheckToken() +
         "&email=" + user.getEmail();
     sendMessage(user.getEmail(), text);
   }
+
 }

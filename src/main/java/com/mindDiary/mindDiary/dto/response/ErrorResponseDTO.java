@@ -1,4 +1,4 @@
-package com.mindDiary.mindDiary.dto;
+package com.mindDiary.mindDiary.dto.response;
 
 import com.mindDiary.mindDiary.exception.ErrorCode;
 import lombok.Getter;
