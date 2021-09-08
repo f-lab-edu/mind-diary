@@ -3,7 +3,6 @@ package com.mindDiary.mindDiary.service;
 import com.mindDiary.mindDiary.entity.Diagnosis;
 import com.mindDiary.mindDiary.entity.DiagnosisScore;
 import com.mindDiary.mindDiary.entity.DiagnosisWithQuestion;
-import com.mindDiary.mindDiary.entity.Question;
 import com.mindDiary.mindDiary.entity.Answer;
 import com.mindDiary.mindDiary.entity.QuestionBaseLine;
 import com.mindDiary.mindDiary.entity.UserDiagnosis;
@@ -22,7 +21,6 @@ public class DiagnosisServiceImpl implements DiagnosisService {
 
   private final DiagnosisRepository diagnosisRepository;
   private final QuestionBaseLineService questionBaseLineService;
-  private final QuestionService questionService;
   private final DiagnosisScoreService diagnosisScoreService;
   private final UserDiagnosisService userDiagnosisService;
 
@@ -42,12 +40,10 @@ public class DiagnosisServiceImpl implements DiagnosisService {
       List<Answer> answers, int userId) {
 
     List<QuestionBaseLine> questionBaseLines = questionBaseLineService.readByDiagnosisId(diagnosisId);
-    List<Question> questions = questionService.readByAnswers(answers);
 
     ScoreCalculateStrategy calculateStrategy = ScoreCalculateStrategy.createScores(questionBaseLines);
-
-    int score = questions.stream()
-        .mapToInt(q -> calculateStrategy.calc(q.getChoiceNumber(), q.getReverse()))
+    int score = answers.stream()
+        .mapToInt(a -> calculateStrategy.calc(a.getChoiceNumber(), a.getReverse()))
         .sum();
 
     DiagnosisScore diagnosisScore = diagnosisScoreService.readOneByDiagnosisIdAndScore(diagnosisId, score);

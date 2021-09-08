@@ -1,7 +1,7 @@
 package com.mindDiary.mindDiary.strategy;
 
-import com.mindDiary.mindDiary.entity.Question.Reverse;
 import com.mindDiary.mindDiary.entity.QuestionBaseLine;
+import com.mindDiary.mindDiary.entity.Reverse;
 import java.util.ArrayList;
 import java.util.List;
 

@@ -1,5 +1,6 @@
 package com.mindDiary.mindDiary.dto.request;
 
+import com.mindDiary.mindDiary.entity.Reverse;
 import javax.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
@@ -13,4 +14,7 @@ public class QuestionAnswerRequestDTO {
   private int questionId;
   @NotNull
   private int choiceNumber;
+
+  @NotNull
+  private Reverse reverse;
 }

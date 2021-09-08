@@ -10,5 +10,5 @@ import lombok.Setter;
 public class Answer {
   private int questionId;
   private int choiceNumber;
-
+  private Reverse reverse;
 }

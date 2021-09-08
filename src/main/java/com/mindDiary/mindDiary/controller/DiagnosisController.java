@@ -49,7 +49,8 @@ public class DiagnosisController {
     DiagnosisWithQuestion diagnosisWithQuestion
         = diagnosisService.readDiagnosisQuestions(diagnosisId);
 
-    return new ResponseEntity<>(ReadDiagnosisResponseDTO.create(diagnosisWithQuestion), HttpStatus.OK);
+    return new ResponseEntity<>(ReadDiagnosisResponseDTO.create(diagnosisWithQuestion),
+        HttpStatus.OK);
   }
 
   @PostMapping("/result/{diagnosisId}")
@@ -58,7 +59,7 @@ public class DiagnosisController {
       @RequestBody @Valid CreateDiagnosisResultRequestDTO createDiagnosisResultRequest,
       Integer userId) {
 
-    List<Answer> answers = createQuestionAnswers(createDiagnosisResultRequest);
+    List<Answer> answers = createAnswers(createDiagnosisResultRequest);
 
     UserDiagnosis userDiagnosis
         = diagnosisService.createDiagnosisResult(diagnosisId, answers, userId);
@@ -70,10 +71,10 @@ public class DiagnosisController {
   @LoginCheck(checkLevel = Role.USER)
   public ResponseEntity<ReadDiagnosisResultResponseDTO> readMyDiagnosisResult(Integer userId) {
 
-
     List<UserDiagnosis> userDiagnosis = userDiagnosisService.readMyDiagnosisResults(userId);
 
-    List<ReadDiagnosisResultResponseDTO> myDiagnosisResultReponses = createReadDiagnosisResultResponse(userDiagnosis);
+    List<ReadDiagnosisResultResponseDTO> myDiagnosisResultReponses
+        = createReadDiagnosisResultResponse(userDiagnosis);
 
     return new ResponseEntity(myDiagnosisResultReponses, HttpStatus.OK);
   }
@@ -85,17 +86,20 @@ public class DiagnosisController {
     return readDiagnosisResponses;
   }
 
-  private List<ReadDiagnosisResultResponseDTO> createReadDiagnosisResultResponse(List<UserDiagnosis> userDiagnosis) {
+  private List<ReadDiagnosisResultResponseDTO> createReadDiagnosisResultResponse(
+      List<UserDiagnosis> userDiagnosis) {
     List<ReadDiagnosisResultResponseDTO> readDiagnosisResultResponses = new ArrayList<>();
     userDiagnosis.forEach(ud -> readDiagnosisResultResponses.add(
         ReadDiagnosisResultResponseDTO.create(ud)));
     return readDiagnosisResultResponses;
   }
 
-  private List<Answer> createQuestionAnswers(CreateDiagnosisResultRequestDTO createDiagnosisResultRequestDTO) {
+  private List<Answer> createAnswers(
+      CreateDiagnosisResultRequestDTO createDiagnosisResultRequestDTO) {
     List<Answer> answers = new ArrayList<>();
     createDiagnosisResultRequestDTO.getQuestionAnswerRequests()
-        .forEach(q -> answers.add(new Answer(q.getQuestionId(), q.getChoiceNumber())));
+        .forEach(
+            q -> answers.add(new Answer(q.getQuestionId(), q.getChoiceNumber(), q.getReverse())));
     return answers;
   }
 }
