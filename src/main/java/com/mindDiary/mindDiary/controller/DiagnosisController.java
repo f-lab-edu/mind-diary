@@ -13,6 +13,7 @@ import com.mindDiary.mindDiary.service.DiagnosisService;
 import com.mindDiary.mindDiary.service.UserDiagnosisService;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 import javax.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -80,26 +81,22 @@ public class DiagnosisController {
   }
 
   private List<ReadDiagnosisResponseDTO> createReadDiagnosisResponses(List<Diagnosis> diagnoses) {
-    List<ReadDiagnosisResponseDTO> readDiagnosisResponses = new ArrayList<>();
-    diagnoses.forEach(d -> readDiagnosisResponses.add(
-        ReadDiagnosisResponseDTO.create(d)));
-    return readDiagnosisResponses;
+    return diagnoses.stream()
+        .map(d -> ReadDiagnosisResponseDTO.create(d))
+        .collect(Collectors.toList());
   }
 
   private List<ReadDiagnosisResultResponseDTO> createReadDiagnosisResultResponse(
       List<UserDiagnosis> userDiagnosis) {
-    List<ReadDiagnosisResultResponseDTO> readDiagnosisResultResponses = new ArrayList<>();
-    userDiagnosis.forEach(ud -> readDiagnosisResultResponses.add(
-        ReadDiagnosisResultResponseDTO.create(ud)));
-    return readDiagnosisResultResponses;
+    return userDiagnosis.stream()
+        .map(ud -> ReadDiagnosisResultResponseDTO.create(ud))
+        .collect(Collectors.toList());
   }
 
   private List<Answer> createAnswers(
       CreateDiagnosisResultRequestDTO createDiagnosisResultRequestDTO) {
-    List<Answer> answers = new ArrayList<>();
-    createDiagnosisResultRequestDTO.getQuestionAnswerRequests()
-        .forEach(
-            q -> answers.add(new Answer(q.getQuestionId(), q.getChoiceNumber(), q.getReverse())));
-    return answers;
+    return createDiagnosisResultRequestDTO.getQuestionAnswerRequests()
+        .stream().map(q -> new Answer(q.getQuestionId(), q.getChoiceNumber(), q.getReverse()))
+        .collect(Collectors.toList());
   }
 }
