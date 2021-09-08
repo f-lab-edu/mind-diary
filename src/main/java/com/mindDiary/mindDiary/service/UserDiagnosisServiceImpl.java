@@ -22,13 +22,7 @@ public class UserDiagnosisServiceImpl implements UserDiagnosisService {
   }
 
   @Override
-  public List<ReadDiagnosisResultResponseDTO> readMyDiagnosisResults(int userId) {
-    List<UserDiagnosis> userDiagnosis = userDiagnosisRepository.findByUserId(userId);
-
-    List<ReadDiagnosisResultResponseDTO> myDiagnosisResultReponses = new ArrayList<>();
-    userDiagnosis.forEach(ud -> myDiagnosisResultReponses.add(
-        ReadDiagnosisResultResponseDTO.create(ud)));
-
-    return myDiagnosisResultReponses;
+  public List<UserDiagnosis> readMyDiagnosisResults(int userId) {
+    return userDiagnosisRepository.findByUserId(userId);
   }
 }

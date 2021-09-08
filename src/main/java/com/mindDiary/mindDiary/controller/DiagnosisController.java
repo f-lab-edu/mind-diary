@@ -70,10 +70,12 @@ public class DiagnosisController {
   @LoginCheck(checkLevel = Role.USER)
   public ResponseEntity<ReadDiagnosisResultResponseDTO> readMyDiagnosisResult(Integer userId) {
 
-    List<ReadDiagnosisResultResponseDTO> myDiagnosisResultReponse
-        = userDiagnosisService.readMyDiagnosisResults(userId);
 
-    return new ResponseEntity(myDiagnosisResultReponse, HttpStatus.OK);
+    List<UserDiagnosis> userDiagnosis = userDiagnosisService.readMyDiagnosisResults(userId);
+
+    List<ReadDiagnosisResultResponseDTO> myDiagnosisResultReponses = createReadDiagnosisResultResponse(userDiagnosis);
+
+    return new ResponseEntity(myDiagnosisResultReponses, HttpStatus.OK);
   }
 
   private List<ReadDiagnosisResponseDTO> createReadDiagnosisResponses(List<Diagnosis> diagnoses) {
@@ -81,6 +83,13 @@ public class DiagnosisController {
     diagnoses.forEach(d -> readDiagnosisResponses.add(
         ReadDiagnosisResponseDTO.create(d)));
     return readDiagnosisResponses;
+  }
+
+  private List<ReadDiagnosisResultResponseDTO> createReadDiagnosisResultResponse(List<UserDiagnosis> userDiagnosis) {
+    List<ReadDiagnosisResultResponseDTO> readDiagnosisResultResponses = new ArrayList<>();
+    userDiagnosis.forEach(ud -> readDiagnosisResultResponses.add(
+        ReadDiagnosisResultResponseDTO.create(ud)));
+    return readDiagnosisResultResponses;
   }
 
   private List<Answer> createQuestionAnswers(CreateDiagnosisResultRequestDTO createDiagnosisResultRequestDTO) {
