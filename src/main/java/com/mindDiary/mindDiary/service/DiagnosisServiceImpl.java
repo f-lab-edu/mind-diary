@@ -7,9 +7,10 @@ import com.mindDiary.mindDiary.entity.Answer;
 import com.mindDiary.mindDiary.entity.QuestionBaseLine;
 import com.mindDiary.mindDiary.entity.UserDiagnosis;
 import com.mindDiary.mindDiary.repository.DiagnosisRepository;
-import com.mindDiary.mindDiary.strategy.ScoreCalculateStrategy;
+import com.mindDiary.mindDiary.strategy.scoreCalc.ScoreCalculateStrategy;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -23,6 +24,7 @@ public class DiagnosisServiceImpl implements DiagnosisService {
   private final QuestionBaseLineService questionBaseLineService;
   private final DiagnosisScoreService diagnosisScoreService;
   private final UserDiagnosisService userDiagnosisService;
+  private final ScoreCalculateStrategy scoreCalculateStrategy;
 
   @Override
   public List<Diagnosis> readDiagnosis() {
@@ -39,8 +41,7 @@ public class DiagnosisServiceImpl implements DiagnosisService {
   public UserDiagnosis createDiagnosisResult(int diagnosisId,
       List<Answer> answers, int userId) {
 
-    List<QuestionBaseLine> questionBaseLines = questionBaseLineService.readByDiagnosisId(diagnosisId);
-    int score = calc(questionBaseLines, answers);
+    int score = calc(answers, diagnosisId);
 
     DiagnosisScore diagnosisScore = diagnosisScoreService.readOneByDiagnosisIdAndScore(diagnosisId, score);
 
@@ -50,10 +51,20 @@ public class DiagnosisServiceImpl implements DiagnosisService {
 
     return userDiagnosis;
   }
-  public int calc(List<QuestionBaseLine> questionBaseLines, List<Answer> answers) {
-    ScoreCalculateStrategy calculateStrategy = ScoreCalculateStrategy.createScores(questionBaseLines);
+
+  public List<Integer> createIntegerBaseLine(List<QuestionBaseLine> questionBaseLines) {
+    return questionBaseLines.stream()
+        .map(qb -> qb.getScore())
+        .collect(Collectors.toList());
+  }
+
+  public int calc(List<Answer> answers, int diagnosisId) {
+    List<QuestionBaseLine> questionBaseLines = questionBaseLineService.readByDiagnosisId(diagnosisId);
+    scoreCalculateStrategy.addScoreBaseLine(createIntegerBaseLine(questionBaseLines));
+
     return answers.stream()
-        .mapToInt(a -> calculateStrategy.calc(a.getChoiceNumber(), a.getReverse()))
+        .mapToInt(a -> scoreCalculateStrategy.calc(a.getChoiceNumber(), a.getReverse()))
         .sum();
   }
+
 }
