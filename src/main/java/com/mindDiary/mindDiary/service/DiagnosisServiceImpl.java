@@ -40,19 +40,20 @@ public class DiagnosisServiceImpl implements DiagnosisService {
       List<Answer> answers, int userId) {
 
     List<QuestionBaseLine> questionBaseLines = questionBaseLineService.readByDiagnosisId(diagnosisId);
-
-    ScoreCalculateStrategy calculateStrategy = ScoreCalculateStrategy.createScores(questionBaseLines);
-    int score = answers.stream()
-        .mapToInt(a -> calculateStrategy.calc(a.getChoiceNumber(), a.getReverse()))
-        .sum();
+    int score = calc(questionBaseLines, answers);
 
     DiagnosisScore diagnosisScore = diagnosisScoreService.readOneByDiagnosisIdAndScore(diagnosisId, score);
-    String content = diagnosisScore.getContent();
 
     UserDiagnosis userDiagnosis = UserDiagnosis
-        .create(userId, diagnosisId, LocalDateTime.now(), score, content);
+        .create(userId, diagnosisId, LocalDateTime.now(), score, diagnosisScore.getContent());
     userDiagnosisService.save(userDiagnosis);
 
     return userDiagnosis;
+  }
+  public int calc(List<QuestionBaseLine> questionBaseLines, List<Answer> answers) {
+    ScoreCalculateStrategy calculateStrategy = ScoreCalculateStrategy.createScores(questionBaseLines);
+    return answers.stream()
+        .mapToInt(a -> calculateStrategy.calc(a.getChoiceNumber(), a.getReverse()))
+        .sum();
   }
 }
