@@ -1,13 +1,14 @@
 package com.mindDiary.mindDiary.strategy.email;
 
-import com.mindDiary.mindDiary.entity.User;
 import com.mindDiary.mindDiary.exception.businessException.MailSendFailedException;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
 
+@Slf4j
 @Service
 public class SendEmailStrategy implements EmailStrategy {
 
@@ -44,10 +45,10 @@ public class SendEmailStrategy implements EmailStrategy {
   }
 
   @Override
-  public void sendUserJoinMessage(User user) {
-    String text = "?token=" + user.getEmailCheckToken() +
-        "&email=" + user.getEmail();
-    sendMessage(user.getEmail(), text);
+  public void sendUserJoinMessage(String emailToken, String email) {
+    String text = "?token=" + emailToken +
+        "&email=" + email;
+    sendMessage(email, text);
   }
 
 }
