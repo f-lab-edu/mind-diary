@@ -1,6 +1,5 @@
 package com.mindDiary.mindDiary.dto.request;
 
-import com.mindDiary.mindDiary.entity.User;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotNull;
 import lombok.Getter;
@@ -16,7 +15,4 @@ public class LoginUserRequestDTO {
   @NotNull
   private String password;
 
-  public User turnIntoUserEntity() {
-    return User.create(email, password);
-  }
 }
