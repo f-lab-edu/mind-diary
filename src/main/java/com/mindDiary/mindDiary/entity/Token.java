@@ -1,6 +1,5 @@
 package com.mindDiary.mindDiary.entity;
 
-import com.mindDiary.mindDiary.dto.response.AccessTokenResponseDTO;
 import com.mindDiary.mindDiary.strategy.cookie.CookieStrategy;
 import com.mindDiary.mindDiary.strategy.jwt.TokenStrategy;
 import javax.servlet.http.Cookie;
@@ -26,7 +25,4 @@ public class Token {
     return cookieStrategy.createRefreshTokenCookie(refreshToken);
   }
 
-  public AccessTokenResponseDTO turnIntoAccessTokenResponseDTO() {
-    return AccessTokenResponseDTO.create(accessToken);
-  }
 }
