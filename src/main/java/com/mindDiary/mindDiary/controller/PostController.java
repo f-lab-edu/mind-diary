@@ -10,7 +10,9 @@ import com.mindDiary.mindDiary.entity.PostMedia;
 import com.mindDiary.mindDiary.entity.Role;
 import com.mindDiary.mindDiary.entity.Tag;
 import com.mindDiary.mindDiary.repository.TagRepository;
+import com.mindDiary.mindDiary.service.PostLikeHateService;
 import com.mindDiary.mindDiary.service.PostService;
+import com.sun.mail.iap.Response;
 import java.util.List;
 import java.util.stream.Collectors;
 import javax.validation.Valid;
@@ -32,6 +34,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class PostController {
 
   private final PostService postService;
+  private final PostLikeHateService postLikeHateService;
 
   @PostMapping
   @LoginCheck(checkLevel = Role.USER)
@@ -41,10 +44,10 @@ public class PostController {
     return new ResponseEntity(HttpStatus.OK);
   }
 
-  @GetMapping("/hot")
+  @GetMapping("/hot/{pageNumber}")
   @LoginCheck(checkLevel = Role.USER)
-  public ResponseEntity<List<ReadPostResponseDTO>> readHotPosts() {
-    List<Post> posts = postService.readHotPosts();
+  public ResponseEntity<List<ReadPostResponseDTO>> readHotPosts(@PathVariable @Valid int pageNumber) {
+    List<Post> posts = postService.readHotPosts(pageNumber);
     return new ResponseEntity<>(createPostResponses(posts), HttpStatus.OK);
   }
 
@@ -55,6 +58,21 @@ public class PostController {
     Post post = postService.readPost(postId);
     return new ResponseEntity(createPostResponse(post), HttpStatus.OK);
   }
+
+  @PostMapping("/like/{postId}")
+  @LoginCheck(checkLevel = Role.USER)
+  public ResponseEntity createPostLike(@PathVariable @Valid int postId, Integer userId) {
+    postLikeHateService.createLike(postId, userId);
+    return new ResponseEntity(HttpStatus.OK);
+  }
+
+  @PostMapping("/hate/{postId}/{pageNumber}")
+  @LoginCheck(checkLevel = Role.USER)
+  public ResponseEntity createPostHate(@PathVariable @Valid int postId, Integer userId) {
+    postLikeHateService.createHate(postId, userId);
+    return new ResponseEntity(HttpStatus.OK);
+  }
+
 
   private ReadPostResponseDTO createPostResponse(Post post) {
     ReadPostResponseDTO response = new ReadPostResponseDTO();

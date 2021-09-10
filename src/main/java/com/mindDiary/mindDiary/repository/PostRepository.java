@@ -1,5 +1,6 @@
 package com.mindDiary.mindDiary.repository;
 
+import com.mindDiary.mindDiary.entity.PageCriteria;
 import com.mindDiary.mindDiary.entity.Post;
 import java.util.List;
 import org.apache.ibatis.annotations.Mapper;
@@ -9,7 +10,7 @@ public interface PostRepository {
 
   int save(Post post);
 
-  List<Post> findHotPosts();
+  List<Post> findHotPosts(PageCriteria pageCriteria);
 
   Post findById(int postId);
 
