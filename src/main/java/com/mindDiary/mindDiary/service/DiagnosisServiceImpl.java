@@ -27,12 +27,12 @@ public class DiagnosisServiceImpl implements DiagnosisService {
   private final ScoreCalculateStrategy scoreCalculateStrategy;
 
   @Override
-  public List<Diagnosis> readDiagnosis() {
-    return diagnosisRepository.findDiagnosis();
+  public List<Diagnosis> readDiagnoses() {
+    return diagnosisRepository.findDiagnoses();
   }
 
   @Override
-  public DiagnosisWithQuestion readDiagnosisQuestions(int diagnosisId) {
+  public DiagnosisWithQuestion readDiagnosisWithQuestions(int diagnosisId) {
     return diagnosisRepository.findDiagnosisWithQuestionById(diagnosisId);
   }
 
@@ -47,6 +47,7 @@ public class DiagnosisServiceImpl implements DiagnosisService {
 
     UserDiagnosis userDiagnosis = UserDiagnosis
         .create(userId, diagnosisId, LocalDateTime.now(), score, diagnosisScore.getContent());
+
     userDiagnosisService.save(userDiagnosis);
 
     return userDiagnosis;
@@ -59,6 +60,7 @@ public class DiagnosisServiceImpl implements DiagnosisService {
   }
 
   public int calc(List<Answer> answers, int diagnosisId) {
+
     List<QuestionBaseLine> questionBaseLines = questionBaseLineService.readByDiagnosisId(diagnosisId);
     scoreCalculateStrategy.addScoreBaseLine(createIntegerBaseLine(questionBaseLines));
 
