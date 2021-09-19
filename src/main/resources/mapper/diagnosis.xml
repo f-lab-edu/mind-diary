@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mindDiary.mindDiary.repository.DiagnosisRepository">
+
+  <select id = "findDiagnosis" resultType="com.mindDiary.mindDiary.entity.Diagnosis">
+    SELECT id, name, number_of_choice
+    FROM diagnosis
+  </select>
+
+  <select id="findDiagnosisWithQuestionById" parameterType="int" resultMap="diagnosisWithQuestion">
+    SELECT
+      d.id AS 'diagnosis_id',
+      d.name AS 'diagnosis_name',
+      d.number_of_choice AS 'diagnosis_number_of_choice',
+      q.id AS 'question_id',
+      q.content AS 'question_content',
+      q.reverse AS 'question_reverse',
+      qb.id AS 'question_base_line_id',
+      qb.content AS 'question_base_line_content',
+      qb.score AS 'question_base_line_score'
+    FROM diagnosis d
+    LEFT OUTER JOIN question q ON q.diagnosis_id = d.id
+    LEFT OUTER JOIN question_base_line qb ON qb.diagnosis_id = d.id
+    WHERE d.id = #{diagnosisId}
+  </select>
+
+  <resultMap id="diagnosisWithQuestion" type="com.mindDiary.mindDiary.entity.DiagnosisWithQuestion">
+    <id property="id" column = "diagnosis_id"/>
+    <result property="name" column = "diagnosis_name"/>
+    <result property="numberOfChoice" column="diagnosis_number_of_choice"/>
+    <collection property="questions" resultMap="question"/>
+    <collection property="questionBaseLines" resultMap="questionBaseLine"/>
+  </resultMap>
+
+  <resultMap id="question" type="com.mindDiary.mindDiary.entity.Question">
+    <id property="id" column="question_id"/>
+    <result property="content" column="question_content"/>
+    <result property="reverse" column="question_reverse"/>
+  </resultMap>
+
+  <resultMap id="questionBaseLine" type="com.mindDiary.mindDiary.entity.QuestionBaseLine">
+    <id property="id" column="question_base_line_id"/>
+    <result property="content" column="question_base_line_content"/>
+    <result property="score" column="question_base_line_score"/>
+  </resultMap>
+
+</mapper>
