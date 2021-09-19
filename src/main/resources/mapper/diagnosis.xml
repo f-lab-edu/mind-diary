@@ -2,7 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.mindDiary.mindDiary.repository.DiagnosisRepository">
 
-  <select id = "findDiagnosis" resultType="com.mindDiary.mindDiary.entity.Diagnosis">
+  <select id = "findDiagnoses" resultType="com.mindDiary.mindDiary.entity.Diagnosis">
     SELECT id, name, number_of_choice
     FROM diagnosis
   </select>
