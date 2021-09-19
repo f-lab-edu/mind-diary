@@ -11,7 +11,6 @@ import com.mindDiary.mindDiary.entity.Role;
 import com.mindDiary.mindDiary.entity.UserDiagnosis;
 import com.mindDiary.mindDiary.service.DiagnosisService;
 import com.mindDiary.mindDiary.service.UserDiagnosisService;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 import javax.validation.Valid;
@@ -29,7 +28,7 @@ import org.springframework.web.bind.annotation.RestController;
 @Slf4j
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/diagnosis")
+@RequestMapping("/diagnoses")
 public class DiagnosisController {
 
   private final DiagnosisService diagnosisService;
@@ -37,24 +36,24 @@ public class DiagnosisController {
 
   @GetMapping
   @LoginCheck(checkLevel = Role.USER)
-  public ResponseEntity<List<ReadDiagnosisResponseDTO>> readDiagnosis() {
-    List<Diagnosis> diagnoses = diagnosisService.readDiagnosis();
+  public ResponseEntity<List<ReadDiagnosisResponseDTO>> readDiagnoses() {
+    List<Diagnosis> diagnoses = diagnosisService.readDiagnoses();
     return new ResponseEntity<>(createReadDiagnosisResponses(diagnoses), HttpStatus.OK);
   }
 
-  @GetMapping("/question/{diagnosisId}")
+  @GetMapping("/{diagnosisId}/question")
   @LoginCheck(checkLevel = Role.USER)
   public ResponseEntity<ReadDiagnosisResponseDTO> readDiagnosisQuestions(
       @PathVariable("diagnosisId") @Valid int diagnosisId) {
 
     DiagnosisWithQuestion diagnosisWithQuestion
-        = diagnosisService.readDiagnosisQuestions(diagnosisId);
+        = diagnosisService.readDiagnosisWithQuestions(diagnosisId);
 
     return new ResponseEntity<>(ReadDiagnosisResponseDTO.create(diagnosisWithQuestion),
         HttpStatus.OK);
   }
 
-  @PostMapping("/result/{diagnosisId}")
+  @PostMapping("/{diagnosisId}/result")
   @LoginCheck(checkLevel = Role.USER)
   public ResponseEntity createDiagnosisResult(@PathVariable("diagnosisId") @Valid int diagnosisId,
       @RequestBody @Valid CreateDiagnosisResultRequestDTO createDiagnosisResultRequest,
