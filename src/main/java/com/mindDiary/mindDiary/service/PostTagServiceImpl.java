@@ -1,6 +1,8 @@
 package com.mindDiary.mindDiary.service;
 
+import com.mindDiary.mindDiary.entity.PostTag;
 import com.mindDiary.mindDiary.repository.PostTagRepository;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -13,7 +15,7 @@ public class PostTagServiceImpl implements PostTagService {
   private final PostTagRepository postTagRepository;
 
   @Override
-  public void save(int postId, int tagId) {
-    postTagRepository.save(postId, tagId);
+  public void save(List<PostTag> postTags) {
+    postTagRepository.save(postTags);
   }
 }

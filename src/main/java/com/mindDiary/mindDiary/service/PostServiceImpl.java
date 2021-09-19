@@ -3,9 +3,11 @@ package com.mindDiary.mindDiary.service;
 import com.mindDiary.mindDiary.entity.PageCriteria;
 import com.mindDiary.mindDiary.entity.Post;
 import com.mindDiary.mindDiary.entity.PostMedia;
+import com.mindDiary.mindDiary.entity.PostTag;
 import com.mindDiary.mindDiary.entity.Tag;
 import com.mindDiary.mindDiary.repository.PostRepository;
 import java.util.List;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -41,28 +43,18 @@ public class PostServiceImpl implements PostService {
     return postRepository.findById(postId);
   }
 
-
-  private void createPostTag(Tag tag, int postId) {
-      Tag findTag = tagService.findByName(tag.getName());
-
-      if (findTag != null) {
-        postTagService.save(postId, findTag.getId());
-        return;
-      }
-
-      tagService.save(tag);
-      postTagService.save(postId, tag.getId());
-  }
-
   private void createPostTags(List<Tag> tags, int postId) {
-    if (tags.isEmpty()) {
-      return;
-    }
 
-    for (Tag tag : tags) {
-      createPostTag(tag, postId);
-    }
+    tagService.save(tags);
+
+    List<PostTag> postTags = tags.stream()
+        .map(tag -> new PostTag(postId, tag.getId()))
+        .collect(Collectors.toList());
+
+    postTagService.save(postTags);
+
   }
+
 
   private void createPostMedias(List<PostMedia> postMedias, int postId) {
     if (postMedias.isEmpty()) {
