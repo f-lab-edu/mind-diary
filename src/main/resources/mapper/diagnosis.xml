@@ -2,44 +2,9 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.mindDiary.mindDiary.repository.DiagnosisRepository">
 
-  <select id = "findUserDiagnosisById" resultType="com.mindDiary.mindDiary.entity.UserDiagnosis">
-    SELECT user_id, diagnosis_id, score, created_at, content
-    FROM user_diagnosis
-    WHERE user_id = #{userId}
-  </select>
-
-  <update id="save" parameterType="com.mindDiary.mindDiary.entity.UserDiagnosis">
-    INSERT INTO user_diagnosis(user_id, diagnosis_id, created_at, score, content)
-    VALUES(#{userId}, #{diagnosisId}, #{createdAt}, #{score}, #{content})
-  </update>
-
   <select id = "findDiagnosis" resultType="com.mindDiary.mindDiary.entity.Diagnosis">
     SELECT id, name, number_of_choice
     FROM diagnosis
-  </select>
-
-  <select id="findQuestionBaseLinesById" parameterType="int" resultType="com.mindDiary.mindDiary.entity.QuestionBaseLine">
-    SELECT id, content, score
-    FROM question_base_line
-    WHERE diagnosis_id = #{diagnosisId}
-    ORDER BY score
-  </select>
-
-  <select id = "findQuestionsByAnswers" parameterType="java.util.List" resultType="com.mindDiary.mindDiary.entity.Question">
-    SELECT id, content, reverse
-    FROM question
-    WHERE id IN
-    <foreach collection="list" item="item" index="index" separator="," open="(" close=")">
-      #{item.questionId}
-    </foreach>
-    ORDER BY id
-  </select>
-
-  <select id="findDiagnosisScore" parameterType="int" resultType="com.mindDiary.mindDiary.entity.DiagnosisScore">
-    SELECT id, min_value, max_value, content
-    FROM diagnosis_score
-    WHERE diagnosis_id = #{diagnosisId}
-    AND min_value <![CDATA[<=]]> #{score} AND max_value <![CDATA[>=]]> #{score}
   </select>
 
   <select id="findDiagnosisWithQuestionById" parameterType="int" resultMap="diagnosisWithQuestion">

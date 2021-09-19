@@ -1,17 +1,17 @@
 package com.mindDiary.mindDiary.service;
 
-import com.mindDiary.mindDiary.dto.request.CreateDiagnosisResultRequestDTO;
-import com.mindDiary.mindDiary.dto.response.ReadDiagnosisResultResponseDTO;
-import com.mindDiary.mindDiary.dto.response.ReadDiagnosisResponseDTO;
+import com.mindDiary.mindDiary.entity.Diagnosis;
+import com.mindDiary.mindDiary.entity.DiagnosisWithQuestion;
+import com.mindDiary.mindDiary.entity.Answer;
+import com.mindDiary.mindDiary.entity.UserDiagnosis;
 import java.util.List;
 
 public interface DiagnosisService {
 
-  List<ReadDiagnosisResponseDTO> readDiagnosis();
+  List<Diagnosis> readDiagnosis();
 
-  ReadDiagnosisResponseDTO readDiagnosisQuestions(int diagnosisId);
+  DiagnosisWithQuestion readDiagnosisQuestions(int diagnosisId);
 
-  ReadDiagnosisResultResponseDTO createDiagnosisResult(int diagnosisId, CreateDiagnosisResultRequestDTO createDiagnosisResultRequest, int userId);
+  UserDiagnosis createDiagnosisResult(int diagnosisId, List<Answer> answers, int userId);
 
-  List<ReadDiagnosisResultResponseDTO> readMyDiagnosisResults(int userId);
 }

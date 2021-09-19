@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mindDiary.mindDiary.repository.QuestionBaseLineRepository">
+  <select id="findByDiagnosisId" parameterType="int" resultType="com.mindDiary.mindDiary.entity.QuestionBaseLine">
+    SELECT id, content, score
+    FROM question_base_line
+    WHERE diagnosis_id = #{diagnosisId}
+    ORDER BY score
+  </select>
+</mapper>

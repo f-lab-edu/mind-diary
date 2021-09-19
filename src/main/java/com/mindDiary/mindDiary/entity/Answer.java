@@ -1,14 +1,14 @@
 package com.mindDiary.mindDiary.entity;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 
 @Getter
 @Setter
-public class Question {
-
-  private int id;
-  private String content;
+@AllArgsConstructor
+public class Answer {
+  private int questionId;
+  private int choiceNumber;
   private Reverse reverse;
-
 }
