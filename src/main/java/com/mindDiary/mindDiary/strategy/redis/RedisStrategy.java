@@ -1,9 +1,5 @@
 package com.mindDiary.mindDiary.strategy.redis;
 
-
-import com.mindDiary.mindDiary.entity.Token;
-import com.mindDiary.mindDiary.entity.User;
-
 public interface RedisStrategy {
 
   void setValue(String key, String value);
@@ -18,8 +14,7 @@ public interface RedisStrategy {
 
   void validateDuration(long duration);
 
-  void addRefreshToken(Token token, User user);
+  void addEmailToken(String emailCheckToken, int userId);
 
-  void addEmailToken(User user);
-
+  void addRefreshToken(String refreshToken, int userId);
 }

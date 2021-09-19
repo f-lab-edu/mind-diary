@@ -33,14 +33,14 @@ public class UserController {
 
   @PostMapping("/join")
   public ResponseEntity join(@RequestBody @Valid JoinUserRequestDTO joinUserRequestDTO) {
-    User user = joinUserRequestDTO.turnIntoUserEntity();
+    User user = joinUserRequestDTO.createEntity();
     userService.join(user);
     return new ResponseEntity(HttpStatus.OK);
   }
 
   @GetMapping("/check-email-token")
-  public ResponseEntity checkEmailToken(@RequestParam(value = "token") String token,
-      @RequestParam(value = "email") String email) {
+  public ResponseEntity checkEmailToken(@RequestParam(value = "token") @Valid String token,
+      @RequestParam(value = "email") @Valid String email) {
     userService.checkEmailToken(token, email);
     return new ResponseEntity(HttpStatus.OK);
   }
@@ -50,34 +50,32 @@ public class UserController {
   public ResponseEntity login(@RequestBody @Valid LoginUserRequestDTO loginUserRequestDTO,
       HttpServletResponse httpServletResponse) {
 
-    User user = loginUserRequestDTO.turnIntoUserEntity();
-    Token token = userService.login(user);
+    Token token = userService.login(loginUserRequestDTO.getEmail(), loginUserRequestDTO.getPassword());
     Cookie cookie = token.turnRefreshTokenInfoCookie(cookieStrategy);
     httpServletResponse.addCookie(cookie);
 
-    AccessTokenResponseDTO accessTokenResponseDTO = token.turnIntoAccessTokenResponseDTO();
-
-    return new ResponseEntity(accessTokenResponseDTO, HttpStatus.OK);
+    return new ResponseEntity(createAccessTokenResponse(token), HttpStatus.OK);
   }
-
 
   @PostMapping("/refresh")
   public ResponseEntity updateToken(HttpServletRequest httpServletRequest,
       HttpServletResponse httpServletResponse) {
 
     Cookie cookie = cookieStrategy.getRefreshTokenCookie(httpServletRequest);
-    String refreshTokenTakenFromCookie = cookie.getValue();
+    String refreshToken = cookie.getValue();
 
-    Token token = userService.refresh(refreshTokenTakenFromCookie);
+    Token token = userService.refresh(refreshToken);
 
     cookieStrategy.deleteRefreshTokenCookie(httpServletRequest, httpServletResponse);
     Cookie newCookie = token.turnRefreshTokenInfoCookie(cookieStrategy);
     httpServletResponse.addCookie(newCookie);
 
-    AccessTokenResponseDTO accessTokenResponseDTO = token.turnIntoAccessTokenResponseDTO();
+    return new ResponseEntity(createAccessTokenResponse(token), HttpStatus.OK);
 
-    return new ResponseEntity(accessTokenResponseDTO, HttpStatus.OK);
+  }
 
+  public AccessTokenResponseDTO createAccessTokenResponse(Token token) {
+    return AccessTokenResponseDTO.create(token.getAccessToken());
   }
 
 }

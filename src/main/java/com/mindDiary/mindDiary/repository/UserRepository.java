@@ -9,9 +9,10 @@ public interface UserRepository {
   User findByNickname(String nickname);
 
   User findByEmail(String email);
-  void save(User user);
 
-  void updateRole(User user);
+  int save(User user);
+
+  int updateRole(User user);
 
   User findById(int id);
 }

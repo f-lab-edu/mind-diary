@@ -4,8 +4,10 @@ import com.mindDiary.mindDiary.strategy.jwt.TokenStrategy;
 import java.util.UUID;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+@ToString
 @Setter
 @Getter
 public class User {
@@ -22,16 +24,6 @@ public class User {
 
   private String emailCheckToken;
 
-  public User createNotPermittedUserWithEmailToken() {
-    User newUser = new User();
-    newUser.setEmail(email);
-    newUser.setNickname(nickname);
-    newUser.setPassword(password);
-    newUser.setRole(Role.NOT_PERMITTED);
-    newUser.setEmailCheckToken(UUID.randomUUID().toString());
-    return newUser;
-  }
-
   public void changeHashedPassword(PasswordEncoder passwordEncoder) {
     this.password = passwordEncoder.encode(password);
   }
@@ -45,13 +37,8 @@ public class User {
     user.setEmail(email);
     user.setNickname(nickname);
     user.setPassword(password);
-    return user;
-  }
-
-  public static User create(String email, String password) {
-    User user = new User();
-    user.setEmail(email);
-    user.setPassword(password);
+    user.setRole(Role.NOT_PERMITTED);
+    user.setEmailCheckToken(UUID.randomUUID().toString());
     return user;
   }
 

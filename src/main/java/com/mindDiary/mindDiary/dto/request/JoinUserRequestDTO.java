@@ -21,7 +21,7 @@ public class JoinUserRequestDTO {
   @NotNull
   private String password;
 
-  public User turnIntoUserEntity() {
+  public User createEntity() {
     return User.create(email, nickname, password);
   }
 }

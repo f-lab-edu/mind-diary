@@ -9,7 +9,7 @@ public interface UserService {
 
   void checkEmailToken(String token, String email);
 
-  Token login(User user);
+  Token login(String email, String password);
 
   Token refresh(String refreshTokenTakenFromCookie);
 

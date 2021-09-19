@@ -1,6 +1,7 @@
 package com.mindDiary.mindDiary.strategy.jwt;
 
 import com.mindDiary.mindDiary.exception.InvalidJwtException;
+import com.mindDiary.mindDiary.exception.businessException.BusinessException;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
@@ -29,6 +30,7 @@ public class JwtStrategy implements TokenStrategy {
   private static final String USER_ID = "userId";
   private static final String USER_ROLE = "userRole";
   private static final String USER_EMAIL = "userEmail";
+  private static final String INVALID_VALUE_EXCEPTION = "토큰을 발급할 수 없습니다";
 
 
   private Key getSigningKey(String secretKey) {
@@ -39,6 +41,7 @@ public class JwtStrategy implements TokenStrategy {
 
   @Override
   public String createAccessToken(int id, String role, String email) {
+
     Claims claims = Jwts.claims();
     claims.put(USER_ID, id);
     claims.put(USER_ROLE, role);
@@ -49,6 +52,7 @@ public class JwtStrategy implements TokenStrategy {
 
   @Override
   public String createRefreshToken(int id) {
+
     Claims claims = Jwts.claims();
     claims.put(USER_ID, id);
 
@@ -56,6 +60,10 @@ public class JwtStrategy implements TokenStrategy {
   }
 
   public String createToken(Claims claims, long validityInSeconds) {
+
+    validateClaims(claims);
+    validateSeconds(validityInSeconds);
+
     long now = System.currentTimeMillis();
     Date nowDate = new Date(now);
     Date validity = new Date(now + (validityInSeconds * 1000));
@@ -67,6 +75,18 @@ public class JwtStrategy implements TokenStrategy {
         .signWith(getSigningKey(secret), SignatureAlgorithm.HS256)
         .compact();
     return jwt;
+  }
+
+  private void validateSeconds(long validityInSeconds) {
+    if (validityInSeconds <= 0) {
+      throw new InvalidJwtException(INVALID_VALUE_EXCEPTION);
+    }
+  }
+
+  private void validateClaims(Claims claims) {
+    if (claims == null || claims.isEmpty() || claims.size() == 0) {
+      throw new InvalidJwtException(INVALID_VALUE_EXCEPTION);
+    }
   }
 
   private Claims extractAllClaims(String token) {

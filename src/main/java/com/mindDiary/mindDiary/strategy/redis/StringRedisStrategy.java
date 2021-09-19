@@ -1,7 +1,5 @@
 package com.mindDiary.mindDiary.strategy.redis;
 
-import com.mindDiary.mindDiary.entity.Token;
-import com.mindDiary.mindDiary.entity.User;
 import com.mindDiary.mindDiary.exception.businessException.RedisAddValueException;
 import java.time.Duration;
 import lombok.extern.slf4j.Slf4j;
@@ -63,15 +61,15 @@ public class StringRedisStrategy implements RedisStrategy {
     redisTemplate.delete(key);
   }
 
-  @Override
-  public void addEmailToken(User user) {
-    setValue(user.getEmailCheckToken(), String.valueOf(user.getId()), emailValidityInSeconds);
-  }
-
 
   @Override
-  public void addRefreshToken(Token token, User user) {
-    setValue(token.getRefreshToken(), String.valueOf(user.getId()),
-        refreshTokenValidityInSeconds);
+  public void addEmailToken(String emailCheckToken, int userId) {
+    setValue(emailCheckToken, String.valueOf(userId), emailValidityInSeconds);
   }
+
+  @Override
+  public void addRefreshToken(String refreshToken, int userId) {
+    setValue(refreshToken, String.valueOf(userId), refreshTokenValidityInSeconds);
+  }
+
 }
