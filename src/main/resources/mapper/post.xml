@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mindDiary.mindDiary.repository.PostRepository">
+
+  <update id="increaseVisitCount" parameterType="int">
+    UPDATE post
+    SET visit_count = visit_count + 1
+    WHERE id = #{postId}
+  </update>
+
+  <update id="save" useGeneratedKeys="true" keyProperty="id" parameterType="com.mindDiary.mindDiary.entity.Post">
+    INSERT INTO post(user_id, created_at, title, content, visit_count, like_count, hate_count, reply_count)
+    VALUES(#{userId}, #{createdAt}, #{title}, #{content}, #{visitCount}, #{likeCount}, #{hateCount}, #{replyCount})
+  </update>
+
+  <select id="findHotPosts" parameterType="com.mindDiary.mindDiary.entity.PageCriteria" resultMap="post">
+    SELECT
+      p.id AS 'post_id',
+      p.user_id AS 'post_user_id',
+      u.nickname AS 'post_writer',
+      p.created_at AS 'post_created_at',
+      p.title AS 'post_title',
+      p.content AS 'post_content',
+      p.visit_count AS 'post_visit_count',
+      p.like_count AS 'post_like_count',
+      p.hate_count AS 'post_hate_count',
+      p.reply_count AS 'post_reply_count',
+      pm.id AS 'post_media_id',
+      pm.type AS 'post_media_type',
+      pm.url AS 'post_media_url',
+      t.id AS 'tag_id',
+      t.name AS 'tag_name'
+    FROM (SELECT * FROM post ORDER BY visit_count DESC LIMIT #{pageStart},#{perPageNum}) AS p
+    LEFT OUTER JOIN post_media pm ON pm.post_id = p.id
+    LEFT OUTER JOIN post_tag pt ON pt.post_id = p.id
+    LEFT OUTER JOIN tag t ON t.id = pt.tag_id
+    LEFT OUTER JOIN user u ON u.id = p.user_id
+  </select>
+
+  <select id="findById" parameterType="int" resultMap="post">
+    SELECT
+      p.id AS 'post_id',
+      p.user_id AS 'post_user_id',
+      u.nickname AS 'post_writer',
+      p.created_at AS 'post_created_at',
+      p.title AS 'post_title',
+      p.content AS 'post_content',
+      p.visit_count AS 'post_visit_count',
+      p.like_count AS 'post_like_count',
+      p.hate_count AS 'post_hate_count',
+      p.reply_count AS 'post_reply_count',
+      pm.id AS 'post_media_id',
+      pm.type AS 'post_media_type',
+      pm.url AS 'post_media_url',
+      t.id AS 'tag_id',
+      t.name AS 'tag_name'
+    FROM post p
+    LEFT OUTER JOIN post_media pm ON pm.post_id = p.id
+    LEFT OUTER JOIN post_tag pt ON pt.post_id = p.id
+    LEFT OUTER JOIN tag t ON t.id = pt.tag_id
+    LEFT OUTER JOIN user u ON u.id = p.user_id
+    WHERE p.id = #{postId}
+  </select>
+
+  <resultMap id="post" type="com.mindDiary.mindDiary.entity.Post">
+    <id property="id" column = "post_id"/>
+    <result property="userId" column = "post_user_id"/>
+    <result property="writer" column="post_writer"/>
+    <result property="createdAt" column="post_created_at"/>
+    <result property="title" column="post_title"/>
+    <result property="content" column="post_content"/>
+    <result property="visitCount" column="post_visit_count"/>
+    <result property="likeCount" column="post_like_count"/>
+    <result property="hateCount" column="post_hate_count"/>
+    <result property="replyCount" column="post_reply_count"/>
+    <collection property="postMedias" resultMap="postMedia"/>
+    <collection property="tags" resultMap="tag"/>
+  </resultMap>
+
+  <resultMap id="postMedia" type="com.mindDiary.mindDiary.entity.PostMedia">
+    <id property="id" column="post_media_id"/>
+    <result property="type" column="post_media_type"/>
+    <result property="url" column="post_media_url"/>
+  </resultMap>
+
+  <resultMap id="tag" type="com.mindDiary.mindDiary.entity.Tag">
+    <id property="id" column="tag_id"/>
+    <result property="name" column="tag_name"/>
+  </resultMap>
+</mapper>

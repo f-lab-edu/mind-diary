@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mindDiary.mindDiary.repository.PostLikeHateRepository">
+  <update id="saveLike" parameterType="int">
+    INSERT INTO post_like_hate (post_id, user_id, type)
+    VALUES (#{postId}, #{userId}, "LIKE")
+  </update>
+
+  <update id="saveHate" parameterType="int">
+    INSERT INTO post_like_hate (post_id, user_id, type)
+    VALUES (#{postId}, #{userId}, "HATE")
+  </update>
+
+
+</mapper>
