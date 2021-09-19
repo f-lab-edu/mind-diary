@@ -13,7 +13,7 @@
     VALUES(#{userId}, #{createdAt}, #{title}, #{content}, #{visitCount}, #{likeCount}, #{hateCount}, #{replyCount})
   </update>
 
-  <select id="findHotPosts" resultMap="post">
+  <select id="findHotPosts" parameterType="com.mindDiary.mindDiary.entity.PageCriteria" resultMap="post">
     SELECT
       p.id AS 'post_id',
       p.user_id AS 'post_user_id',
@@ -30,7 +30,7 @@
       pm.url AS 'post_media_url',
       t.id AS 'tag_id',
       t.name AS 'tag_name'
-    FROM (SELECT * FROM post ORDER BY visit_count DESC LIMIT 0,5) AS p
+    FROM (SELECT * FROM post ORDER BY visit_count DESC LIMIT #{pageStart},#{perPageNum}) AS p
     LEFT OUTER JOIN post_media pm ON pm.post_id = p.id
     LEFT OUTER JOIN post_tag pt ON pt.post_id = p.id
     LEFT OUTER JOIN tag t ON t.id = pt.tag_id

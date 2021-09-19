@@ -7,7 +7,7 @@ public interface PostService {
 
   void createPost(Post post);
 
-  List<Post> readHotPosts();
+  List<Post> readHotPosts(int pageNumber);
 
   Post readPost(int postId);
 }

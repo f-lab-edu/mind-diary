@@ -1,5 +1,6 @@
 package com.mindDiary.mindDiary.service;
 
+import com.mindDiary.mindDiary.entity.PageCriteria;
 import com.mindDiary.mindDiary.entity.Post;
 import com.mindDiary.mindDiary.entity.PostMedia;
 import com.mindDiary.mindDiary.entity.Tag;
@@ -29,8 +30,9 @@ public class PostServiceImpl implements PostService {
   }
 
   @Override
-  public List<Post> readHotPosts() {
-    return postRepository.findHotPosts();
+  public List<Post> readHotPosts(int pageNumber) {
+    PageCriteria pageCriteria = new PageCriteria(pageNumber);
+    return postRepository.findHotPosts(pageCriteria);
   }
 
   @Override
@@ -38,6 +40,7 @@ public class PostServiceImpl implements PostService {
     postRepository.increaseVisitCount(postId);
     return postRepository.findById(postId);
   }
+
 
   private void createPostTag(Tag tag, int postId) {
       Tag findTag = tagService.findByName(tag.getName());
