@@ -1,19 +1,22 @@
 package com.mindDiary.mindDiary.entity;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.Setter;
+import lombok.NoArgsConstructor;
 
 @Getter
-@Setter
+@AllArgsConstructor
+@NoArgsConstructor
 public class PageCriteria {
 
-  private final int perPageNum = 5;
+  private int perPageNum;
   private int pageNumber;
   private int pageStart;
 
-  public PageCriteria(int pageNumber) {
+  public PageCriteria(int pageNumber, int perPageNum) {
     this.pageNumber = pageNumber;
     this.pageStart = calcPageStart(pageNumber);
+    this.perPageNum = perPageNum;
   }
 
   private int calcPageStart(int pageNumber) {

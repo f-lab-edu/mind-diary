@@ -1,12 +1,13 @@
 package com.mindDiary.mindDiary.entity;
 
-import com.mindDiary.mindDiary.dto.response.DiaryResponseDTO;
 import java.time.LocalDateTime;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.Setter;
+import lombok.NoArgsConstructor;
 
 @Getter
-@Setter
+@AllArgsConstructor
+@NoArgsConstructor
 public class Diary {
 
   private int id;
@@ -21,16 +22,32 @@ public class Diary {
 
   private String content;
 
-  public static Diary create(String title, String content, FeelingStatus feelingStatus) {
-    Diary diary = new Diary();
-    diary.setTitle(title);
-    diary.setContent(content);
-    diary.setFeelingStatus(feelingStatus);
-    return diary;
+  public Diary(int id, int userId, LocalDateTime createdAt, FeelingStatus feelingStatus, String title) {
+    this.id = id;
+    this.userId = userId;
+    this.createdAt = createdAt;
+    this.feelingStatus = feelingStatus;
+    this.title = title;
   }
 
-  public DiaryResponseDTO turnIntoDiaryResponseDTO() {
-    return DiaryResponseDTO.create(id, createdAt, feelingStatus, title, content);
+
+  public Diary(int userId, LocalDateTime createdAt, FeelingStatus feelingStatus,  String title, String content) {
+    this.userId = userId;
+    this.createdAt = createdAt;
+    this.feelingStatus = feelingStatus;
+    this.title = title;
+    this.content = content;
+
+  }
+
+  public static Diary create(int userId, LocalDateTime createdAt, FeelingStatus feelingStatus,  String title, String content) {
+    return new Diary(
+        userId,
+        createdAt,
+        feelingStatus,
+        title,
+        content
+    );
   }
 
 }

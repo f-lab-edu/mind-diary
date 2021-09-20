@@ -1,19 +1,24 @@
 package com.mindDiary.mindDiary.entity;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.Setter;
+import lombok.NoArgsConstructor;
 import lombok.ToString;
 
 @ToString
 @Getter
-@Setter
+@AllArgsConstructor
+@NoArgsConstructor
 public class Tag {
   private int id;
   private String name;
 
+  public Tag(String name) {
+    this.name = name;
+  }
+
   public static Tag create(String name) {
-    Tag tag = new Tag();
-    tag.setName(name);
-    return tag;
+
+    return new Tag(name);
   }
 }

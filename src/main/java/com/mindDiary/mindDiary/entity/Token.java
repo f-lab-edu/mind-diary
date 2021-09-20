@@ -3,11 +3,13 @@ package com.mindDiary.mindDiary.entity;
 import com.mindDiary.mindDiary.strategy.cookie.CookieStrategy;
 import com.mindDiary.mindDiary.strategy.jwt.TokenStrategy;
 import javax.servlet.http.Cookie;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.Setter;
+import lombok.NoArgsConstructor;
 
 @Getter
-@Setter
+@AllArgsConstructor
+@NoArgsConstructor
 public class Token {
 
   private String accessToken;
@@ -15,10 +17,10 @@ public class Token {
   private String refreshToken;
 
   public static Token create(User user, TokenStrategy tokenStrategy) {
-    Token token = new Token();
-    token.setAccessToken(user.turnUserinfoToAccessToken(tokenStrategy));
-    token.setRefreshToken(user.turnUserinfoToRefreshToken(tokenStrategy));
-    return token;
+
+    return new Token(
+        user.turnUserinfoToAccessToken(tokenStrategy),
+        user.turnUserinfoToRefreshToken(tokenStrategy));
   }
 
   public Cookie turnRefreshTokenInfoCookie(CookieStrategy cookieStrategy) {
