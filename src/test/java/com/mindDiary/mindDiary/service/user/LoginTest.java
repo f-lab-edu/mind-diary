@@ -58,9 +58,7 @@ public class LoginTest {
   RedisStrategy redisStrategy;
 
   public static Token createToken() {
-    Token token = new Token();
-    token.setAccessToken(ACCESS_TOKEN);
-    token.setRefreshToken(REFRESH_TOKEN);
+    Token token = new Token(ACCESS_TOKEN, REFRESH_TOKEN);
     return token;
   }
 

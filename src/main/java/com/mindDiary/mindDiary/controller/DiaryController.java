@@ -31,29 +31,31 @@ public class DiaryController {
   @GetMapping
   @LoginCheck(checkLevel = Role.USER)
   public ResponseEntity<List<DiaryResponseDTO>> readDiaries(Integer userId) {
-
+    log.info(String.valueOf(userId));
     List<Diary> diaries = diaryService.readDiaries(userId);
-
-    List<DiaryResponseDTO> diaryResponseDTOS
-        = diaries.stream()
-        .map(diary -> diary.turnIntoDiaryResponseDTO())
-        .collect(Collectors.toList());
-    return new ResponseEntity(diaryResponseDTOS, HttpStatus.OK);
+    return new ResponseEntity(createDiaryResponses(diaries), HttpStatus.OK);
   }
+
 
   @GetMapping("/{diaryId}")
   @LoginCheck(checkLevel = Role.USER)
   public ResponseEntity readOneDiary(@PathVariable("diaryId") @Valid int diaryId) {
     Diary diary = diaryService.readOneDiary(diaryId);
-    DiaryResponseDTO diaryResponseDTO = diary.turnIntoDiaryResponseDTO();
+    DiaryResponseDTO diaryResponseDTO = DiaryResponseDTO.create(diary);
     return new ResponseEntity(diaryResponseDTO, HttpStatus.OK);
   }
 
   @PostMapping
   @LoginCheck(checkLevel = Role.USER)
   public ResponseEntity createDiary(@RequestBody @Valid CreateDiaryRequestDTO createDiaryRequestDTO, Integer userId) {
-    Diary diary = createDiaryRequestDTO.turnIntoDiaryEntity();
-    diaryService.createDiary(diary, userId);
+    Diary diary = createDiaryRequestDTO.createEntity(userId);
+    diaryService.createDiary(diary);
     return new ResponseEntity(HttpStatus.OK);
+  }
+
+  private List<DiaryResponseDTO> createDiaryResponses(List<Diary> diaries) {
+    return diaries.stream()
+        .map(diary -> DiaryResponseDTO.create(diary))
+        .collect(Collectors.toList());
   }
 }
