@@ -1,12 +1,17 @@
 package com.mindDiary.mindDiary.dto.response;
 
+import com.mindDiary.mindDiary.entity.Tag;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.Setter;
+import lombok.NoArgsConstructor;
 
 @Getter
-@Setter
 @AllArgsConstructor
+@NoArgsConstructor
 public class TagResponseDTO {
   private String name;
+
+  public static TagResponseDTO create(Tag tag) {
+    return new TagResponseDTO(tag.getName());
+  }
 }

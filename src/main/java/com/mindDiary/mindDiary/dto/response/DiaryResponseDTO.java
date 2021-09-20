@@ -1,12 +1,15 @@
 package com.mindDiary.mindDiary.dto.response;
 
+import com.mindDiary.mindDiary.entity.Diary;
 import com.mindDiary.mindDiary.entity.FeelingStatus;
 import java.time.LocalDateTime;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.Setter;
+import lombok.NoArgsConstructor;
 
 @Getter
-@Setter
+@AllArgsConstructor
+@NoArgsConstructor
 public class DiaryResponseDTO {
 
   private int id;
@@ -19,13 +22,12 @@ public class DiaryResponseDTO {
 
   private String content;
 
-  public static DiaryResponseDTO create(int id, LocalDateTime createdAt, FeelingStatus feelingStatus, String title, String content) {
-    DiaryResponseDTO diaryResponseDTO = new DiaryResponseDTO();
-    diaryResponseDTO.setId(id);
-    diaryResponseDTO.setCreatedAt(createdAt);
-    diaryResponseDTO.setFeelingStatus(feelingStatus);
-    diaryResponseDTO.setTitle(title);
-    diaryResponseDTO.setContent(content);
-    return diaryResponseDTO;
+  public static DiaryResponseDTO create(Diary diary) {
+    return new DiaryResponseDTO(
+        diary.getId(),
+        diary.getCreatedAt(),
+        diary.getFeelingStatus(),
+        diary.getTitle(),
+        diary.getContent());
   }
 }
