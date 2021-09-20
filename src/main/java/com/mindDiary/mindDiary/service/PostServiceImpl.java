@@ -26,14 +26,17 @@ public class PostServiceImpl implements PostService {
   public void createPost(Post post) {
     postRepository.save(post);
 
+    tagService.save(post.getTags());
+
     createPostTags(post.getTags(), post.getId());
+
     createPostMedias(post.getPostMedias(), post.getId());
 
   }
 
   @Override
   public List<Post> readHotPosts(int pageNumber) {
-    PageCriteria pageCriteria = new PageCriteria(pageNumber);
+    PageCriteria pageCriteria = new PageCriteria(pageNumber, 5);
     return postRepository.findHotPosts(pageCriteria);
   }
 
@@ -44,8 +47,6 @@ public class PostServiceImpl implements PostService {
   }
 
   private void createPostTags(List<Tag> tags, int postId) {
-
-    tagService.save(tags);
 
     List<PostTag> postTags = tags.stream()
         .map(tag -> new PostTag(postId, tag.getId()))
@@ -60,7 +61,11 @@ public class PostServiceImpl implements PostService {
     if (postMedias.isEmpty()) {
       return;
     }
-    postMedias.forEach(postMedia -> postMedia.setPostId(postId));
-    postMediaService.save(postMedias);
+
+    List<PostMedia> newPostMedia = postMedias.stream()
+        .map(postMedia -> new PostMedia(postMedia.getType(), postMedia.getUrl(), postId))
+        .collect(Collectors.toList());
+
+    postMediaService.save(newPostMedia);
   }
 }

@@ -46,7 +46,7 @@ public class DiagnosisServiceImpl implements DiagnosisService {
     DiagnosisScore diagnosisScore = diagnosisScoreService.readOneByDiagnosisIdAndScore(diagnosisId, score);
 
     UserDiagnosis userDiagnosis = UserDiagnosis
-        .create(userId, diagnosisId, LocalDateTime.now(), score, diagnosisScore.getContent());
+        .create(userId, diagnosisId, score, LocalDateTime.now(), diagnosisScore.getContent());
 
     userDiagnosisService.save(userDiagnosis);
 

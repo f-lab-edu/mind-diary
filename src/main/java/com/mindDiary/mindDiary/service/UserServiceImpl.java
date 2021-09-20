@@ -60,6 +60,7 @@ public class UserServiceImpl implements UserService {
   public void checkEmailToken(String token, String email) {
 
     User user = userRepository.findByEmail(email);
+    log.info(user.toString());
 
     isValidateUserIdInCache(user.getId(), token);
 
