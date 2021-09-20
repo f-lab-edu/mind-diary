@@ -2,11 +2,13 @@ package com.mindDiary.mindDiary.dto.request;
 
 import java.util.List;
 import javax.validation.constraints.NotNull;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.Setter;
+import lombok.NoArgsConstructor;
 
 @Getter
-@Setter
+@AllArgsConstructor
+@NoArgsConstructor
 public class CreateDiagnosisResultRequestDTO {
 
   @NotNull
