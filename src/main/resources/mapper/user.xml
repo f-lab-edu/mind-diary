@@ -8,11 +8,11 @@
   </update>
 
   <select id = "findByEmail" parameterType="String" resultType="com.mindDiary.mindDiary.entity.User">
-    SELECT * FROM user WHERE email = #{email}
+    SELECT id, email, nickname, password, role FROM user WHERE email = #{email}
   </select>
 
   <select id = "findByNickname" parameterType="String" resultType="com.mindDiary.mindDiary.entity.User">
-    SELECT * FROM user WHERE nickname = #{nickname}
+    SELECT id, email, nickname, password, role FROM user WHERE nickname = #{nickname}
   </select>
 
   <update id = "updateRole" parameterType="com.mindDiary.mindDiary.entity.User">
@@ -22,7 +22,7 @@
   </update>
 
   <select id = "findById" parameterType="int" resultType="com.mindDiary.mindDiary.entity.User">
-    SELECT * FROM user WHERE id = #{id}
+    SELECT id, email, nickname, password, role FROM user WHERE id = #{id}
   </select>
 
 </mapper>
