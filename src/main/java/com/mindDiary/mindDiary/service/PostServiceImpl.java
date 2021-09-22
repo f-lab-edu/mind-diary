@@ -11,6 +11,7 @@ import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
 @Service
@@ -23,14 +24,18 @@ public class PostServiceImpl implements PostService {
   private final PostTagService postTagService;
 
   @Override
+  @Transactional
   public void createPost(Post post) {
     postRepository.save(post);
 
-    tagService.save(post.getTags());
+    if (!post.getTags().isEmpty()) {
+      tagService.save(post.getTags());
+      createPostTags(post.getTags(), post.getId());
+    }
 
-    createPostTags(post.getTags(), post.getId());
-
-    createPostMedias(post.getPostMedias(), post.getId());
+    if (!post.getPostMedias().isEmpty()) {
+      createPostMedias(post.getPostMedias(), post.getId());
+    }
 
   }
 
@@ -41,6 +46,7 @@ public class PostServiceImpl implements PostService {
   }
 
   @Override
+  @Transactional
   public Post readPost(int postId) {
     postRepository.increaseVisitCount(postId);
     return postRepository.findById(postId);
@@ -58,9 +64,6 @@ public class PostServiceImpl implements PostService {
 
 
   private void createPostMedias(List<PostMedia> postMedias, int postId) {
-    if (postMedias.isEmpty()) {
-      return;
-    }
 
     List<PostMedia> newPostMedia = postMedias.stream()
         .map(postMedia -> new PostMedia(postMedia.getType(), postMedia.getUrl(), postId))
