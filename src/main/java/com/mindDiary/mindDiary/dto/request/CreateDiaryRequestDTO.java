@@ -1,14 +1,18 @@
 package com.mindDiary.mindDiary.dto.request;
 
-import com.mindDiary.mindDiary.entity.FeelingStatus;
 import com.mindDiary.mindDiary.entity.Diary;
+import com.mindDiary.mindDiary.entity.FeelingStatus;
+import java.time.LocalDateTime;
 import javax.validation.constraints.NotNull;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.Setter;
+import lombok.NoArgsConstructor;
 
 @Getter
-@Setter
+@AllArgsConstructor
+@NoArgsConstructor
 public class CreateDiaryRequestDTO {
+
   @NotNull
   private FeelingStatus feelingStatus;
 
@@ -18,7 +22,12 @@ public class CreateDiaryRequestDTO {
   @NotNull
   private String content;
 
-  public Diary turnIntoDiaryEntity() {
-    return Diary.create(title, content, feelingStatus);
+  public Diary createEntity(int userId) {
+    return Diary.create(
+        userId,
+        LocalDateTime.now(),
+        feelingStatus,
+        title,
+        content);
   }
 }

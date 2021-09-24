@@ -1,9 +1,7 @@
 package com.mindDiary.mindDiary.service;
 
-import com.mindDiary.mindDiary.dto.response.ReadDiagnosisResultResponseDTO;
 import com.mindDiary.mindDiary.entity.UserDiagnosis;
 import com.mindDiary.mindDiary.repository.UserDiagnosisRepository;
-import java.util.ArrayList;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

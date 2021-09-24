@@ -47,11 +47,8 @@ public class ReplyController {
 
   private List<ReadReplyResponseDTO> createReplyResponses(List<Reply> replies) {
     return replies.stream()
-        .map(reply -> createReplyResponse(reply))
+        .map(reply -> ReadReplyResponseDTO.create(reply))
         .collect(Collectors.toList());
   }
 
-  private ReadReplyResponseDTO createReplyResponse(Reply reply) {
-    return new ReadReplyResponseDTO(reply.getWriter(), reply.getContent(), reply.getCreatedAt());
-  }
 }

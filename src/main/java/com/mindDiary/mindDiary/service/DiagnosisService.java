@@ -8,9 +8,9 @@ import java.util.List;
 
 public interface DiagnosisService {
 
-  List<Diagnosis> readDiagnosis();
+  List<Diagnosis> readDiagnoses();
 
-  DiagnosisWithQuestion readDiagnosisQuestions(int diagnosisId);
+  DiagnosisWithQuestion readDiagnosisWithQuestions(int diagnosisId);
 
   UserDiagnosis createDiagnosisResult(int diagnosisId, List<Answer> answers, int userId);
 

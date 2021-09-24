@@ -2,11 +2,16 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.mindDiary.mindDiary.repository.TagRepository">
 
-  <update id="save" useGeneratedKeys="true" keyProperty="id" parameterType="com.mindDiary.mindDiary.entity.Tag">
-    INSERT INTO tag(name)
-    VALUES(#{name})
-  </update>
   <select id = "findByName" parameterType="String" resultType="com.mindDiary.mindDiary.entity.Tag">
     SELECT * FROM tag WHERE name = #{name}
   </select>
+
+  <update id="save" useGeneratedKeys="true" keyProperty="id" parameterType="java.util.List">
+    INSERT INTO tag(name)
+    VALUES
+    <foreach collection="list" item="item" separator=",">
+      (#{item.name})
+    </foreach>
+  </update>
+
 </mapper>

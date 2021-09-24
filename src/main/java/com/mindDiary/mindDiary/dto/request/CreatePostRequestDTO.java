@@ -8,13 +8,15 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 import javax.validation.constraints.NotNull;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.Setter;
+import lombok.NoArgsConstructor;
 import lombok.ToString;
 
 @ToString
 @Getter
-@Setter
+@AllArgsConstructor
+@NoArgsConstructor
 public class CreatePostRequestDTO {
 
   @NotNull
@@ -26,24 +28,19 @@ public class CreatePostRequestDTO {
 
   List<TagRequestDTO> tag;
 
-  public Post createEntity(Integer userId) {
-    Post post = new Post();
-    post.setUserId(userId);
-    post.setCreatedAt(LocalDateTime.now());
-    post.setTitle(title);
-    post.setContent(content);
-    post.setVisitCount(0);
-    post.setLikeCount(0);
-    post.setHateCount(0);
-    post.setReplyCount(0);
+  public Post createEntity(int userId) {
 
-    List<PostMedia> medias = addPostMedia();
-    post.addPostMedias(medias);
-
-    List<Tag> tags = addTags();
-    post.addTags(tags);
-
-    return post;
+    return Post.create(
+        userId,
+        LocalDateTime.now(),
+        title,
+        content,
+        0,
+        0,
+        0,
+        0,
+        addPostMedia(),
+        addTags());
   }
 
   private List<Tag> addTags() {

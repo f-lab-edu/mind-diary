@@ -8,7 +8,7 @@ import org.apache.ibatis.annotations.Mapper;
 @Mapper
 public interface DiagnosisRepository {
 
-  List<Diagnosis> findDiagnosis();
+  List<Diagnosis> findDiagnoses();
 
   DiagnosisWithQuestion findDiagnosisWithQuestionById(int diagnosisId);
 

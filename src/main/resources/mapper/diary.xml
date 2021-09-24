@@ -8,13 +8,13 @@
   </update>
 
   <select id = "findById" parameterType="int" resultType="com.mindDiary.mindDiary.entity.Diary">
-    SELECT created_at, feeling_status, title, content
+    SELECT id, user_id, created_at, feeling_status, title, content
     FROM diary
     WHERE id = #{diaryId}
   </select>
 
   <select id = "findByUserId" parameterType="int" resultType="com.mindDiary.mindDiary.entity.Diary">
-    SELECT id, created_at, feeling_status, title
+    SELECT id, user_id, created_at, feeling_status, title
     FROM diary
     WHERE user_id = #{userId}
   </select>

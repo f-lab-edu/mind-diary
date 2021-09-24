@@ -1,16 +1,18 @@
 package com.mindDiary.mindDiary.dto.response;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.Setter;
+import lombok.NoArgsConstructor;
 
 @Getter
-@Setter
+@AllArgsConstructor
+@NoArgsConstructor
 public class AccessTokenResponseDTO {
+
   String accessToken;
 
   public static AccessTokenResponseDTO create(String accessToken) {
-    AccessTokenResponseDTO accessTokenResponseDTO = new AccessTokenResponseDTO();
-    accessTokenResponseDTO.setAccessToken(accessToken);
-    return accessTokenResponseDTO;
+
+    return new AccessTokenResponseDTO(accessToken);
   }
 }

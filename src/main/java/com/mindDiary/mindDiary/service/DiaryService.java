@@ -9,5 +9,5 @@ public interface DiaryService {
 
   Diary readOneDiary(int userId);
 
-  void createDiary(Diary diary, int userId);
+  void createDiary(Diary diary);
 }

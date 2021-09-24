@@ -2,7 +2,6 @@ package com.mindDiary.mindDiary.service;
 
 import com.mindDiary.mindDiary.entity.Diary;
 import com.mindDiary.mindDiary.repository.DiaryRepository;
-import java.time.LocalDateTime;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -26,9 +25,7 @@ public class DiaryServiceImpl implements DiaryService {
   }
 
   @Override
-  public void createDiary(Diary diary, int userId) {
-    diary.setUserId(userId);
-    diary.setCreatedAt(LocalDateTime.now());
+  public void createDiary(Diary diary) {
     diaryRepository.save(diary);
   }
 }

@@ -1,26 +1,26 @@
 package com.mindDiary.mindDiary.dto.response;
 
 import com.mindDiary.mindDiary.exception.ErrorCode;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.Setter;
+import lombok.NoArgsConstructor;
 
 @Getter
-@Setter
+@AllArgsConstructor
+@NoArgsConstructor
 public class ErrorResponseDTO {
   private int status;
   private String message;
 
   public static ErrorResponseDTO of(ErrorCode errorCode) {
-    ErrorResponseDTO errorResponseDTO = new ErrorResponseDTO();
-    errorResponseDTO.setStatus(errorCode.getStatus());
-    errorResponseDTO.setMessage(errorCode.getMessage());
-    return errorResponseDTO;
+
+    return new ErrorResponseDTO(
+        errorCode.getStatus(),
+        errorCode.getMessage());
   }
 
   public static ErrorResponseDTO of(int status, String message) {
-    ErrorResponseDTO errorResponseDTO = new ErrorResponseDTO();
-    errorResponseDTO.setStatus(status);
-    errorResponseDTO.setMessage(message);
-    return errorResponseDTO;
+
+    return new ErrorResponseDTO(status, message);
   }
 }

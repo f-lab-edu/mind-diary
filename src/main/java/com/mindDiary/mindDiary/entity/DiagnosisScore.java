@@ -1,11 +1,14 @@
 package com.mindDiary.mindDiary.entity;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.Setter;
+import lombok.NoArgsConstructor;
 
 @Getter
-@Setter
+@AllArgsConstructor
+@NoArgsConstructor
 public class DiagnosisScore {
+
   private int id;
   private int minValue;
   private int maxValue;

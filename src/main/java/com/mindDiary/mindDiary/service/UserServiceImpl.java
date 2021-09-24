@@ -2,7 +2,6 @@ package com.mindDiary.mindDiary.service;
 
 import com.mindDiary.mindDiary.entity.Token;
 import com.mindDiary.mindDiary.entity.User;
-import com.mindDiary.mindDiary.exception.businessException.BusinessException;
 import com.mindDiary.mindDiary.exception.businessException.EmailDuplicatedException;
 import com.mindDiary.mindDiary.exception.businessException.NicknameDuplicatedException;
 import com.mindDiary.mindDiary.exception.businessException.InvalidEmailTokenException;
@@ -14,9 +13,12 @@ import com.mindDiary.mindDiary.strategy.jwt.TokenStrategy;
 import com.mindDiary.mindDiary.strategy.redis.RedisStrategy;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.ibatis.javassist.NotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 @Slf4j
 @Service
@@ -28,9 +30,11 @@ public class UserServiceImpl implements UserService {
   private final RedisStrategy redisStrategy;
   private final EmailStrategy emailStrategy;
   private final TokenStrategy tokenStrategy;
+  private final UserTransactionService userTransactionService;
 
 
   @Override
+  @Transactional
   public void join(User user) {
 
     user.changeHashedPassword(passwordEncoder);
@@ -42,7 +46,10 @@ public class UserServiceImpl implements UserService {
 
     redisStrategy.addEmailToken(user.getEmailCheckToken(), user.getId());
     emailStrategy.sendUserJoinMessage(user.getEmailCheckToken(), user.getEmail());
+
+    userTransactionService.removeCacheAfterRollback(user.getEmailCheckToken());
   }
+
 
 
   public void isNicknameDuplicate(String nickname) {
@@ -65,10 +72,9 @@ public class UserServiceImpl implements UserService {
 
     isValidateUserIdInCache(user.getId(), token);
 
-    redisStrategy.deleteValue(token);
     updateRoleUser(user);
-
   }
+
 
   public void updateRoleUser(User user) {
     user.changeRoleUser();
@@ -113,9 +119,8 @@ public class UserServiceImpl implements UserService {
 
     User user = userRepository.findById(id);
 
-    redisStrategy.deleteValue(originToken);
-
     Token token = createTokenAndInputCache(user);
+
     return token;
   }
 

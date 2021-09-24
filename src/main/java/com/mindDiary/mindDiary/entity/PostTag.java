@@ -9,16 +9,10 @@ import lombok.ToString;
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
-public class Tag {
-  private int id;
-  private String name;
+public class PostTag {
 
-  public Tag(String name) {
-    this.name = name;
-  }
+  private int postId;
 
-  public static Tag create(String name) {
+  private int tagId;
 
-    return new Tag(name);
-  }
 }
