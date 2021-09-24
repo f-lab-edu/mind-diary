@@ -15,6 +15,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 @Slf4j
 @Service
@@ -26,9 +30,11 @@ public class UserServiceImpl implements UserService {
   private final RedisStrategy redisStrategy;
   private final EmailStrategy emailStrategy;
   private final TokenStrategy tokenStrategy;
+  private final UserTransactionService userTransactionService;
 
 
   @Override
+  @Transactional
   public void join(User user) {
 
     user.changeHashedPassword(passwordEncoder);
@@ -40,7 +46,10 @@ public class UserServiceImpl implements UserService {
 
     redisStrategy.addEmailToken(user.getEmailCheckToken(), user.getId());
     emailStrategy.sendUserJoinMessage(user.getEmailCheckToken(), user.getEmail());
+
+    userTransactionService.removeCacheAfterRollback(user.getEmailCheckToken());
   }
+
 
 
   public void isNicknameDuplicate(String nickname) {
@@ -60,14 +69,12 @@ public class UserServiceImpl implements UserService {
   public void checkEmailToken(String token, String email) {
 
     User user = userRepository.findByEmail(email);
-    log.info(user.toString());
 
     isValidateUserIdInCache(user.getId(), token);
 
-    redisStrategy.deleteValue(token);
     updateRoleUser(user);
-
   }
+
 
   public void updateRoleUser(User user) {
     user.changeRoleUser();
@@ -112,9 +119,8 @@ public class UserServiceImpl implements UserService {
 
     User user = userRepository.findById(id);
 
-    redisStrategy.deleteValue(originToken);
-
     Token token = createTokenAndInputCache(user);
+
     return token;
   }
 
