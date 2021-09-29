@@ -2,16 +2,20 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.mindDiary.mindDiary.repository.TagRepository">
 
-  <select id = "findByName" parameterType="String" resultType="com.mindDiary.mindDiary.entity.Tag">
-    SELECT * FROM tag WHERE name = #{name}
-  </select>
-
-  <update id="save" useGeneratedKeys="true" keyProperty="id" parameterType="java.util.List">
-    INSERT INTO tag(name)
+  <update id="save" parameterType="java.util.List">
+    INSERT IGNORE INTO tag(name)
     VALUES
     <foreach collection="list" item="item" separator=",">
       (#{item.name})
     </foreach>
   </update>
 
+  <select id = "findByNames" resultType="com.mindDiary.mindDiary.entity.Tag">
+    SELECT *
+    FROM tag
+    WHERE name IN
+    <foreach item="item" index="index" collection="list" open="(" separator="," close=")">
+      #{item}
+    </foreach>
+  </select>
 </mapper>
