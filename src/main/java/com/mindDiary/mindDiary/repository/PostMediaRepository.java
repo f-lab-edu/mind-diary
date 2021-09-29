@@ -8,4 +8,6 @@ import org.apache.ibatis.annotations.Mapper;
 public interface PostMediaRepository {
 
   int save(List<PostMedia> postMedias);
+
+  List<PostMedia> findAllByPostIds(List<Integer> postIds);
 }
