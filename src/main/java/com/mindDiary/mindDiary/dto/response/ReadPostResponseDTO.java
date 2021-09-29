@@ -2,6 +2,7 @@ package com.mindDiary.mindDiary.dto.response;
 
 import com.mindDiary.mindDiary.entity.Post;
 import com.mindDiary.mindDiary.entity.PostMedia;
+import com.mindDiary.mindDiary.entity.PostTag;
 import com.mindDiary.mindDiary.entity.Tag;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -27,7 +28,7 @@ public class ReadPostResponseDTO {
 
   public ReadPostResponseDTO(int id, String writer, LocalDateTime createdAt, String title, String content,
       int visitCount, int likeCount, int hateCount, int replyCount,
-      List<PostMedia> postMedias, List<Tag> tags) {
+      List<PostMedia> postMedias, List<PostTag> postTags) {
     this.id = id;
     this.writer = writer;
     this.createdAt = createdAt;
@@ -41,8 +42,8 @@ public class ReadPostResponseDTO {
         .map(postMedia -> PostMediaResponseDTO.create(postMedia))
         .collect(Collectors.toList());
 
-    this.tags = tags.stream()
-        .map(tag -> TagResponseDTO.create(tag))
+    this.tags = postTags.stream()
+        .map(postTag -> TagResponseDTO.create(postTag.getTag()))
         .collect(Collectors.toList());
 
   }
@@ -59,6 +60,6 @@ public class ReadPostResponseDTO {
         post.getHateCount(),
         post.getReplyCount(),
         post.getPostMedias(),
-        post.getTags());
+        post.getPostTags());
   }
 }
