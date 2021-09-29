@@ -6,4 +6,6 @@ import java.util.List;
 public interface QuestionBaseLineService {
 
   List<QuestionBaseLine> readByDiagnosisId(int diagnosisId);
+
+  List<QuestionBaseLine> findAllByDiagnosisIds(List<Integer> diagnosisIds);
 }
