@@ -5,7 +5,6 @@ import com.mindDiary.mindDiary.dto.request.CreateDiagnosisResultRequestDTO;
 import com.mindDiary.mindDiary.dto.response.ReadDiagnosisResultResponseDTO;
 import com.mindDiary.mindDiary.dto.response.ReadDiagnosisResponseDTO;
 import com.mindDiary.mindDiary.entity.Diagnosis;
-import com.mindDiary.mindDiary.entity.DiagnosisWithQuestion;
 import com.mindDiary.mindDiary.entity.Answer;
 import com.mindDiary.mindDiary.entity.Role;
 import com.mindDiary.mindDiary.entity.UserDiagnosis;
@@ -34,10 +33,10 @@ public class DiagnosisController {
   private final DiagnosisService diagnosisService;
   private final UserDiagnosisService userDiagnosisService;
 
-  @GetMapping
+  @GetMapping("/{pageNumber}")
   @LoginCheck(checkLevel = Role.USER)
-  public ResponseEntity<List<ReadDiagnosisResponseDTO>> readDiagnoses() {
-    List<Diagnosis> diagnoses = diagnosisService.readDiagnoses();
+  public ResponseEntity<List<ReadDiagnosisResponseDTO>> readDiagnoses(@PathVariable @Valid int pageNumber) {
+    List<Diagnosis> diagnoses = diagnosisService.readAll(pageNumber);
     return new ResponseEntity<>(createReadDiagnosisResponses(diagnoses), HttpStatus.OK);
   }
 
@@ -46,10 +45,10 @@ public class DiagnosisController {
   public ResponseEntity<ReadDiagnosisResponseDTO> readDiagnosisQuestions(
       @PathVariable("diagnosisId") @Valid int diagnosisId) {
 
-    DiagnosisWithQuestion diagnosisWithQuestion
-        = diagnosisService.readDiagnosisWithQuestions(diagnosisId);
+    Diagnosis diagnosis
+        = diagnosisService.readOne(diagnosisId);
 
-    return new ResponseEntity<>(ReadDiagnosisResponseDTO.create(diagnosisWithQuestion),
+    return new ResponseEntity<>(ReadDiagnosisResponseDTO.create(diagnosis),
         HttpStatus.OK);
   }
 
@@ -98,4 +97,5 @@ public class DiagnosisController {
         .stream().map(q -> new Answer(q.getQuestionId(), q.getChoiceNumber(), q.getReverse()))
         .collect(Collectors.toList());
   }
+
 }
