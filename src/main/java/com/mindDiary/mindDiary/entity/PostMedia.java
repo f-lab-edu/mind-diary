@@ -12,9 +12,9 @@ import lombok.ToString;
 public class PostMedia {
 
   private int id;
+  private int postId;
   private Type type;
   private String url;
-  private int postId;
 
   public PostMedia(int id, Type type, String url) {
     this.id = id;
