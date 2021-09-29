@@ -7,6 +7,7 @@ import com.mindDiary.mindDiary.entity.PostTag;
 import com.mindDiary.mindDiary.entity.Tag;
 import com.mindDiary.mindDiary.repository.PostRepository;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -25,12 +26,15 @@ public class PostServiceImpl implements PostService {
 
   @Override
   @Transactional
-  public void createPost(Post post) {
+  public void createPost(Post post, List<Tag> tags) {
+
     postRepository.save(post);
 
-    if (!post.getTags().isEmpty()) {
-      tagService.save(post.getTags());
-      createPostTags(post.getTags(), post.getId());
+    if (!tags.isEmpty()) {
+      tagService.save(tags);
+      List<String> tagNames = toTagNames(tags);
+      List<Tag> newTag = tagService.findByNames(tagNames);
+      createPostTags(newTag, post.getId());
     }
 
     if (!post.getPostMedias().isEmpty()) {
@@ -39,10 +43,51 @@ public class PostServiceImpl implements PostService {
 
   }
 
+
+
   @Override
   public List<Post> readHotPosts(int pageNumber) {
-    PageCriteria pageCriteria = new PageCriteria(pageNumber, 5);
-    return postRepository.findHotPosts(pageCriteria);
+
+    PageCriteria pageCriteria = new PageCriteria(pageNumber);
+    List<Post> posts = postRepository.findHotPosts(pageCriteria);
+    List<Integer> postIds = toPostIds(posts);
+
+    Map<Integer, List<PostMedia>> postMediaMap = findPostMediaMap(postIds);
+    Map<Integer, List<PostTag>> postTagMap = findPostTagMap(postIds);
+
+    return posts.stream()
+        .map(post -> Post.create(
+            post,
+            postMediaMap.get(post.getId()),
+            postTagMap.get(post.getId())))
+        .collect(Collectors.toList());
+  }
+
+  private Map<Integer, List<PostTag>> findPostTagMap(List<Integer> postIds) {
+    return postTagService
+        .findAllByPostIds(postIds)
+        .stream()
+        .collect(Collectors.groupingBy(PostTag::getPostId));
+  }
+
+
+  private Map<Integer, List<PostMedia>> findPostMediaMap(List<Integer> postIds) {
+    return postMediaService
+        .findAllByPostIds(postIds)
+        .stream()
+        .collect(Collectors.groupingBy(PostMedia::getPostId));
+  }
+
+  private List<Integer> toPostIds(List<Post> posts) {
+    return posts.stream()
+        .map(p -> p.getId())
+        .collect(Collectors.toList());
+  }
+
+  private List<String> toTagNames(List<Tag> tags) {
+    return tags.stream()
+        .map(tag -> tag.getName())
+        .collect(Collectors.toList());
   }
 
   @Override
@@ -53,11 +98,9 @@ public class PostServiceImpl implements PostService {
   }
 
   private void createPostTags(List<Tag> tags, int postId) {
-
     List<PostTag> postTags = tags.stream()
-        .map(tag -> new PostTag(postId, tag.getId()))
+        .map(tag -> new PostTag(postId, tag))
         .collect(Collectors.toList());
-
     postTagService.save(postTags);
 
   }
