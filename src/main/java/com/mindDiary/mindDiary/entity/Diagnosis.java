@@ -1,7 +1,8 @@
 package com.mindDiary.mindDiary.entity;
 
-import java.util.ArrayList;
 import java.util.List;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
@@ -9,26 +10,25 @@ import lombok.ToString;
 
 @ToString
 @Getter
+@Builder
+@AllArgsConstructor
 @NoArgsConstructor
 public class Diagnosis {
 
   private int id;
   private String name;
   private int numberOfChoice;
-  private List<Question> questions = new ArrayList<>();
-  private List<QuestionBaseLine> questionBaseLines = new ArrayList<>();
+  private List<Question> questions;
+  private List<QuestionBaseLine> questionBaseLines;
 
-  public Diagnosis(int id, String name, int numberOfChoice) {
-    this.id = id;
-    this.name = name;
-    this.numberOfChoice = numberOfChoice;
+  public Diagnosis withQuestionAndBaseLine(List<Question> questionList, List<QuestionBaseLine> baseLineList) {
+    return Diagnosis.builder()
+        .id(id)
+        .name(name)
+        .numberOfChoice(numberOfChoice)
+        .questions(questionList)
+        .questionBaseLines(baseLineList)
+        .build();
   }
 
-  public Diagnosis(int id, String name, int numberOfChoice, List<Question> questions, List<QuestionBaseLine> questionBaseLines) {
-    this.id = id;
-    this.name = name;
-    this.numberOfChoice = numberOfChoice;
-    this.questions.addAll(questions);
-    this.questionBaseLines.addAll(questionBaseLines);
-  }
 }

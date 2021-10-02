@@ -24,12 +24,4 @@ public class Diary {
 
   private String content;
 
-  public Diary(int id, int userId, LocalDateTime createdAt, FeelingStatus feelingStatus, String title) {
-    this.id = id;
-    this.userId = userId;
-    this.createdAt = createdAt;
-    this.feelingStatus = feelingStatus;
-    this.title = title;
-  }
-
 }

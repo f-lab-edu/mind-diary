@@ -28,14 +28,6 @@ public class User {
 
   private String emailCheckToken;
 
-  public User(int id, String email, String nickname, String password, Role role) {
-    this.id = id;
-    this.email = email;
-    this.nickname = nickname;
-    this.password = password;
-    this.role = role;
-  }
-
   public void changeHashedPassword(PasswordEncoder passwordEncoder) {
     this.password = passwordEncoder.encode(password);
   }

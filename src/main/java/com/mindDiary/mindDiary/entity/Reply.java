@@ -19,18 +19,4 @@ public class Reply {
   private LocalDateTime createdAt;
   private String writer;
 
-  public Reply(int userId, int postId, String content, LocalDateTime createdAt) {
-    this.userId = userId;
-    this.postId = postId;
-    this.content = content;
-    this.createdAt = createdAt;
-  }
-
-  public static Reply create(int userId, int postId, String content, LocalDateTime createdAt) {
-    return new Reply(
-        userId,
-        postId,
-        content,
-        createdAt);
-  }
 }
