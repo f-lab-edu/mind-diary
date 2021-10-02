@@ -3,5 +3,6 @@
 <configuration>
   <settings>
     <setting name="mapUnderscoreToCamelCase" value="true"/>
+    <setting name="defaultFetchSize" value="100"/>
   </settings>
 </configuration>

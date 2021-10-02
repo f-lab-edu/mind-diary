@@ -5,6 +5,7 @@ import com.mindDiary.mindDiary.dto.request.CreatePostRequestDTO;
 import com.mindDiary.mindDiary.dto.response.ReadPostResponseDTO;
 import com.mindDiary.mindDiary.entity.Post;
 import com.mindDiary.mindDiary.entity.Role;
+import com.mindDiary.mindDiary.entity.Tag;
 import com.mindDiary.mindDiary.service.PostLikeHateService;
 import com.mindDiary.mindDiary.service.PostService;
 import java.util.List;
@@ -33,8 +34,9 @@ public class PostController {
   @PostMapping
   @LoginCheck(checkLevel = Role.USER)
   public ResponseEntity createPost(@RequestBody @Valid CreatePostRequestDTO createPostRequestDTO, Integer userId) {
-    Post post = createPostRequestDTO.createEntity(userId);
-    postService.createPost(post);
+    Post post = createPostRequestDTO.createPostEntity(userId);
+    List<Tag> tags = createPostRequestDTO.createTagsEntity();
+    postService.createPost(post, tags);
     return new ResponseEntity(HttpStatus.OK);
   }
 
@@ -49,7 +51,6 @@ public class PostController {
   @GetMapping("/{postId}")
   @LoginCheck(checkLevel = Role.USER)
   public ResponseEntity readPost(@PathVariable @Valid int postId) {
-
     Post post = postService.readPost(postId);
     return new ResponseEntity(ReadPostResponseDTO.create(post), HttpStatus.OK);
   }
@@ -61,7 +62,7 @@ public class PostController {
     return new ResponseEntity(HttpStatus.OK);
   }
 
-  @PostMapping("/hate/{postId}/{pageNumber}")
+  @PostMapping("/hate/{postId}")
   @LoginCheck(checkLevel = Role.USER)
   public ResponseEntity createPostHate(@PathVariable @Valid int postId, Integer userId) {
     postLikeHateService.createHate(postId, userId);
@@ -73,6 +74,5 @@ public class PostController {
         .map(post -> ReadPostResponseDTO.create(post))
         .collect(Collectors.toList());
   }
-
 
 }

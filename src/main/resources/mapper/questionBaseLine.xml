@@ -7,4 +7,13 @@
     WHERE diagnosis_id = #{diagnosisId}
     ORDER BY score
   </select>
+
+  <select id = "findAllByDiagnosisIds" resultType="com.mindDiary.mindDiary.entity.QuestionBaseLine">
+    SELECT *
+    FROM question_base_line
+    WHERE diagnosis_id IN
+    <foreach item="item" index="index" collection="list" open="(" separator="," close=")">
+      #{item}
+    </foreach>
+  </select>
 </mapper>

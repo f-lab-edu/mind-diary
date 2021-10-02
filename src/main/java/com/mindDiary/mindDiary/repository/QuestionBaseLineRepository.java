@@ -8,4 +8,6 @@ import org.apache.ibatis.annotations.Mapper;
 public interface QuestionBaseLineRepository {
 
   List<QuestionBaseLine> findByDiagnosisId(int diagnosisId);
+
+  List<QuestionBaseLine> findAllByDiagnosisIds(List<Integer> diagnosisIds);
 }

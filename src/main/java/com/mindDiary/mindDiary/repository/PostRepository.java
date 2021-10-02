@@ -15,4 +15,8 @@ public interface PostRepository {
   Post findById(int postId);
 
   int increaseVisitCount(int postId);
+
+  int increaseLikeCount(int postId);
+
+  int increaseHateCount(int postId);
 }

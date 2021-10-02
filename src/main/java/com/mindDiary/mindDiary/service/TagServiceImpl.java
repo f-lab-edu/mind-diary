@@ -16,12 +16,13 @@ public class TagServiceImpl implements TagService {
   private final TagRepository tagRepository;
 
   @Override
-  public Tag findByName(String name) {
-    return tagRepository.findByName(name);
-  }
-
-  @Override
   public void save(List<Tag> tags) {
     tagRepository.save(tags);
   }
+
+  @Override
+  public List<Tag> findByNames(List<String> tagNames) {
+    return tagRepository.findByNames(tagNames);
+  }
+
 }

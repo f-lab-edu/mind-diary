@@ -11,8 +11,12 @@ import lombok.ToString;
 @NoArgsConstructor
 public class PostTag {
 
+  private int id;
   private int postId;
+  private Tag tag;
 
-  private int tagId;
-
+  public PostTag(int postId, Tag tag) {
+    this.postId = postId;
+    this.tag = tag;
+  }
 }

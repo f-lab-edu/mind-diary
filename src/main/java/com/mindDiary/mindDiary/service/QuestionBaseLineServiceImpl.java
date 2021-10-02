@@ -18,4 +18,9 @@ public class QuestionBaseLineServiceImpl implements QuestionBaseLineService {
   public List<QuestionBaseLine> readByDiagnosisId(int diagnosisId) {
     return questionBaseLineRepository.findByDiagnosisId(diagnosisId);
   }
+
+  @Override
+  public List<QuestionBaseLine> findAllByDiagnosisIds(List<Integer> diagnosisIds) {
+    return questionBaseLineRepository.findAllByDiagnosisIds(diagnosisIds);
+  }
 }

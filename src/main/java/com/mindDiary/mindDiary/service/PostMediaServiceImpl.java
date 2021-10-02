@@ -18,4 +18,9 @@ public class PostMediaServiceImpl implements PostMediaService {
   public void save(List<PostMedia> postMedias) {
     postMediaRepository.save(postMedias);
   }
+
+  @Override
+  public List<PostMedia> findAllByPostIds(List<Integer> postIds) {
+    return postMediaRepository.findAllByPostIds(postIds);
+  }
 }

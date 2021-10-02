@@ -18,4 +18,9 @@ public class PostTagServiceImpl implements PostTagService {
   public void save(List<PostTag> postTags) {
     postTagRepository.save(postTags);
   }
+
+  @Override
+  public List<PostTag> findAllByPostIds(List<Integer> postIds) {
+    return postTagRepository.findAllByPostIds(postIds);
+  }
 }

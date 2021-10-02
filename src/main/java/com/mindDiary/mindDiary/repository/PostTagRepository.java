@@ -8,4 +8,6 @@ import org.apache.ibatis.annotations.Mapper;
 public interface PostTagRepository {
 
   int save(List<PostTag> postTags);
+
+  List<PostTag> findAllByPostIds(List<Integer> postIds);
 }
