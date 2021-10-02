@@ -2,12 +2,14 @@ package com.mindDiary.mindDiary.entity;
 
 import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
 public class Diary {
 
   private int id;
@@ -28,26 +30,6 @@ public class Diary {
     this.createdAt = createdAt;
     this.feelingStatus = feelingStatus;
     this.title = title;
-  }
-
-
-  public Diary(int userId, LocalDateTime createdAt, FeelingStatus feelingStatus,  String title, String content) {
-    this.userId = userId;
-    this.createdAt = createdAt;
-    this.feelingStatus = feelingStatus;
-    this.title = title;
-    this.content = content;
-
-  }
-
-  public static Diary create(int userId, LocalDateTime createdAt, FeelingStatus feelingStatus,  String title, String content) {
-    return new Diary(
-        userId,
-        createdAt,
-        feelingStatus,
-        title,
-        content
-    );
   }
 
 }
