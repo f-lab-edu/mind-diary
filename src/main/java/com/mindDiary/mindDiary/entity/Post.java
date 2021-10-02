@@ -3,7 +3,7 @@ package com.mindDiary.mindDiary.entity;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
@@ -11,6 +11,7 @@ import lombok.ToString;
 @ToString
 @Getter
 @NoArgsConstructor
+@Builder
 public class Post {
 
   private int id;
@@ -112,6 +113,22 @@ public class Post {
         post.getLikeCount(),
         post.getHateCount(),
         post.getReplyCount(),
+        postMedia,
+        postTags);
+  }
+
+  public Post withMediaAndTags(List<PostMedia> postMedia, List<PostTag> postTags) {
+    return new Post(
+        id,
+        userId,
+        writer,
+        createdAt,
+        title,
+        content,
+        visitCount,
+        likeCount,
+        hateCount,
+        replyCount,
         postMedia,
         postTags);
   }
