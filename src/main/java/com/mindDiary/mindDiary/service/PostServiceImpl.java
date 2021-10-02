@@ -56,8 +56,7 @@ public class PostServiceImpl implements PostService {
     Map<Integer, List<PostTag>> postTagMap = findPostTagMap(postIds);
 
     return posts.stream()
-        .map(post -> Post.create(
-            post,
+        .map(post -> post.withMediaAndTags(
             postMediaMap.get(post.getId()),
             postTagMap.get(post.getId())))
         .collect(Collectors.toList());
