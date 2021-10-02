@@ -43,12 +43,9 @@ public class DiagnosisServiceImpl implements DiagnosisService {
         = findQuestionBaseLinesMap(diagnosisIds);
 
     return diagnoses.stream()
-        .map(d -> new Diagnosis(
-            d.getId(),
-            d.getName(),
-            d.getNumberOfChoice(),
-            questionMap.get(d.getId()),
-            questionBaseLineMap.get(d.getId())))
+        .map(diagnosis-> diagnosis.withQuestionAndBaseLine(
+            questionMap.get(diagnosis.getId()),
+            questionBaseLineMap.get(diagnosis.getId())))
         .collect(Collectors.toList());
   }
 
@@ -88,7 +85,7 @@ public class DiagnosisServiceImpl implements DiagnosisService {
     DiagnosisScore diagnosisScore = diagnosisScoreService.readOneByDiagnosisIdAndScore(diagnosisId, score);
 
     UserDiagnosis userDiagnosis = UserDiagnosis
-        .create(userId, diagnosisId, score, LocalDateTime.now(), diagnosisScore.getContent());
+        .create(userId, diagnosisId, score,LocalDateTime.now(), diagnosisScore.getContent());
 
     userDiagnosisService.save(userDiagnosis);
 

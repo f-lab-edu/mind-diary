@@ -98,17 +98,23 @@ public class PostServiceImpl implements PostService {
 
   private void createPostTags(List<Tag> tags, int postId) {
     List<PostTag> postTags = tags.stream()
-        .map(tag -> new PostTag(postId, tag))
+        .map(tag -> createPostTag(postId, tag))
         .collect(Collectors.toList());
     postTagService.save(postTags);
 
   }
 
+  private PostTag createPostTag(int postId, Tag tag) {
+    return PostTag.builder()
+        .postId(postId)
+        .tag(tag)
+        .build();
+  }
 
   private void createPostMedias(List<PostMedia> postMedias, int postId) {
 
     List<PostMedia> newPostMedia = postMedias.stream()
-        .map(postMedia -> new PostMedia(postMedia.getType(), postMedia.getUrl(), postId))
+        .map(postMedia -> postMedia.createWithPostId(postId))
         .collect(Collectors.toList());
 
     postMediaService.save(newPostMedia);
