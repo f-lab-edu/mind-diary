@@ -17,10 +17,11 @@ public class CreateReplyRequestDTO {
 
   public Reply createEntity(int userId, int postId) {
 
-    return Reply.create(
-        userId,
-        postId,
-        content,
-        LocalDateTime.now());
+    return Reply.builder()
+        .userId(userId)
+        .postId(postId)
+        .content(content)
+        .createdAt(LocalDateTime.now())
+        .build();
   }
 }

@@ -23,11 +23,13 @@ public class CreateDiaryRequestDTO {
   private String content;
 
   public Diary createEntity(int userId) {
-    return Diary.create(
-        userId,
-        LocalDateTime.now(),
-        feelingStatus,
-        title,
-        content);
+
+    return Diary.builder()
+        .userId(userId)
+        .createdAt(LocalDateTime.now())
+        .feelingStatus(feelingStatus)
+        .title(title)
+        .content(content)
+        .build();
   }
 }
