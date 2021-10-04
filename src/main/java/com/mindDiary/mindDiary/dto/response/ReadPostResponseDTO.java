@@ -5,6 +5,7 @@ import com.mindDiary.mindDiary.entity.PostMedia;
 import com.mindDiary.mindDiary.entity.PostTag;
 import com.mindDiary.mindDiary.entity.Tag;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
@@ -38,14 +39,19 @@ public class ReadPostResponseDTO {
     this.likeCount = likeCount;
     this.hateCount = hateCount;
     this.replyCount = replyCount;
-    this.postMedias = postMedias.stream()
-        .map(postMedia -> PostMediaResponseDTO.create(postMedia))
-        .collect(Collectors.toList());
 
-    this.tags = postTags.stream()
-        .map(postTag -> TagResponseDTO.create(postTag.getTag()))
-        .collect(Collectors.toList());
+    if (postMedias != null && !postMedias.isEmpty()) {
+      this.postMedias = postMedias.stream()
+          .map(postMedia -> PostMediaResponseDTO.create(postMedia))
+          .collect(Collectors.toList());
+    }
 
+
+    if (postTags != null && !postTags.isEmpty()) {
+      this.tags = postTags.stream()
+          .map(postTag -> TagResponseDTO.create(postTag.getTag()))
+          .collect(Collectors.toList());
+    }
   }
 
   public static ReadPostResponseDTO create(Post post) {

@@ -1,8 +1,8 @@
 package com.mindDiary.mindDiary.entity;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -10,6 +10,7 @@ import lombok.ToString;
 
 @ToString
 @Getter
+@AllArgsConstructor
 @NoArgsConstructor
 @Builder
 public class Post {
@@ -24,113 +25,25 @@ public class Post {
   private int likeCount;
   private int hateCount;
   private int replyCount;
-  private List<PostMedia> postMedias = new ArrayList<>();
-  private List<PostTag> postTags = new ArrayList<>();
+  private List<PostMedia> postMedias;
+  private List<PostTag> postTags;
 
-  public Post(int userId, LocalDateTime createdAt, String title, String content,
-      int visitCount, int likeCount, int hateCount, int replyCount,
-      List<PostMedia> postMedias, List<PostTag> postTags) {
+  public Post withMediaAndTags(List<PostMedia> postMediaList, List<PostTag> postTagList) {
 
-    this.userId = userId;
-    this.createdAt = createdAt;
-    this.title = title;
-    this.content = content;
-    this.visitCount = visitCount;
-    this.likeCount = likeCount;
-    this.hateCount = hateCount;
-    this.replyCount = replyCount;
-    if (postTags != null && !postTags.isEmpty()) {
-      this.postTags.addAll(postTags);
-    }
-    if (postMedias != null && !postMedias.isEmpty()) {
-      this.postMedias.addAll(postMedias);
-    }
-  }
-
-  public Post(int id, int userId, String writer, LocalDateTime createdAt, String title, String content,
-      int visitCount, int likeCount, int hateCount, int replyCount,
-      List<PostMedia> postMedias, List<PostTag> postTags) {
-    this.id = id;
-    this.userId = userId;
-    this.writer = writer;
-    this.createdAt = createdAt;
-    this.title = title;
-    this.content = content;
-    this.visitCount = visitCount;
-    this.likeCount = likeCount;
-    this.hateCount = hateCount;
-    this.replyCount = replyCount;
-    if (postTags != null && !postTags.isEmpty()) {
-      this.postTags.addAll(postTags);
-    }
-    if (postMedias != null && !postMedias.isEmpty()) {
-      this.postMedias.addAll(postMedias);
-    }
-
-  }
-
-  public Post(int id, int userId, String writer, LocalDateTime createdAt, String title, String content,
-      int visitCount, int likeCount, int hateCount, int replyCount) {
-    this.id = id;
-    this.userId = userId;
-    this.writer = writer;
-    this.createdAt = createdAt;
-    this.title = title;
-    this.content = content;
-    this.visitCount = visitCount;
-    this.likeCount = likeCount;
-    this.hateCount = hateCount;
-    this.replyCount = replyCount;
-  }
-
-  public static Post create(int userId, LocalDateTime createdAt, String title, String content,
-      int visitCount, int likeCount, int hateCount, int replyCount,
-      List<PostMedia> postMedias, List<PostTag> postTags) {
-
-    return new Post(
-        userId,
-        createdAt,
-        title,
-        content,
-        visitCount,
-        likeCount,
-        hateCount,
-        replyCount,
-        postMedias,
-        postTags);
-  }
-
-  public static Post create(Post post, List<PostMedia> postMedia, List<PostTag> postTags) {
-
-    return new Post(
-        post.getId(),
-        post.getUserId(),
-        post.getWriter(),
-        post.getCreatedAt(),
-        post.getTitle(),
-        post.getContent(),
-        post.getVisitCount(),
-        post.getLikeCount(),
-        post.getHateCount(),
-        post.getReplyCount(),
-        postMedia,
-        postTags);
-  }
-
-  public Post withMediaAndTags(List<PostMedia> postMedia, List<PostTag> postTags) {
-    return new Post(
-        id,
-        userId,
-        writer,
-        createdAt,
-        title,
-        content,
-        visitCount,
-        likeCount,
-        hateCount,
-        replyCount,
-        postMedia,
-        postTags);
+    return Post.builder()
+        .id(id)
+        .userId(userId)
+        .writer(writer)
+        .createdAt(createdAt)
+        .title(title)
+        .content(content)
+        .visitCount(visitCount)
+        .likeCount(likeCount)
+        .hateCount(hateCount)
+        .replyCount(replyCount)
+        .postMedias(postMediaList)
+        .postTags(postTagList)
+        .build();
   }
 }
 

@@ -18,24 +18,13 @@ public class PostMedia {
   private Type type;
   private String url;
 
-  public PostMedia(int id, Type type, String url) {
-    this.id = id;
-    this.type = type;
-    this.url = url;
-  }
-  public PostMedia(Type type, String url) {
-    this.type = type;
-    this.url = url;
-  }
 
-  public PostMedia(Type type, String url, int postId) {
-    this.postId = postId;
-    this.type = type;
-    this.url = url;
-  }
-
-  public static PostMedia create(Type type, String url) {
-    return new PostMedia(type, url);
+  public PostMedia createWithPostId(int postId) {
+    return PostMedia.builder()
+        .type(type)
+        .url(url)
+        .postId(postId)
+        .build();
   }
 
 }
