@@ -26,11 +26,12 @@ public class JoinUserRequestDTO {
   private String password;
 
   public User createEntity() {
-    return User.create(
-        email,
-        nickname,
-        password,
-        Role.NOT_PERMITTED,
-        UUID.randomUUID().toString());
+
+    return User.builder()
+        .email(email)
+        .nickname(nickname)
+        .password(password)
+        .role(Role.NOT_PERMITTED)
+        .build();
   }
 }

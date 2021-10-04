@@ -36,7 +36,7 @@ public class UserServiceImpl implements UserService {
   @Override
   @Transactional
   public void join(User user) {
-
+    user.createEmailToken();
     user.changeHashedPassword(passwordEncoder);
 
     isEmailDuplicate(user.getEmail());

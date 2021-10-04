@@ -29,25 +29,22 @@ public class CreatePostRequestDTO {
   List<TagRequestDTO> tag;
 
   public Post createPostEntity(int userId) {
-    return Post.create(
-        userId,
-        LocalDateTime.now(),
-        title,
-        content,
-        0,
-        0,
-        0,
-        0,
-        createPostMediasEntity(),
-        new ArrayList<>());
+    return Post.builder()
+        .userId(userId)
+        .createdAt(LocalDateTime.now())
+        .title(title)
+        .content(content)
+        .postMedias(createPostMediasEntity())
+        .build();
   }
 
   public List<Tag> createTagsEntity() {
     if (tag == null || tag.isEmpty()) {
       return new ArrayList<>();
     }
+
     return tag.stream()
-        .map(t -> Tag.create(t.getName()))
+        .map(t -> t.createEntity())
         .collect(Collectors.toList());
   }
 
@@ -57,9 +54,8 @@ public class CreatePostRequestDTO {
     }
 
     return media.stream()
-        .map(m -> PostMedia.create(m.getType(), m.getUrl()))
+        .map(m -> m.createEntity())
         .collect(Collectors.toList());
   }
-
 
 }
