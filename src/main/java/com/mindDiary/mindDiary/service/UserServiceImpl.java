@@ -1,5 +1,6 @@
 package com.mindDiary.mindDiary.service;
 
+import com.mindDiary.mindDiary.dao.UserDAO;
 import com.mindDiary.mindDiary.entity.Token;
 import com.mindDiary.mindDiary.entity.User;
 import com.mindDiary.mindDiary.exception.businessException.EmailDuplicatedException;
@@ -10,15 +11,11 @@ import com.mindDiary.mindDiary.exception.businessException.NotMatchedPasswordExc
 import com.mindDiary.mindDiary.repository.UserRepository;
 import com.mindDiary.mindDiary.strategy.email.EmailStrategy;
 import com.mindDiary.mindDiary.strategy.jwt.TokenStrategy;
-import com.mindDiary.mindDiary.strategy.redis.RedisStrategy;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.transaction.support.TransactionSynchronization;
-import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 @Slf4j
 @Service
@@ -27,11 +24,10 @@ public class UserServiceImpl implements UserService {
 
   private final UserRepository userRepository;
   private final PasswordEncoder passwordEncoder;
-  private final RedisStrategy redisStrategy;
   private final EmailStrategy emailStrategy;
   private final TokenStrategy tokenStrategy;
   private final UserTransactionService userTransactionService;
-
+  private final UserDAO userDAO;
 
   @Override
   @Transactional
@@ -44,7 +40,7 @@ public class UserServiceImpl implements UserService {
 
     userRepository.save(user);
 
-    redisStrategy.addEmailToken(user.getEmailCheckToken(), user.getId());
+    userDAO.addEmailToken(user.getEmailCheckToken(), user.getId());
     emailStrategy.sendUserJoinMessage(user.getEmailCheckToken(), user.getEmail());
 
     userTransactionService.removeCacheAfterRollback(user.getEmailCheckToken());
@@ -82,7 +78,7 @@ public class UserServiceImpl implements UserService {
   }
 
   public void isValidateUserIdInCache(int userId, String token) {
-    int id = Integer.parseInt(redisStrategy.getValue(token));
+    int id = userDAO.getUserId(token);
     if (userId != id) {
       throw new InvalidEmailTokenException();
     }
@@ -101,7 +97,7 @@ public class UserServiceImpl implements UserService {
 
   public Token createTokenAndInputCache(User user) {
     Token token = Token.create(user, tokenStrategy);
-    redisStrategy.addRefreshToken(token.getRefreshToken(), user.getId());
+    userDAO.addRefreshToken(token.getRefreshToken(), user.getId());
     return token;
   }
 
@@ -126,8 +122,7 @@ public class UserServiceImpl implements UserService {
 
   public int validateOriginToken(String originToken) {
     tokenStrategy.validateToken(originToken);
-
-    int id = Integer.parseInt(redisStrategy.getValue(originToken));
+    int id = userDAO.getUserId(originToken);
     if (id != tokenStrategy.getUserId(originToken)) {
       throw new NotMatchedIdException();
     }
