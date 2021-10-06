@@ -28,14 +28,14 @@ public class QuestionDAO {
     return key + diagnosisId;
   }
 
-  public void save(int diagnosisId, List<Question> questions) {
-    String key = getKey(diagnosisId);
+  public void saveAll(List<Question> questions) {
 
     RedisSerializer keySerializer = redisTemplate.getStringSerializer();
     RedisSerializer valueSerializer = redisTemplate.getValueSerializer();
 
     redisTemplate.executePipelined((RedisCallback<Object>) connection -> {
       questions.forEach(question -> {
+        String key = getKey(question.getDiagnosisId());
         connection.listCommands().rPush(keySerializer.serialize(key),
             valueSerializer.serialize(question));
       });
@@ -73,7 +73,7 @@ public class QuestionDAO {
         .collect(Collectors.toList());
   }
 
-  public List<Question> findAllByDiagnosisId(int diagnosisId) {
+  public List<Question> findByDiagnosisId(int diagnosisId) {
     String key = getKey(diagnosisId);
     List<Object> objects = redisTemplate.opsForList().range(key, START_INDEX, END_INDEX);
     return convertQuestions(objects);
