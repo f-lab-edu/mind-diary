@@ -7,6 +7,8 @@ import java.util.List;
 
 public interface DiagnosisService {
 
+  void saveAll();
+
   List<Diagnosis> readAll(int pageNumber);
 
   Diagnosis readOne(int diagnosisId);
