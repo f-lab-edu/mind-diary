@@ -28,14 +28,14 @@ public class QuestionBaseLineDAO {
     return key + diagnosisId;
   }
 
-  public void save(int diagnosisId, List<QuestionBaseLine> questionBaseLines) {
-    String key = getKey(diagnosisId);
+  public void saveAll(List<QuestionBaseLine> questionBaseLines) {
 
     RedisSerializer keySerializer = redisTemplate.getStringSerializer();
     RedisSerializer valueSerializer = redisTemplate.getValueSerializer();
 
     redisTemplate.executePipelined((RedisCallback<Object>) connection -> {
       questionBaseLines.forEach(baseLine -> {
+        String key = getKey(baseLine.getDiagnosisId());
         connection.listCommands().rPush(keySerializer.serialize(key),
             valueSerializer.serialize(baseLine));
       });
