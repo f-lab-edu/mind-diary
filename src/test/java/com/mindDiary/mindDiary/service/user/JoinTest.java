@@ -15,7 +15,7 @@ import com.mindDiary.mindDiary.exception.businessException.EmailDuplicatedExcept
 import com.mindDiary.mindDiary.exception.businessException.MailSendFailedException;
 import com.mindDiary.mindDiary.exception.businessException.NicknameDuplicatedException;
 import com.mindDiary.mindDiary.exception.businessException.RedisAddValueException;
-import com.mindDiary.mindDiary.repository.UserRepository;
+import com.mindDiary.mindDiary.mapper.UserRepository;
 import com.mindDiary.mindDiary.service.UserServiceImpl;
 import com.mindDiary.mindDiary.strategy.email.EmailStrategy;
 import com.mindDiary.mindDiary.strategy.redis.RedisStrategy;

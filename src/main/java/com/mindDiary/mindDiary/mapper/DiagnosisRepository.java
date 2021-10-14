@@ -1,4 +1,4 @@
-package com.mindDiary.mindDiary.repository;
+package com.mindDiary.mindDiary.mapper;
 
 import com.mindDiary.mindDiary.entity.Diagnosis;
 import com.mindDiary.mindDiary.entity.PageCriteria;
@@ -8,8 +8,9 @@ import org.apache.ibatis.annotations.Mapper;
 @Mapper
 public interface DiagnosisRepository {
 
-  List<Diagnosis> findAll(PageCriteria pageCriteria);
+  List<Diagnosis> findAllWithPaging(PageCriteria pageCriteria);
 
   Diagnosis findById(int diagnosisId);
 
+  List<Diagnosis> findAll();
 }

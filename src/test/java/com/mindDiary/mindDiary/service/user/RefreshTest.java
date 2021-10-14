@@ -1,8 +1,5 @@
 package com.mindDiary.mindDiary.service.user;
 
-import static com.mindDiary.mindDiary.service.user.JoinTest.EMAIL;
-import static com.mindDiary.mindDiary.service.user.JoinTest.PASSWORD;
-import static com.mindDiary.mindDiary.service.user.JoinTest.TOKEN;
 import static com.mindDiary.mindDiary.service.user.JoinTest.USER_ID;
 import static com.mindDiary.mindDiary.service.user.JoinTest.createUser;
 import static com.mindDiary.mindDiary.service.user.LoginTest.REFRESH_TOKEN;
@@ -18,7 +15,7 @@ import com.mindDiary.mindDiary.entity.Token;
 import com.mindDiary.mindDiary.entity.User;
 import com.mindDiary.mindDiary.exception.InvalidJwtException;
 import com.mindDiary.mindDiary.exception.businessException.NotMatchedIdException;
-import com.mindDiary.mindDiary.repository.UserRepository;
+import com.mindDiary.mindDiary.mapper.UserRepository;
 import com.mindDiary.mindDiary.service.UserServiceImpl;
 import com.mindDiary.mindDiary.strategy.jwt.TokenStrategy;
 import com.mindDiary.mindDiary.strategy.redis.RedisStrategy;

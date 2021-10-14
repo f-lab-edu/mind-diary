@@ -1,5 +1,6 @@
 package com.mindDiary.mindDiary.service;
 
+import com.mindDiary.mindDiary.dao.DiagnosisDAO;
 import com.mindDiary.mindDiary.entity.Diagnosis;
 import com.mindDiary.mindDiary.entity.DiagnosisScore;
 import com.mindDiary.mindDiary.entity.Answer;
@@ -7,7 +8,7 @@ import com.mindDiary.mindDiary.entity.PageCriteria;
 import com.mindDiary.mindDiary.entity.Question;
 import com.mindDiary.mindDiary.entity.QuestionBaseLine;
 import com.mindDiary.mindDiary.entity.UserDiagnosis;
-import com.mindDiary.mindDiary.repository.DiagnosisRepository;
+import com.mindDiary.mindDiary.mapper.DiagnosisRepository;
 import com.mindDiary.mindDiary.strategy.scoreCalc.ScoreCalculateStrategy;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -28,12 +29,22 @@ public class DiagnosisServiceImpl implements DiagnosisService {
   private final UserDiagnosisService userDiagnosisService;
   private final ScoreCalculateStrategy scoreCalculateStrategy;
   private final QuestionService questionService;
+  private final DiagnosisDAO diagnosisDAO;
+
 
   @Override
-  public List<Diagnosis> readAll(int pageNumber) {
+  public void saveAll() {
+    List<Diagnosis> diagnoses = diagnosisRepository.findAll();
+    List<Integer> diagnosisIds = toDiagnosisIds(diagnoses);
+    List<Question> questions = questionService.findAllByDiagnosisIdsInDB(diagnosisIds);
+    List<QuestionBaseLine> questionBaseLines = questionBaseLineService.findAllByDiagnosisIdsInDB(diagnosisIds);
 
-    PageCriteria pageCriteria = new PageCriteria(pageNumber);
-    List<Diagnosis> diagnoses = diagnosisRepository.findAll(pageCriteria);
+    diagnosisDAO.saveAll(diagnoses);
+    questionService.saveAll(questions);
+    questionBaseLineService.saveAll(questionBaseLines);
+  }
+
+  public List<Diagnosis> readAllWithQuestionAndQuestionBaseLine(List<Diagnosis> diagnoses) {
     List<Integer> diagnosisIds = toDiagnosisIds(diagnoses);
 
     Map<Integer, List<Question>> questionMap
@@ -47,6 +58,13 @@ public class DiagnosisServiceImpl implements DiagnosisService {
             questionMap.get(diagnosis.getId()),
             questionBaseLineMap.get(diagnosis.getId())))
         .collect(Collectors.toList());
+  }
+
+  @Override
+  public List<Diagnosis> readAll(int pageNumber) {
+    PageCriteria pageCriteria = new PageCriteria(pageNumber);
+    List<Diagnosis> diagnoses = diagnosisDAO.findAll(pageCriteria);
+    return readAllWithQuestionAndQuestionBaseLine(diagnoses);
   }
 
   private Map<Integer, List<Question>> findQuestionsMap(List<Integer> diagnosisIds) {
@@ -72,7 +90,7 @@ public class DiagnosisServiceImpl implements DiagnosisService {
 
   @Override
   public Diagnosis readOne(int diagnosisId) {
-    return diagnosisRepository.findById(diagnosisId);
+    return diagnosisDAO.findById(diagnosisId);
   }
 
 

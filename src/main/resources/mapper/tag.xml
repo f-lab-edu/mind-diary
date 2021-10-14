@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.mindDiary.mindDiary.repository.TagRepository">
+<mapper namespace="com.mindDiary.mindDiary.mapper.TagRepository">
 
   <update id="save" parameterType="java.util.List">
     INSERT IGNORE INTO tag(name)
