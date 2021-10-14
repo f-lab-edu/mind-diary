@@ -1,7 +1,7 @@
 package com.mindDiary.mindDiary.service;
 
 import com.mindDiary.mindDiary.entity.PostMedia;
-import com.mindDiary.mindDiary.repository.PostMediaRepository;
+import com.mindDiary.mindDiary.mapper.PostMediaRepository;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

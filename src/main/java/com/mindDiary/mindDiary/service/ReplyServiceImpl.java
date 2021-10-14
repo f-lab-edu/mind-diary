@@ -1,7 +1,7 @@
 package com.mindDiary.mindDiary.service;
 
 import com.mindDiary.mindDiary.entity.Reply;
-import com.mindDiary.mindDiary.repository.ReplyRepository;
+import com.mindDiary.mindDiary.mapper.ReplyRepository;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

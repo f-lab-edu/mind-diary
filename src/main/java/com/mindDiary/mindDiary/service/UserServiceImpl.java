@@ -7,7 +7,7 @@ import com.mindDiary.mindDiary.exception.businessException.NicknameDuplicatedExc
 import com.mindDiary.mindDiary.exception.businessException.InvalidEmailTokenException;
 import com.mindDiary.mindDiary.exception.businessException.NotMatchedIdException;
 import com.mindDiary.mindDiary.exception.businessException.NotMatchedPasswordException;
-import com.mindDiary.mindDiary.repository.UserRepository;
+import com.mindDiary.mindDiary.mapper.UserRepository;
 import com.mindDiary.mindDiary.strategy.email.EmailStrategy;
 import com.mindDiary.mindDiary.strategy.jwt.TokenStrategy;
 import com.mindDiary.mindDiary.strategy.redis.RedisStrategy;
@@ -15,10 +15,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.transaction.support.TransactionSynchronization;
-import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 @Slf4j
 @Service

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.mindDiary.mindDiary.repository.ReplyRepository">
+<mapper namespace="com.mindDiary.mindDiary.mapper.ReplyRepository">
 
   <update id="save" parameterType="com.mindDiary.mindDiary.entity.Reply">
     INSERT INTO reply (user_id, post_id, content, created_at)

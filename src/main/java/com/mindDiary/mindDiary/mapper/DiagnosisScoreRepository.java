@@ -1,4 +1,4 @@
-package com.mindDiary.mindDiary.repository;
+package com.mindDiary.mindDiary.mapper;
 
 import com.mindDiary.mindDiary.entity.DiagnosisScore;
 import org.apache.ibatis.annotations.Mapper;
