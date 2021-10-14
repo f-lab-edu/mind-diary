@@ -8,7 +8,7 @@ import com.mindDiary.mindDiary.entity.PageCriteria;
 import com.mindDiary.mindDiary.entity.Question;
 import com.mindDiary.mindDiary.entity.QuestionBaseLine;
 import com.mindDiary.mindDiary.entity.UserDiagnosis;
-import com.mindDiary.mindDiary.repository.DiagnosisRepository;
+import com.mindDiary.mindDiary.mapper.DiagnosisRepository;
 import com.mindDiary.mindDiary.strategy.scoreCalc.ScoreCalculateStrategy;
 import java.time.LocalDateTime;
 import java.util.List;

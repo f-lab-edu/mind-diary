@@ -5,7 +5,7 @@ import com.mindDiary.mindDiary.entity.Post;
 import com.mindDiary.mindDiary.entity.PostMedia;
 import com.mindDiary.mindDiary.entity.PostTag;
 import com.mindDiary.mindDiary.entity.Tag;
-import com.mindDiary.mindDiary.repository.PostRepository;
+import com.mindDiary.mindDiary.mapper.PostRepository;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;

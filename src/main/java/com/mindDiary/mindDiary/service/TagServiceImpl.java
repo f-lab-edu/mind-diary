@@ -2,7 +2,7 @@ package com.mindDiary.mindDiary.service;
 
 
 import com.mindDiary.mindDiary.entity.Tag;
-import com.mindDiary.mindDiary.repository.TagRepository;
+import com.mindDiary.mindDiary.mapper.TagRepository;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

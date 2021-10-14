@@ -12,7 +12,7 @@ import static org.mockito.Mockito.verify;
 
 import com.mindDiary.mindDiary.entity.User;
 import com.mindDiary.mindDiary.exception.businessException.InvalidEmailTokenException;
-import com.mindDiary.mindDiary.repository.UserRepository;
+import com.mindDiary.mindDiary.mapper.UserRepository;
 import com.mindDiary.mindDiary.service.UserServiceImpl;
 import com.mindDiary.mindDiary.strategy.redis.RedisStrategy;
 import lombok.extern.slf4j.Slf4j;

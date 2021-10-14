@@ -2,7 +2,7 @@ package com.mindDiary.mindDiary.service;
 
 import com.mindDiary.mindDiary.dao.QuestionBaseLineDAO;
 import com.mindDiary.mindDiary.entity.QuestionBaseLine;
-import com.mindDiary.mindDiary.repository.QuestionBaseLineRepository;
+import com.mindDiary.mindDiary.mapper.QuestionBaseLineRepository;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

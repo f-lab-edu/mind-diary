@@ -8,7 +8,7 @@ import com.mindDiary.mindDiary.exception.businessException.NicknameDuplicatedExc
 import com.mindDiary.mindDiary.exception.businessException.InvalidEmailTokenException;
 import com.mindDiary.mindDiary.exception.businessException.NotMatchedIdException;
 import com.mindDiary.mindDiary.exception.businessException.NotMatchedPasswordException;
-import com.mindDiary.mindDiary.repository.UserRepository;
+import com.mindDiary.mindDiary.mapper.UserRepository;
 import com.mindDiary.mindDiary.strategy.email.EmailStrategy;
 import com.mindDiary.mindDiary.strategy.jwt.TokenStrategy;
 import lombok.RequiredArgsConstructor;

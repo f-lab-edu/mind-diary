@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.mindDiary.mindDiary.repository.UserRepository">
+<mapper namespace="com.mindDiary.mindDiary.mapper.UserRepository">
 
   <update id="save" useGeneratedKeys="true" keyProperty="id" parameterType="com.mindDiary.mindDiary.entity.User">
     INSERT INTO user(email,nickname,password,role)

@@ -1,7 +1,7 @@
 package com.mindDiary.mindDiary.service;
 
 import com.mindDiary.mindDiary.entity.DiagnosisScore;
-import com.mindDiary.mindDiary.repository.DiagnosisScoreRepository;
+import com.mindDiary.mindDiary.mapper.DiagnosisScoreRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
