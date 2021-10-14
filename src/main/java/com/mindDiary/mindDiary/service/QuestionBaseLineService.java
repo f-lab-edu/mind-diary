@@ -7,5 +7,9 @@ public interface QuestionBaseLineService {
 
   List<QuestionBaseLine> readByDiagnosisId(int diagnosisId);
 
+  List<QuestionBaseLine> findAllByDiagnosisIdsInDB(List<Integer> diagnosisIds);
+
   List<QuestionBaseLine> findAllByDiagnosisIds(List<Integer> diagnosisIds);
+
+  void saveAll(List<QuestionBaseLine> questionBaseLines);
 }
