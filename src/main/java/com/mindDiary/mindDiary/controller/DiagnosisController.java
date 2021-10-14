@@ -33,13 +33,6 @@ public class DiagnosisController {
   private final DiagnosisService diagnosisService;
   private final UserDiagnosisService userDiagnosisService;
 
-  @PostMapping("/save")
-  @LoginCheck(checkLevel = Role.ADMIN)
-  public ResponseEntity saveInCache() {
-    diagnosisService.saveAll();
-    return new ResponseEntity(HttpStatus.OK);
-  }
-
   @GetMapping("/{pageNumber}")
   @LoginCheck(checkLevel = Role.USER)
   public ResponseEntity<List<ReadDiagnosisResponseDTO>> readDiagnoses(@PathVariable @Valid int pageNumber) {
