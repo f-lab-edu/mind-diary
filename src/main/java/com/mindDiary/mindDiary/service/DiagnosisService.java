@@ -1,5 +1,6 @@
 package com.mindDiary.mindDiary.service;
 
+import com.mindDiary.mindDiary.dto.request.CreateDiagnosisRequestDTO;
 import com.mindDiary.mindDiary.entity.Diagnosis;
 import com.mindDiary.mindDiary.entity.Answer;
 import com.mindDiary.mindDiary.entity.UserDiagnosis;
@@ -15,4 +16,5 @@ public interface DiagnosisService {
 
   UserDiagnosis createDiagnosisResult(int diagnosisId, List<Answer> answers, int userId);
 
+  void create(CreateDiagnosisRequestDTO createDiagnosisRequestDTO);
 }

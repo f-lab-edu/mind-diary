@@ -12,4 +12,6 @@ public interface QuestionService {
   List<Question> findAllByDiagnosisIds(List<Integer> diagnosisIds);
 
   void saveAll(List<Question> questionList);
+
+  void saveAllInDB(List<Question> questions);
 }

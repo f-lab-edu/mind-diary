@@ -36,6 +36,10 @@ public class QuestionServiceImpl implements QuestionService {
     questionDAO.saveAll(questions);
   }
 
+  @Override
+  public void saveAllInDB(List<Question> questions) {
+    questionRepository.saveAll(questions);
+  }
 
 
 }

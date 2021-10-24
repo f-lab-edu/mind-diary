@@ -1,6 +1,7 @@
 package com.mindDiary.mindDiary.service;
 
 import com.mindDiary.mindDiary.dao.DiagnosisDAO;
+import com.mindDiary.mindDiary.dto.request.CreateDiagnosisRequestDTO;
 import com.mindDiary.mindDiary.entity.Diagnosis;
 import com.mindDiary.mindDiary.entity.DiagnosisScore;
 import com.mindDiary.mindDiary.entity.Answer;
@@ -108,6 +109,18 @@ public class DiagnosisServiceImpl implements DiagnosisService {
     userDiagnosisService.save(userDiagnosis);
 
     return userDiagnosis;
+  }
+
+  @Override
+  public void create(CreateDiagnosisRequestDTO request) {
+
+    Diagnosis diagnosis = request.createDiagnosisEntity();
+
+    diagnosisRepository.save(diagnosis);
+    diagnosisScoreService.saveAllInDB(request.createDiagnosisScoreEntityList(diagnosis.getId()));
+    questionService.saveAllInDB(request.createQuestionEntityList(diagnosis.getId()));
+    questionBaseLineService.saveAllInDB(request.createQuestionBaseLineEntityList(diagnosis.getId()));
+
   }
 
   public List<Integer> createIntegerBaseLine(List<QuestionBaseLine> questionBaseLines) {

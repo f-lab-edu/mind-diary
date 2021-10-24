@@ -12,4 +12,6 @@ public interface QuestionBaseLineService {
   List<QuestionBaseLine> findAllByDiagnosisIds(List<Integer> diagnosisIds);
 
   void saveAll(List<QuestionBaseLine> questionBaseLines);
+
+  void saveAllInDB(List<QuestionBaseLine> questionBaseLines);
 }

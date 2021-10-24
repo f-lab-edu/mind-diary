@@ -35,4 +35,9 @@ public class QuestionBaseLineServiceImpl implements QuestionBaseLineService {
   public void saveAll(List<QuestionBaseLine> questionBaseLines) {
     questionBaseLineDAO.saveAll(questionBaseLines);
   }
+
+  @Override
+  public void saveAllInDB(List<QuestionBaseLine> questionBaseLines) {
+    questionBaseLineRepository.saveAll(questionBaseLines);
+  }
 }
