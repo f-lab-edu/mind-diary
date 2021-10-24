@@ -9,10 +9,10 @@
   </select>
 
   <update id="saveAll" parameterType="java.util.List">
-    INSERT INTO diagnosis_score (min_value, max_value, content)
+    INSERT INTO diagnosis_score (diagnosis_id, min_value, max_value, content)
     VALUES
     <foreach collection="list" item="item" separator=",">
-      (#{item.minValue}, #{item.maxValue}, #{item.content})
+      (#{item.diagnosisId}, #{item.minValue}, #{item.maxValue}, #{item.content})
     </foreach>
   </update>
 
