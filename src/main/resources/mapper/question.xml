@@ -10,4 +10,13 @@
       #{item}
     </foreach>
   </select>
+
+  <update id="saveAll" parameterType="java.util.List">
+    INSERT INTO question (content, reverse)
+    VALUES
+    <foreach collection="list" item="item" separator=",">
+      (#{item.content}, #{item.reverse})
+    </foreach>
+  </update>
+
 </mapper>
