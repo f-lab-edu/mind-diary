@@ -47,7 +47,6 @@ public class DiagnosisDAO {
             hashKeySerializer.serialize(fieldKey),
             hashValueSerializer.serialize(diagnosis));
 
-
         connection.zSetCommands().zAdd(keySerializer.serialize(ZSET_KEY),
             diagnosis.getId(),
             valueSerializer.serialize(fieldKey));
