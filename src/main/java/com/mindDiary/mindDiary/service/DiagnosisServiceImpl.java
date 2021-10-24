@@ -41,6 +41,7 @@ public class DiagnosisServiceImpl implements DiagnosisService {
     List<QuestionBaseLine> questionBaseLines = questionBaseLineService.findAllByDiagnosisIdsInDB(diagnosisIds);
 
     diagnosisDAO.saveAll(diagnoses);
+
     questionService.saveAllInCache(questions);
     questionBaseLineService.saveAllInCache(questionBaseLines);
   }
@@ -49,12 +50,33 @@ public class DiagnosisServiceImpl implements DiagnosisService {
   public Diagnosis readOne(int diagnosisId) {
 
     Diagnosis diagnosis = diagnosisDAO.findById(diagnosisId);
-    if (diagnosis.isEmpty()) {
+    if (isEmpty(diagnosis)) {
       diagnosis = diagnosisRepository.findById(diagnosisId);
       diagnosisDAO.save(diagnosis);
     }
 
-    return diagnosis;
+    List<Question> questions = questionService.findAllByDiagnosisIdInCache(diagnosisId);
+    if (questions.isEmpty()) {
+      questions = questionService.findAllByDiagnosisIdInDB(diagnosisId);
+      questionService.saveAllInCache(questions);
+    }
+
+    List<QuestionBaseLine> questionBaseLines =
+        questionBaseLineService.readByDiagnosisIdInCache(diagnosisId);
+
+    if (questionBaseLines.isEmpty()) {
+      questionBaseLines = questionBaseLineService.readByDiagnosisIdInDB(diagnosisId);
+      questionBaseLineService.saveAllInCache(questionBaseLines);
+    }
+    return diagnosis.withQuestionAndBaseLine(questions, questionBaseLines);
+  }
+
+  private boolean isEmpty(Diagnosis diagnosis) {
+    return diagnosis.getId() == 0
+        && diagnosis.getNumberOfChoice() == 0
+        && diagnosis.getName().equals("")
+        && diagnosis.getQuestions().isEmpty()
+        && diagnosis.getQuestionBaseLines().isEmpty();
   }
 
 
@@ -78,6 +100,7 @@ public class DiagnosisServiceImpl implements DiagnosisService {
   public void create(CreateDiagnosisRequestDTO request) {
 
     Diagnosis diagnosis = request.createDiagnosisEntity();
+
 
     diagnosisRepository.save(diagnosis);
     diagnosisScoreService.saveAllInDB(request.createDiagnosisScoreEntityList(diagnosis.getId()));
@@ -153,6 +176,7 @@ public class DiagnosisServiceImpl implements DiagnosisService {
       questions = questionService.findAllByDiagnosisIdsInDB(diagnosisIds);
       questionService.saveAllInCache(questions);
     }
+
     return questions
         .stream()
         .collect(Collectors.groupingBy(Question::getDiagnosisId));

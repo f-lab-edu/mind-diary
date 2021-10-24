@@ -7,6 +7,8 @@ public interface QuestionService {
 
   List<Question> findAllByDiagnosisIdInCache(int diagnosisId);
 
+  List<Question> findAllByDiagnosisIdInDB(int diagnosisId);
+
   List<Question> findAllByDiagnosisIdsInDB(List<Integer> diagnosisIds);
 
   List<Question> findAllByDiagnosisIdsInCache(List<Integer> diagnosisIds);
@@ -14,4 +16,6 @@ public interface QuestionService {
   void saveAllInCache(List<Question> questionList);
 
   void saveAllInDB(List<Question> questions);
+
+
 }

@@ -7,6 +7,8 @@ public interface QuestionBaseLineService {
 
   List<QuestionBaseLine> readByDiagnosisIdInCache(int diagnosisId);
 
+  List<QuestionBaseLine> readByDiagnosisIdInDB(int diagnosisId);
+
   List<QuestionBaseLine> findAllByDiagnosisIdsInDB(List<Integer> diagnosisIds);
 
   List<QuestionBaseLine> findAllByDiagnosisIdsInCache(List<Integer> diagnosisIds);
@@ -15,5 +17,4 @@ public interface QuestionBaseLineService {
 
   void saveAllInDB(List<QuestionBaseLine> questionBaseLines);
 
-  List<QuestionBaseLine> readByDiagnosisIdInDB(int diagnosisId);
 }
