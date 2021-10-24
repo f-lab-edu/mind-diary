@@ -5,7 +5,9 @@ import com.mindDiary.mindDiary.entity.Diagnosis;
 import com.mindDiary.mindDiary.entity.PageCriteria;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
+import jdk.jshell.Diag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisCallback;
@@ -77,14 +79,23 @@ public class DiagnosisDAO {
       diagnoses.add(objectMapper.convertValue(result, Diagnosis.class));
     }
 
-    return diagnoses;
+    return Optional.ofNullable(diagnoses)
+        .orElse(new ArrayList<>());
   }
 
 
   public Diagnosis findById(int diagnosisId) {
     String hashKey = getFieldKey(diagnosisId);
     Object object = redisTemplate.opsForHash().get(HASH_KEY, hashKey);
-    return objectMapper.convertValue(object, Diagnosis.class);
+    Diagnosis result = objectMapper.convertValue(object, Diagnosis.class);
+    return Optional.ofNullable(result)
+        .orElse(Diagnosis.builder()
+            .id(0)
+            .numberOfChoice(0)
+            .name("")
+            .questions(new ArrayList<>())
+            .questionBaseLines(new ArrayList<>())
+            .build());
   }
 
 }

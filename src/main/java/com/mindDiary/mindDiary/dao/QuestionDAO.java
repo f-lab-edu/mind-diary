@@ -2,7 +2,9 @@ package com.mindDiary.mindDiary.dao;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mindDiary.mindDiary.entity.Question;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -62,13 +64,18 @@ public class QuestionDAO {
           }
         });
 
-    return objects.stream()
+    List<Question> result = objects.stream()
         .flatMap((o -> convertQuestions((List<Object>) o).stream()))
         .collect(Collectors.toList());
+
+    return Optional.ofNullable(result)
+        .orElse(new ArrayList<>());
   }
 
   public List<Question> convertQuestions(List<Object> objects) {
-    return objects.stream()
+    return Optional.ofNullable(objects)
+        .orElse(new ArrayList<>())
+        .stream()
         .map(o -> objectMapper.convertValue(o, Question.class))
         .collect(Collectors.toList());
   }

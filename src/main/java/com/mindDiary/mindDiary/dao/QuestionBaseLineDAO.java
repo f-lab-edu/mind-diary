@@ -1,8 +1,11 @@
 package com.mindDiary.mindDiary.dao;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.mindDiary.mindDiary.entity.Question;
 import com.mindDiary.mindDiary.entity.QuestionBaseLine;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -62,13 +65,18 @@ public class QuestionBaseLineDAO {
           }
         });
 
-    return objects.stream()
+    List<QuestionBaseLine> result = objects.stream()
         .flatMap((o -> convertQuestionBaseLines((List<Object>) o).stream()))
         .collect(Collectors.toList());
+
+    return Optional.ofNullable(result)
+        .orElse(new ArrayList<>());
   }
 
   public List<QuestionBaseLine> convertQuestionBaseLines(List<Object> objects) {
-    return objects.stream()
+    return Optional.ofNullable(objects)
+        .orElse(new ArrayList<>())
+        .stream()
         .map(o -> objectMapper.convertValue(o, QuestionBaseLine.class))
         .collect(Collectors.toList());
   }
