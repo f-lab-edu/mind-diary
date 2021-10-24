@@ -101,7 +101,6 @@ public class DiagnosisServiceImpl implements DiagnosisService {
 
     Diagnosis diagnosis = request.createDiagnosisEntity();
 
-
     diagnosisRepository.save(diagnosis);
     diagnosisScoreService.saveAllInDB(request.createDiagnosisScoreEntityList(diagnosis.getId()));
     questionService.saveAllInDB(request.createQuestionEntityList(diagnosis.getId()));
@@ -141,7 +140,8 @@ public class DiagnosisServiceImpl implements DiagnosisService {
     PageCriteria pageCriteria = new PageCriteria(pageNumber);
 
     List<Diagnosis> diagnoses = diagnosisDAO.findAll(pageCriteria);
-    if (diagnoses.isEmpty()) {
+
+    if (diagnoses.isEmpty() || diagnoses.size() < PageCriteria.ITEMS_PER_PAGE) {
       diagnoses = diagnosisRepository.findAllWithPaging(pageCriteria);
       diagnosisDAO.saveAll(diagnoses);
     }
@@ -172,7 +172,7 @@ public class DiagnosisServiceImpl implements DiagnosisService {
     List<Question> questions = questionService
         .findAllByDiagnosisIdsInCache(diagnosisIds);
 
-    if (questions.isEmpty()) {
+    if (questions.isEmpty() || questions.size() < PageCriteria.ITEMS_PER_PAGE) {
       questions = questionService.findAllByDiagnosisIdsInDB(diagnosisIds);
       questionService.saveAllInCache(questions);
     }
@@ -187,7 +187,7 @@ public class DiagnosisServiceImpl implements DiagnosisService {
     List<QuestionBaseLine> questionBaseLines = questionBaseLineService
         .findAllByDiagnosisIdsInCache(diagnosisIds);
 
-    if (questionBaseLines.isEmpty()) {
+    if (questionBaseLines.isEmpty() || questionBaseLines.size() < PageCriteria.ITEMS_PER_PAGE) {
       questionBaseLines = questionBaseLineService.findAllByDiagnosisIdsInDB(diagnosisIds);
       questionBaseLineService.saveAllInCache(questionBaseLines);
     }
