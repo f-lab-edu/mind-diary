@@ -17,7 +17,7 @@ public class QuestionServiceImpl implements QuestionService {
   private final QuestionDAO questionDAO;
 
   @Override
-  public List<Question> findByDiagnosisId(int diagnosisId) {
+  public List<Question> findAllByDiagnosisIdInCache(int diagnosisId) {
     return questionDAO.findByDiagnosisId(diagnosisId);
   }
 
@@ -27,12 +27,12 @@ public class QuestionServiceImpl implements QuestionService {
   }
 
   @Override
-  public List<Question> findAllByDiagnosisIds(List<Integer> diagnosisIds) {
+  public List<Question> findAllByDiagnosisIdsInCache(List<Integer> diagnosisIds) {
     return questionDAO.findAllByDiagnosisIds(diagnosisIds);
   }
 
   @Override
-  public void saveAll(List<Question> questions) {
+  public void saveAllInCache(List<Question> questions) {
     questionDAO.saveAll(questions);
   }
 

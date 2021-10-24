@@ -17,8 +17,13 @@ public class QuestionBaseLineServiceImpl implements QuestionBaseLineService {
   private final QuestionBaseLineDAO questionBaseLineDAO;
 
   @Override
-  public List<QuestionBaseLine> readByDiagnosisId(int diagnosisId) {
+  public List<QuestionBaseLine> readByDiagnosisIdInCache(int diagnosisId) {
     return questionBaseLineDAO.findByDiagnosisId(diagnosisId);
+  }
+
+  @Override
+  public List<QuestionBaseLine> readByDiagnosisIdInDB(int diagnosisId) {
+    return questionBaseLineRepository.findByDiagnosisId(diagnosisId);
   }
 
   @Override
@@ -27,12 +32,12 @@ public class QuestionBaseLineServiceImpl implements QuestionBaseLineService {
   }
 
   @Override
-  public List<QuestionBaseLine> findAllByDiagnosisIds(List<Integer> diagnosisIds) {
+  public List<QuestionBaseLine> findAllByDiagnosisIdsInCache(List<Integer> diagnosisIds) {
     return questionBaseLineDAO.findAllByDiagnosisIds(diagnosisIds);
   }
 
   @Override
-  public void saveAll(List<QuestionBaseLine> questionBaseLines) {
+  public void saveAllInCache(List<QuestionBaseLine> questionBaseLines) {
     questionBaseLineDAO.saveAll(questionBaseLines);
   }
 
@@ -40,4 +45,6 @@ public class QuestionBaseLineServiceImpl implements QuestionBaseLineService {
   public void saveAllInDB(List<QuestionBaseLine> questionBaseLines) {
     questionBaseLineRepository.saveAll(questionBaseLines);
   }
+
+
 }
