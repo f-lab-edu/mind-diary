@@ -31,4 +31,11 @@ public class Diagnosis {
         .build();
   }
 
+  public boolean isEmpty() {
+    return id == 0
+        && numberOfChoice == 0
+        && name.equals("")
+        && questions.isEmpty()
+        && questionBaseLines.isEmpty();
+  }
 }
