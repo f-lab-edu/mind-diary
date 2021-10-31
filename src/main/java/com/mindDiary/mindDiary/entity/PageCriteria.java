@@ -9,16 +9,16 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class PageCriteria {
 
-  private static final int ITEMS_PER_PAGE = 5;
+  public static final int ITEMS_PER_PAGE = 5;
   private int perPageNum;
   private int pageNumber;
   private int pageStart;
 
 
   public PageCriteria(int pageNumber) {
+    this.perPageNum = ITEMS_PER_PAGE;
     this.pageNumber = pageNumber;
     this.pageStart = calcPageStart(pageNumber);
-    this.perPageNum = ITEMS_PER_PAGE;
   }
 
   private int calcPageStart(int pageNumber) {

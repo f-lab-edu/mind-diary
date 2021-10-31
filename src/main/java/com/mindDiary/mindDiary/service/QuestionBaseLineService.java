@@ -5,13 +5,16 @@ import java.util.List;
 
 public interface QuestionBaseLineService {
 
-  List<QuestionBaseLine> readByDiagnosisId(int diagnosisId);
+  List<QuestionBaseLine> readByDiagnosisIdInCache(int diagnosisId);
+
+  List<QuestionBaseLine> readByDiagnosisIdInDB(int diagnosisId);
 
   List<QuestionBaseLine> findAllByDiagnosisIdsInDB(List<Integer> diagnosisIds);
 
-  List<QuestionBaseLine> findAllByDiagnosisIds(List<Integer> diagnosisIds);
+  List<QuestionBaseLine> findAllByDiagnosisIdsInCache(List<Integer> diagnosisIds);
 
-  void saveAll(List<QuestionBaseLine> questionBaseLines);
+  void saveAllInCache(List<QuestionBaseLine> questionBaseLines);
 
   void saveAllInDB(List<QuestionBaseLine> questionBaseLines);
+
 }
