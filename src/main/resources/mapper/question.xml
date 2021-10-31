@@ -10,4 +10,19 @@
       #{item}
     </foreach>
   </select>
+
+  <select id = "findByDiagnosisId" parameterType="int" resultType="com.mindDiary.mindDiary.entity.Question">
+    SELECT *
+    FROM question
+    WHERE diagnosis_id = #{diagnosisId}
+  </select>
+
+  <update id="saveAll" parameterType="java.util.List">
+    INSERT INTO question (diagnosis_id, content, reverse)
+    VALUES
+    <foreach collection="list" item="item" separator=",">
+      (#{item.diagnosisId}, #{item.content}, #{item.reverse})
+    </foreach>
+  </update>
+
 </mapper>

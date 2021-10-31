@@ -16,4 +16,13 @@
       #{item}
     </foreach>
   </select>
+
+  <update id="saveAll" parameterType="java.util.List">
+    INSERT INTO question_base_line (diagnosis_id, content, score)
+    VALUES
+    <foreach collection="list" item="item" separator=",">
+      (#{item.diagnosisId}, #{item.content}, #{item.score})
+    </foreach>
+  </update>
+
 </mapper>

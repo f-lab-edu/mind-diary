@@ -5,11 +5,17 @@ import java.util.List;
 
 public interface QuestionService {
 
-  List<Question> findByDiagnosisId(int diagnosisId);
+  List<Question> findAllByDiagnosisIdInCache(int diagnosisId);
+
+  List<Question> findAllByDiagnosisIdInDB(int diagnosisId);
 
   List<Question> findAllByDiagnosisIdsInDB(List<Integer> diagnosisIds);
 
-  List<Question> findAllByDiagnosisIds(List<Integer> diagnosisIds);
+  List<Question> findAllByDiagnosisIdsInCache(List<Integer> diagnosisIds);
 
-  void saveAll(List<Question> questionList);
+  void saveAllInCache(List<Question> questionList);
+
+  void saveAllInDB(List<Question> questions);
+
+
 }

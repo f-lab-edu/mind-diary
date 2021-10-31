@@ -1,6 +1,7 @@
 package com.mindDiary.mindDiary.controller;
 
 import com.mindDiary.mindDiary.annotation.LoginCheck;
+import com.mindDiary.mindDiary.dto.request.CreateDiagnosisRequestDTO;
 import com.mindDiary.mindDiary.dto.request.CreateDiagnosisResultRequestDTO;
 import com.mindDiary.mindDiary.dto.response.ReadDiagnosisResultResponseDTO;
 import com.mindDiary.mindDiary.dto.response.ReadDiagnosisResponseDTO;
@@ -83,6 +84,16 @@ public class DiagnosisController {
         = createReadDiagnosisResultResponse(userDiagnosis);
 
     return new ResponseEntity(myDiagnosisResultReponses, HttpStatus.OK);
+  }
+
+
+  @PostMapping
+  @LoginCheck(checkLevel = Role.ADMIN)
+  public ResponseEntity createDiagnosis(@RequestBody @Valid CreateDiagnosisRequestDTO createDiagnosisRequest) {
+
+    diagnosisService.create(createDiagnosisRequest);
+
+    return new ResponseEntity(HttpStatus.OK);
   }
 
   private List<ReadDiagnosisResponseDTO> createReadDiagnosisResponses(List<Diagnosis> diagnoses) {

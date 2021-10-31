@@ -2,6 +2,11 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.mindDiary.mindDiary.mapper.DiagnosisRepository">
 
+  <update id="save" useGeneratedKeys="true" keyProperty="id" parameterType="com.mindDiary.mindDiary.entity.Diagnosis">
+    INSERT INTO diagnosis(name, number_of_choice)
+    VALUES(#{name}, #{numberOfChoice})
+  </update>
+
   <select id = "findAllWithPaging" parameterType="com.mindDiary.mindDiary.entity.PageCriteria" resultType="com.mindDiary.mindDiary.entity.Diagnosis">
     SELECT id, name, number_of_choice
     FROM diagnosis

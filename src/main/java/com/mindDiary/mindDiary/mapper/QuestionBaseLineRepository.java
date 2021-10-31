@@ -10,4 +10,6 @@ public interface QuestionBaseLineRepository {
   List<QuestionBaseLine> findByDiagnosisId(int diagnosisId);
 
   List<QuestionBaseLine> findAllByDiagnosisIds(List<Integer> diagnosisIds);
+
+  void saveAll(List<QuestionBaseLine> questionBaseLines);
 }

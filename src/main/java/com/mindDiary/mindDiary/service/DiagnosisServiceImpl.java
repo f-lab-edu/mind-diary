@@ -1,6 +1,7 @@
 package com.mindDiary.mindDiary.service;
 
 import com.mindDiary.mindDiary.dao.DiagnosisDAO;
+import com.mindDiary.mindDiary.dto.request.CreateDiagnosisRequestDTO;
 import com.mindDiary.mindDiary.entity.Diagnosis;
 import com.mindDiary.mindDiary.entity.DiagnosisScore;
 import com.mindDiary.mindDiary.entity.Answer;
@@ -40,57 +41,42 @@ public class DiagnosisServiceImpl implements DiagnosisService {
     List<QuestionBaseLine> questionBaseLines = questionBaseLineService.findAllByDiagnosisIdsInDB(diagnosisIds);
 
     diagnosisDAO.saveAll(diagnoses);
-    questionService.saveAll(questions);
-    questionBaseLineService.saveAll(questionBaseLines);
+
+    questionService.saveAllInCache(questions);
+    questionBaseLineService.saveAllInCache(questionBaseLines);
   }
-
-  public List<Diagnosis> readAllWithQuestionAndQuestionBaseLine(List<Diagnosis> diagnoses) {
-    List<Integer> diagnosisIds = toDiagnosisIds(diagnoses);
-
-    Map<Integer, List<Question>> questionMap
-        = findQuestionsMap(diagnosisIds);
-
-    Map<Integer, List<QuestionBaseLine>> questionBaseLineMap
-        = findQuestionBaseLinesMap(diagnosisIds);
-
-    return diagnoses.stream()
-        .map(diagnosis-> diagnosis.withQuestionAndBaseLine(
-            questionMap.get(diagnosis.getId()),
-            questionBaseLineMap.get(diagnosis.getId())))
-        .collect(Collectors.toList());
-  }
-
-  @Override
-  public List<Diagnosis> readAll(int pageNumber) {
-    PageCriteria pageCriteria = new PageCriteria(pageNumber);
-    List<Diagnosis> diagnoses = diagnosisDAO.findAll(pageCriteria);
-    return readAllWithQuestionAndQuestionBaseLine(diagnoses);
-  }
-
-  private Map<Integer, List<Question>> findQuestionsMap(List<Integer> diagnosisIds) {
-    return questionService
-        .findAllByDiagnosisIds(diagnosisIds)
-        .stream()
-        .collect(Collectors.groupingBy(Question::getDiagnosisId));
-  }
-
-  private Map<Integer, List<QuestionBaseLine>> findQuestionBaseLinesMap(List<Integer> diagnosisIds) {
-    return questionBaseLineService
-        .findAllByDiagnosisIds(diagnosisIds)
-        .stream()
-        .collect(Collectors.groupingBy(QuestionBaseLine::getDiagnosisId));
-  }
-
-  private List<Integer> toDiagnosisIds(List<Diagnosis> diagnoses) {
-    return diagnoses.stream()
-        .map(d -> d.getId())
-        .collect(Collectors.toList());
-  }
-
 
   @Override
   public Diagnosis readOne(int diagnosisId) {
-    return diagnosisDAO.findById(diagnosisId);
+
+    Diagnosis diagnosis = diagnosisDAO.findById(diagnosisId);
+    if (isEmpty(diagnosis)) {
+      diagnosis = diagnosisRepository.findById(diagnosisId);
+      diagnosisDAO.save(diagnosis);
+    }
+
+    List<Question> questions = questionService.findAllByDiagnosisIdInCache(diagnosisId);
+    if (questions.isEmpty()) {
+      questions = questionService.findAllByDiagnosisIdInDB(diagnosisId);
+      questionService.saveAllInCache(questions);
+    }
+
+    List<QuestionBaseLine> questionBaseLines =
+        questionBaseLineService.readByDiagnosisIdInCache(diagnosisId);
+
+    if (questionBaseLines.isEmpty()) {
+      questionBaseLines = questionBaseLineService.readByDiagnosisIdInDB(diagnosisId);
+      questionBaseLineService.saveAllInCache(questionBaseLines);
+    }
+    return diagnosis.withQuestionAndBaseLine(questions, questionBaseLines);
+  }
+
+  private boolean isEmpty(Diagnosis diagnosis) {
+    return diagnosis.getId() == 0
+        && diagnosis.getNumberOfChoice() == 0
+        && diagnosis.getName().equals("")
+        && diagnosis.getQuestions().isEmpty()
+        && diagnosis.getQuestionBaseLines().isEmpty();
   }
 
 
@@ -110,20 +96,106 @@ public class DiagnosisServiceImpl implements DiagnosisService {
     return userDiagnosis;
   }
 
+  @Override
+  public void create(CreateDiagnosisRequestDTO request) {
+
+    Diagnosis diagnosis = request.createDiagnosisEntity();
+
+    diagnosisRepository.save(diagnosis);
+    diagnosisScoreService.saveAllInDB(request.createDiagnosisScoreEntityList(diagnosis.getId()));
+    questionService.saveAllInDB(request.createQuestionEntityList(diagnosis.getId()));
+    questionBaseLineService.saveAllInDB(request.createQuestionBaseLineEntityList(diagnosis.getId()));
+
+  }
+
   public List<Integer> createIntegerBaseLine(List<QuestionBaseLine> questionBaseLines) {
     return questionBaseLines.stream()
         .map(qb -> qb.getScore())
         .collect(Collectors.toList());
   }
 
+  private List<Integer> toDiagnosisIds(List<Diagnosis> diagnoses) {
+    return diagnoses.stream()
+        .map(d -> d.getId())
+        .collect(Collectors.toList());
+  }
+
   public int calc(List<Answer> answers, int diagnosisId) {
 
-    List<QuestionBaseLine> questionBaseLines = questionBaseLineService.readByDiagnosisId(diagnosisId);
+    List<QuestionBaseLine> questionBaseLines = questionBaseLineService.readByDiagnosisIdInCache(diagnosisId);
+    if (questionBaseLines.isEmpty()) {
+      questionBaseLines = questionBaseLineService.readByDiagnosisIdInDB(diagnosisId);
+      questionBaseLineService.saveAllInCache(questionBaseLines);
+    }
     scoreCalculateStrategy.addScoreBaseLine(createIntegerBaseLine(questionBaseLines));
 
     return answers.stream()
         .mapToInt(a -> scoreCalculateStrategy.calc(a.getChoiceNumber(), a.getReverse()))
         .sum();
   }
+
+
+  @Override
+  public List<Diagnosis> readAll(int pageNumber) {
+    PageCriteria pageCriteria = new PageCriteria(pageNumber);
+
+    List<Diagnosis> diagnoses = diagnosisDAO.findAll(pageCriteria);
+
+    if (diagnoses.isEmpty() || diagnoses.size() < PageCriteria.ITEMS_PER_PAGE) {
+      diagnoses = diagnosisRepository.findAllWithPaging(pageCriteria);
+      diagnosisDAO.saveAll(diagnoses);
+    }
+
+    return readAllWithQuestionAndQuestionBaseLine(diagnoses);
+  }
+
+
+  public List<Diagnosis> readAllWithQuestionAndQuestionBaseLine(List<Diagnosis> diagnoses) {
+    List<Integer> diagnosisIds = toDiagnosisIds(diagnoses);
+
+    Map<Integer, List<Question>> questionMap
+        = findQuestionsMap(diagnosisIds);
+
+    Map<Integer, List<QuestionBaseLine>> questionBaseLineMap
+        = findQuestionBaseLinesMap(diagnosisIds);
+
+    return diagnoses.stream()
+        .map(diagnosis-> diagnosis.withQuestionAndBaseLine(
+            questionMap.get(diagnosis.getId()),
+            questionBaseLineMap.get(diagnosis.getId())))
+        .collect(Collectors.toList());
+  }
+
+
+  private Map<Integer, List<Question>> findQuestionsMap(List<Integer> diagnosisIds) {
+
+    List<Question> questions = questionService
+        .findAllByDiagnosisIdsInCache(diagnosisIds);
+
+    if (questions.isEmpty() || questions.size() < PageCriteria.ITEMS_PER_PAGE) {
+      questions = questionService.findAllByDiagnosisIdsInDB(diagnosisIds);
+      questionService.saveAllInCache(questions);
+    }
+
+    return questions
+        .stream()
+        .collect(Collectors.groupingBy(Question::getDiagnosisId));
+  }
+
+  private Map<Integer, List<QuestionBaseLine>> findQuestionBaseLinesMap(List<Integer> diagnosisIds) {
+
+    List<QuestionBaseLine> questionBaseLines = questionBaseLineService
+        .findAllByDiagnosisIdsInCache(diagnosisIds);
+
+    if (questionBaseLines.isEmpty() || questionBaseLines.size() < PageCriteria.ITEMS_PER_PAGE) {
+      questionBaseLines = questionBaseLineService.findAllByDiagnosisIdsInDB(diagnosisIds);
+      questionBaseLineService.saveAllInCache(questionBaseLines);
+    }
+
+    return questionBaseLines
+        .stream()
+        .collect(Collectors.groupingBy(QuestionBaseLine::getDiagnosisId));
+  }
+
 
 }

@@ -13,4 +13,6 @@ public interface DiagnosisRepository {
   Diagnosis findById(int diagnosisId);
 
   List<Diagnosis> findAll();
+
+  void save(Diagnosis diagnosis);
 }
