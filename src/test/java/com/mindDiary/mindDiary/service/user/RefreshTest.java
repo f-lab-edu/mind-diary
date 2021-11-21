@@ -1,16 +1,19 @@
 package com.mindDiary.mindDiary.service.user;
 
-import static com.mindDiary.mindDiary.service.user.JoinTest.USER_ID;
 import static com.mindDiary.mindDiary.service.user.JoinTest.createUser;
+import static com.mindDiary.mindDiary.service.user.LoginTest.ACCESS_TOKEN;
 import static com.mindDiary.mindDiary.service.user.LoginTest.REFRESH_TOKEN;
-import static com.mindDiary.mindDiary.service.user.LoginTest.createToken;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
+import com.mindDiary.mindDiary.dao.UserDAO;
 import com.mindDiary.mindDiary.entity.Token;
 import com.mindDiary.mindDiary.entity.User;
 import com.mindDiary.mindDiary.exception.InvalidJwtException;
@@ -18,7 +21,6 @@ import com.mindDiary.mindDiary.exception.businessException.NotMatchedIdException
 import com.mindDiary.mindDiary.mapper.UserRepository;
 import com.mindDiary.mindDiary.service.UserServiceImpl;
 import com.mindDiary.mindDiary.strategy.jwt.TokenStrategy;
-import com.mindDiary.mindDiary.strategy.redis.RedisStrategy;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -32,74 +34,132 @@ import org.mockito.junit.jupiter.MockitoExtension;
 public class RefreshTest {
 
 
-  @Mock
-  UserRepository userRepository;
-
   @InjectMocks
   UserServiceImpl userService;
 
   @Mock
-  TokenStrategy tokenStrategy;
+  UserRepository userRepository;
 
   @Mock
-  RedisStrategy redisStrategy;
+  UserDAO userDAO;
 
+  @Mock
+  TokenStrategy tokenStrategy;
 
   @Test
   @DisplayName("입력한 리프레시 토큰이 유효하지 않아 토큰 재발급에 실패한다")
   public void failByInvalidRefreshToken() {
-    String originToken = REFRESH_TOKEN;
 
-    doThrow(new InvalidJwtException()).when(tokenStrategy).validateToken(originToken);
+    // Arrange
+    String originRefreshToken = REFRESH_TOKEN;
+    User user = createUser();
+    int userId = user.getId();
+    String role = user.getRole().toString();
+    String email = user.getEmail();
 
+    doThrow(new InvalidJwtException())
+        .when(tokenStrategy)
+        .validateToken(originRefreshToken);
+
+    // Act
     assertThatThrownBy(() -> {
-      userService.refresh(originToken);
+      userService.refresh(originRefreshToken);
     }).isInstanceOf(InvalidJwtException.class);
 
+    // Assert
+    verify(userDAO, times(0))
+        .getUserId(originRefreshToken);
+    verify(tokenStrategy, times(0))
+        .createAccessToken(userId, role, email);
+    verify(tokenStrategy, times(0))
+        .createRefreshToken(userId);
+    verify(userDAO, times(0))
+        .addRefreshToken(anyString(), anyInt());
   }
 
   @Test
-  @DisplayName("캐시에 있는 토큰과 입력한 토큰이 일치하지 않아 토큰 재발급에 실패한다")
+  @DisplayName("캐시에 있는 토큰의 user id와 "
+      + "입력한 토큰의 userId가"
+      + " 일치하지 않아 토큰 재발급에 실패한다")
   public void failByNotMatchedToken() {
-    String originToken = REFRESH_TOKEN;
 
-    doReturn(true).when(tokenStrategy).validateToken(originToken);
-    doReturn(String.valueOf(USER_ID - 1)).when(redisStrategy).getValue(originToken);
-    doReturn(USER_ID).when(tokenStrategy).getUserId(originToken);
+    String originRefreshToken = REFRESH_TOKEN;
+    User user = createUser();
+    int userId = user.getId();
+    String role = user.getRole().toString();
+    String email = user.getEmail();
+    int otherUserId = 8;
 
+    doReturn(true)
+        .when(tokenStrategy)
+        .validateToken(originRefreshToken);
+
+    doReturn(userId)
+        .when(userDAO)
+        .getUserId(originRefreshToken);
+
+    doReturn(otherUserId)
+        .when(tokenStrategy)
+        .getUserId(originRefreshToken);
+
+    // Act
     assertThatThrownBy(() -> {
-      userService.refresh(originToken);
+      userService.refresh(originRefreshToken);
     }).isInstanceOf(NotMatchedIdException.class);
+
+    verify(tokenStrategy, times(0))
+        .createAccessToken(userId, role, email);
+    verify(tokenStrategy, times(0))
+        .createRefreshToken(userId);
+    verify(userDAO, times(0))
+        .addRefreshToken(anyString(), anyInt());
 
   }
 
   @Test
   @DisplayName("토큰 재발급에 성공한다")
   public void success() {
-    String originToken = REFRESH_TOKEN;
+    String refreshToken = REFRESH_TOKEN;
+    String accessToken = ACCESS_TOKEN;
     User user = createUser();
-    Token token = createToken();
+    user.changeRoleUser();
+    int userId = user.getId();
+    String role = user.getRole().toString();
+    String email = user.getEmail();
 
-    doReturn(true).when(tokenStrategy).validateToken(originToken);
-    doReturn(String.valueOf(USER_ID)).when(redisStrategy).getValue(originToken);
-    doReturn(USER_ID).when(tokenStrategy).getUserId(originToken);
+    doReturn(true)
+        .when(tokenStrategy)
+        .validateToken(refreshToken);
 
-    doReturn(user).when(userRepository).findById(USER_ID);
-    doNothing().when(redisStrategy).deleteValue(originToken);
-    doReturn(token.getAccessToken()).when(tokenStrategy)
-        .createAccessToken(user.getId(), user.getRole().toString(), user.getEmail());
-    doReturn(token.getRefreshToken()).when(tokenStrategy).createRefreshToken(user.getId());
-    doNothing().when(redisStrategy).addRefreshToken(token.getRefreshToken(), user.getId());
+    doReturn(userId)
+        .when(userDAO)
+        .getUserId(refreshToken);
 
-    userService.refresh(originToken);
+    doReturn(user)
+        .when(userRepository)
+        .findById(userId);
 
-    verify(tokenStrategy, times(1)).validateToken(originToken);
-    verify(redisStrategy, times(1)).getValue(originToken);
-    verify(tokenStrategy, times(1)).getUserId(originToken);
-    verify(userRepository, times(1)).findById(USER_ID);
-    verify(redisStrategy, times(1)).deleteValue(originToken);
-    verify(tokenStrategy, times(1)).createAccessToken(user.getId(), user.getRole().toString(), user.getEmail());
-    verify(tokenStrategy, times(1)).createRefreshToken(user.getId());
-    verify(redisStrategy, times(1)).addRefreshToken(token.getRefreshToken(), user.getId());
+    doReturn(userId)
+        .when(tokenStrategy)
+        .getUserId(refreshToken);
+
+    doReturn(accessToken)
+        .when(tokenStrategy)
+        .createAccessToken(userId, role, email);
+
+    doReturn(refreshToken)
+        .when(tokenStrategy)
+        .createRefreshToken(userId);
+
+    doNothing()
+        .when(userDAO)
+        .addRefreshToken(refreshToken, userId);
+    // Act
+    Token result = userService.refresh(refreshToken);
+
+    assertThat(result.getAccessToken())
+        .isEqualTo(accessToken);
+    assertThat(result.getRefreshToken())
+        .isEqualTo(refreshToken);
   }
 }
