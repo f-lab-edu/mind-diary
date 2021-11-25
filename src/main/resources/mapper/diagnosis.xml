@@ -10,7 +10,8 @@
   <select id = "findAllWithPaging" parameterType="com.mindDiary.mindDiary.entity.PageCriteria" resultType="com.mindDiary.mindDiary.entity.Diagnosis">
     SELECT id, name, number_of_choice
     FROM diagnosis
-    ORDER BY id DESC LIMIT #{pageStart},#{perPageNum}
+    WHERE id > #{pageStart}
+    ORDER BY id LIMIT #{perPageNum}
   </select>
 
   <select id = "findAll"  resultType="com.mindDiary.mindDiary.entity.Diagnosis">
