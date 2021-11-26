@@ -2,6 +2,7 @@ package com.mindDiary.mindDiary.service.user;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.times;
@@ -11,6 +12,7 @@ import com.mindDiary.mindDiary.dao.UserDAO;
 import com.mindDiary.mindDiary.entity.Role;
 import com.mindDiary.mindDiary.entity.User;
 import com.mindDiary.mindDiary.exception.businessException.EmailDuplicatedException;
+import com.mindDiary.mindDiary.exception.businessException.InvalidEmailTokenException;
 import com.mindDiary.mindDiary.exception.businessException.NicknameDuplicatedException;
 import com.mindDiary.mindDiary.mapper.UserRepository;
 import com.mindDiary.mindDiary.service.UserServiceImpl;
@@ -20,6 +22,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.NullAndEmptySource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
@@ -36,6 +40,7 @@ public class JoinTest {
   public final static String USER_NICKNAME = "규유";
   public static final String USER_PASSWORD = "password";
   public static final String USER_EMAIL_CHECK_TOKEN = "emailtokenxxxxx";
+
 
   @InjectMocks
   UserServiceImpl userService;
@@ -55,6 +60,9 @@ public class JoinTest {
   @Mock
   UserTransactionServiceImpl userTransactionService;
 
+  @Mock
+  RandomEmailToken randomEmailToken;
+
   public static User createUser() {
     return User.builder()
         .id(USER_ID)
@@ -73,6 +81,11 @@ public class JoinTest {
     User user = createUser();
     String email = user.getEmail();
     String nickname = user.getNickname();
+    String emailToken = user.getEmailCheckToken();
+
+    doReturn(emailToken)
+        .when(randomEmailToken)
+        .create();
 
     doReturn(user)
         .when(userRepository)
@@ -97,6 +110,11 @@ public class JoinTest {
     User user = createUser();
     String email = user.getEmail();
     String nickname = user.getNickname();
+    String emailToken = user.getEmailCheckToken();
+
+    doReturn(emailToken)
+        .when(randomEmailToken)
+        .create();
 
     doReturn(null)
         .when(userRepository).findByEmail(email);
@@ -122,6 +140,11 @@ public class JoinTest {
     String email = user.getEmail();
     String nickname = user.getNickname();
     String originPasswd = user.getPassword();
+    String emailToken = user.getEmailCheckToken();
+
+    doReturn(emailToken)
+        .when(randomEmailToken)
+        .create();
 
     doReturn(null)
         .when(userRepository)
@@ -142,5 +165,66 @@ public class JoinTest {
         passwordEncoder
             .matches(originPasswd, user.getPassword()))
         .isTrue();
+
+    assertThat(user.getEmailCheckToken())
+        .isEqualTo(emailToken);
+  }
+
+  @ParameterizedTest
+  @NullAndEmptySource
+  @DisplayName("이메일 토큰을 만들지 못하면 회원가입에 실패한다.")
+  void joinFail1(String str) {
+    // Arrange
+    User user = createUser();
+    String email = user.getEmail();
+    String nickname = user.getNickname();
+    String originPasswd = user.getPassword();
+    String emailToken = user.getEmailCheckToken();
+
+    doReturn(str)
+        .when(randomEmailToken)
+        .create();
+
+    // Act
+    assertThatThrownBy(() -> {
+      userService.join(user);
+    }).isInstanceOf(InvalidEmailTokenException.class);
+
+
+    verify(userRepository, times(0))
+        .save(any(User.class));
+
+    assertThat(user.getEmailCheckToken())
+        .isNullOrEmpty();
+
+  }
+
+  @ParameterizedTest
+  @NullAndEmptySource
+  @DisplayName("hashed password를 만들지 못하면 회원가입에 실패한다.")
+  void joinFail2(String str) {
+    // Arrange
+    User user = createUser();
+    String email = user.getEmail();
+    String nickname = user.getNickname();
+    String originPasswd = user.getPassword();
+    String emailToken = user.getEmailCheckToken();
+
+    doReturn(emailToken)
+        .when(randomEmailToken)
+        .create();
+
+    doReturn(str)
+        .when(passwordEncoder)
+        .encode(originPasswd);
+
+    // Act
+    assertThatThrownBy(() -> {
+      userService.join(user);
+    }).isInstanceOf(InvalidPasswordException.class);
+
+
+    verify(userRepository, times(0))
+        .save(any(User.class));
   }
 }
