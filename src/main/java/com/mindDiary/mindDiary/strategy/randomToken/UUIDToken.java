@@ -9,14 +9,6 @@ public class UUIDToken implements RandomTokenGenerator {
 
   @Override
   public String create() {
-    UUID result = UUID.randomUUID();
-    valid(result);
-    return result.toString();
-  }
-
-  private void valid(UUID result) {
-    if (result == null || result.toString().isEmpty() || result.toString().isBlank()) {
-      throw new InvalidEmailTokenException();
-    }
+    return UUID.randomUUID().toString();
   }
 }
