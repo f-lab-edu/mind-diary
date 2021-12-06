@@ -37,7 +37,7 @@ public class ReplyServiceTest {
 
   @Test
   @DisplayName("댓글 달기 성공")
-  private void createReplySuccess() {
+  void createReplySuccess() {
     Reply reply = createReply();
 
     replyService.createReply(reply);
@@ -49,7 +49,7 @@ public class ReplyServiceTest {
 
   @Test
   @DisplayName("게시글 별 댓글 조회")
-  private void readSuccess() {
+  void readSuccess() {
     Reply reply = createReply();
     int postId = reply.getPostId();
 
