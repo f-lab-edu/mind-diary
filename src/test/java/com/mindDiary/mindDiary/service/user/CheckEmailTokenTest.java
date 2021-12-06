@@ -1,20 +1,19 @@
 package com.mindDiary.mindDiary.service.user;
 
-import static com.mindDiary.mindDiary.service.user.JoinTest.EMAIL;
-import static com.mindDiary.mindDiary.service.user.JoinTest.TOKEN;
-import static com.mindDiary.mindDiary.service.user.JoinTest.USER_ID;
 import static com.mindDiary.mindDiary.service.user.JoinTest.createUser;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
+import com.mindDiary.mindDiary.dao.UserDAO;
+import com.mindDiary.mindDiary.entity.Role;
 import com.mindDiary.mindDiary.entity.User;
 import com.mindDiary.mindDiary.exception.businessException.InvalidEmailTokenException;
 import com.mindDiary.mindDiary.mapper.UserRepository;
 import com.mindDiary.mindDiary.service.UserServiceImpl;
-import com.mindDiary.mindDiary.strategy.redis.RedisStrategy;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -34,40 +33,64 @@ public class CheckEmailTokenTest {
   UserRepository userRepository;
 
   @Mock
-  RedisStrategy redisStrategy;
-
+  UserDAO userDAO;
 
   @Test
   @DisplayName("회원가입용 이메일 인증에 성공한다")
   public void success() {
+
+    // Arrange
     User user = createUser();
-    user.changeRoleUser();
+    String email = user.getEmail();
+    int userId = user.getId();
+    String token = user.getEmailCheckToken();
 
-    doReturn(user).when(userRepository).findByEmail(EMAIL);
-    doReturn(String.valueOf(USER_ID)).when(redisStrategy).getValue(TOKEN);
-    doReturn(1).when(userRepository).updateRole(any(User.class));
+    doReturn(user)
+        .when(userRepository)
+        .findByEmail(email);
 
-    userService.checkEmailToken(TOKEN, EMAIL);
+    doReturn(userId)
+        .when(userDAO).getUserId(token);
 
-    verify(userRepository, times(1)).findByEmail(EMAIL);
-    verify(redisStrategy,times(1)).getValue(TOKEN);
-    verify(userRepository, times(1)).updateRole(any(User.class));
+    doReturn(1)
+        .when(userRepository)
+        .updateRole(any(User.class));
+
+    // Act
+    userService.checkEmailToken(token, email);
+
+    // Assert
+    assertThat(user.getRole())
+        .isEqualTo(Role.USER);
 
   }
 
   @Test
   @DisplayName("이메일 인증 토큰이 캐시에 있는 토큰과 일치하지 않을 경우 이메일 인증에 실패한다")
   public void failByInvalidCache() {
+    // Arrange
     User user = createUser();
-    user.changeRoleUser();
-    int notMatchedUserId = 1000;
+    String email = user.getEmail();
 
-    doReturn(user).when(userRepository).findByEmail(EMAIL);
-    doReturn(String.valueOf(notMatchedUserId)).when(redisStrategy).getValue(TOKEN);
+    String token = user.getEmailCheckToken();
+    int otherUserId = 8;
+
+    doReturn(user)
+        .when(userRepository)
+        .findByEmail(email);
+
+    doReturn(otherUserId)
+        .when(userDAO).getUserId(token);
 
     assertThatThrownBy(() -> {
-      userService.checkEmailToken(TOKEN, EMAIL);
+      userService.checkEmailToken(token, email);
     }).isInstanceOf(InvalidEmailTokenException.class);
+
+    verify(userRepository, times(0))
+        .updateRole(user);
+
+    assertThat(user.getRole())
+        .isEqualTo(Role.NOT_PERMITTED);
 
   }
 
