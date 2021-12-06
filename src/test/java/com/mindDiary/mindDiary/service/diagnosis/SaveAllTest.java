@@ -1,6 +1,6 @@
 package com.mindDiary.mindDiary.service.diagnosis;
 
-import static com.mindDiary.mindDiary.service.diagnosis.DiagnosisFixture.*;
+import static com.mindDiary.mindDiary.service.diagnosis.DiagnosisDummy.*;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.argThat;
@@ -21,7 +21,7 @@ import com.mindDiary.mindDiary.service.DiagnosisServiceImpl;
 import com.mindDiary.mindDiary.service.QuestionBaseLineService;
 import com.mindDiary.mindDiary.service.QuestionService;
 import com.mindDiary.mindDiary.service.UserDiagnosisService;
-import com.mindDiary.mindDiary.strategy.scoreCalc.ScoreCalculator;
+import com.mindDiary.mindDiary.strategy.scoreCalc.ScoreCalculateStrategy;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.IntStream;
@@ -51,7 +51,7 @@ public class SaveAllTest {
   UserDiagnosisService userDiagnosisService;
 
   @Mock
-  ScoreCalculator scoreCalculator;
+  ScoreCalculateStrategy scoreCalculateStrategy;
 
   @Mock
   QuestionService questionService;
@@ -62,7 +62,7 @@ public class SaveAllTest {
 
   @Test
   @DisplayName("자가진단, 질문지, 점수지 데이터를 캐시에 저장 성공")
-  private void saveAllSuccess1() {
+  void saveAllSuccess1() {
     // Arrange
     List<Diagnosis> diagnoses = new ArrayList<>();
     diagnoses.add(makeDiagnosis());
@@ -75,15 +75,15 @@ public class SaveAllTest {
 
     doReturn(questions)
         .when(questionService)
-        .findAllByDiagnosisIdsInDB(argThat(numbers -> numbers.stream()
-            .allMatch(i -> i == diagnoses.get(i).getId())
-        ));
+        .findAllByDiagnosisIdsInDB(argThat(diagnosisIds -> IntStream.range(0, diagnosisIds.size())
+            .allMatch(i -> diagnosisIds.get(i) == diagnoses.get(i).getId())));
+
 
     doReturn(baseLines)
         .when(questionBaseLineService)
-        .findAllByDiagnosisIdsInDB(argThat(numbers -> numbers.stream()
-            .allMatch(i -> i == diagnoses.get(i).getId())
-        ));
+        .findAllByDiagnosisIdsInDB(argThat(diagnosisIds -> IntStream.range(0, diagnosisIds.size())
+            .allMatch(i -> diagnosisIds.get(i) == diagnoses.get(i).getId())));
+
 
     // Act
     diagnosisService.saveAll();
@@ -114,7 +114,7 @@ public class SaveAllTest {
   @Test
   @DisplayName("자가진단, 질문지, 점수지 데이터를 캐시에 저장 실패 : "
       + "자가진단 데이터가 DB에 존재하지 않으면 어떤 것도 캐시에 저장할 수 없음")
-  private void saveAllFail1() {
+  void saveAllFail1() {
 
     // Arrange
     List<Diagnosis> diagnoses = new ArrayList<>();
@@ -147,7 +147,7 @@ public class SaveAllTest {
   @Test
   @DisplayName("자가진단, 질문지, 점수지 데이터를 캐시에 저장 실패 : "
       + "질문지 데이터가 DB에 존재하지 않으면 어떤 것도 캐시에 저장할 수 없음")
-  private void saveAllFail2() {
+  void saveAllFail2() {
 
     // Arrange
     List<Diagnosis> diagnoses = new ArrayList<>();
@@ -161,9 +161,9 @@ public class SaveAllTest {
 
     doReturn(null)
         .when(questionService)
-        .findAllByDiagnosisIdsInDB(argThat(numbers -> numbers.stream()
-            .allMatch(i -> i == diagnoses.get(i).getId())
-        ));
+        .findAllByDiagnosisIdsInDB(argThat(diagnosisIds ->
+            IntStream.range(0, diagnosisIds.size())
+        .allMatch(i -> diagnosisIds.get(i) == diagnoses.get(i).getId())));
 
     // Act
     assertThatThrownBy(() -> {
@@ -185,7 +185,7 @@ public class SaveAllTest {
   @Test
   @DisplayName("자가진단, 질문지, 점수지 데이터를 캐시에 저장 실패 : "
       + "점수지 데이터가 DB에 존재하지 않으면 어떤 것도 캐시에 저장할 수 없음")
-  private void saveAllFail3() {
+  void saveAllFail3() {
     // Arrange
     List<Diagnosis> diagnoses = new ArrayList<>();
     diagnoses.add(makeDiagnosis());
@@ -198,15 +198,15 @@ public class SaveAllTest {
 
     doReturn(questions)
         .when(questionService)
-        .findAllByDiagnosisIdsInDB(argThat(numbers -> numbers.stream()
-            .allMatch(i -> i == diagnoses.get(i).getId())
-        ));
+        .findAllByDiagnosisIdsInDB(argThat(diagnosisIds ->
+            IntStream.range(0, diagnosisIds.size())
+                .allMatch(i -> diagnosisIds.get(i) == diagnoses.get(i).getId())));
 
     doReturn(null)
         .when(questionBaseLineService)
-        .findAllByDiagnosisIdsInDB(argThat(numbers -> numbers.stream()
-            .allMatch(i -> i == diagnoses.get(i).getId())
-        ));
+        .findAllByDiagnosisIdsInDB(argThat(diagnosisIds ->
+            IntStream.range(0, diagnosisIds.size())
+                .allMatch(i -> diagnosisIds.get(i) == diagnoses.get(i).getId())));
 
     // Act
     assertThatThrownBy(() -> {

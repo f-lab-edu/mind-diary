@@ -1,9 +1,10 @@
 package com.mindDiary.mindDiary.service.diagnosis;
 
-import static com.mindDiary.mindDiary.service.diagnosis.DiagnosisFixture.*;
+import static com.mindDiary.mindDiary.service.diagnosis.DiagnosisDummy.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -21,7 +22,7 @@ import com.mindDiary.mindDiary.service.DiagnosisServiceImpl;
 import com.mindDiary.mindDiary.service.QuestionBaseLineService;
 import com.mindDiary.mindDiary.service.QuestionService;
 import com.mindDiary.mindDiary.service.UserDiagnosisService;
-import com.mindDiary.mindDiary.strategy.scoreCalc.ScoreCalculator;
+import com.mindDiary.mindDiary.strategy.scoreCalc.ScoreCalculateStrategy;
 import java.util.List;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -57,11 +58,11 @@ public class CreateDiagnosisResultTest {
   DiagnosisDAO diagnosisDAO;
 
   @Mock
-  ScoreCalculator scoreCalculator;
+  ScoreCalculateStrategy scoreCalculateStrategy;
 
   @Test
   @DisplayName("사용자의 자가진단 점수에 따라 진단 결과를 저장")
-  private void createDiagnosisResultSuccess1() {
+  void createDiagnosisResultSuccess1() {
 
     // Arrange
     List<Answer> answers = makeAnswerList();
@@ -80,22 +81,26 @@ public class CreateDiagnosisResultTest {
         .readByDiagnosisIdInCache(diagnosisId);
 
     doReturn(score)
-        .when(scoreCalculator)
+        .when(scoreCalculateStrategy)
         .calc(baseLines, answers);
 
     doReturn(diagnosisScore)
         .when(diagnosisScoreService)
         .readOneByDiagnosisIdAndScore(diagnosisId, score);
 
-    doReturn(1)
-        .when(userDiagnosisService)
-        .save(userDiagnosis);
 
     // Act
     UserDiagnosis result = diagnosisService
         .createDiagnosisResult(diagnosisId, answers, userId);
 
     // Assert
+
+    verify(userDiagnosisService, times(1))
+        .save(argThat(ud -> ud.getContent().equals(userDiagnosis.getContent())
+        && ud.getScore() == userDiagnosis.getScore()
+        && ud.getDiagnosisId() == userDiagnosis.getDiagnosisId()
+        && ud.getUserId() == userDiagnosis.getUserId()));
+
     assertThat(result.getDiagnosisId())
         .isEqualTo(diagnosisId);
     assertThat(result.getContent())
@@ -108,8 +113,8 @@ public class CreateDiagnosisResultTest {
 
 
   @Test
-  @DisplayName("자가진단 결과를 DB에서 찾을 수 없어 진단 결과 DB 저장 실패")
-  private void createDiagnosisResultFail1() {
+  @DisplayName("자가진단 점수 결과를 DB에서 찾을 수 없어 진단 결과 DB 저장 실패")
+  void createDiagnosisResultFail1() {
 
     // Arrange
     List<Answer> answers = makeAnswerList();
@@ -128,7 +133,7 @@ public class CreateDiagnosisResultTest {
         .readByDiagnosisIdInCache(diagnosisId);
 
     doReturn(score)
-        .when(scoreCalculator)
+        .when(scoreCalculateStrategy)
         .calc(baseLines, answers);
 
     doReturn(null)
@@ -149,7 +154,7 @@ public class CreateDiagnosisResultTest {
   @ParameterizedTest
   @ValueSource(ints = {-1, -3})
   @DisplayName("점수가 음수인 경우 진단 결과 DB 저장 실패 ")
-  private void createDiagnosisResultFail2(int minusScore) {
+  void createDiagnosisResultFail2(int minusScore) {
     // Arrange
     List<Answer> answers = makeAnswerList();
     List<QuestionBaseLine> baseLines = makeBaseLineList();
@@ -165,7 +170,7 @@ public class CreateDiagnosisResultTest {
         .readByDiagnosisIdInCache(diagnosisId);
 
     doReturn(minusScore)
-        .when(scoreCalculator)
+        .when(scoreCalculateStrategy)
         .calc(baseLines, answers);
 
     // Act , Assert
