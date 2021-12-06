@@ -78,7 +78,7 @@ public class JoinTest {
 
   @Test
   @DisplayName("이미 등록된 이메일인 경우 회원가입에 실패한다")
-  public void joinFailByDuplicateEmail() {
+  void joinFailByDuplicateEmail() {
     // Arrange
     User user = createUser();
     String email = user.getEmail();
@@ -107,7 +107,7 @@ public class JoinTest {
 
   @Test
   @DisplayName("이미 등록된 닉네임인 경우 회원가입에 실패한다")
-  public void joinFailByDuplicateNickname() {
+  void joinFailByDuplicateNickname() {
     // Arrange
     User user = createUser();
     String email = user.getEmail();
@@ -136,7 +136,7 @@ public class JoinTest {
 
   @Test
   @DisplayName("회원가입 성공")
-  public void success() {
+  void success() {
     // Arrange
     User user = createUser();
     String email = user.getEmail();
