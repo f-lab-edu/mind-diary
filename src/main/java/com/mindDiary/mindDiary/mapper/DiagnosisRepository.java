@@ -15,4 +15,6 @@ public interface DiagnosisRepository {
   List<Diagnosis> findAll();
 
   void save(Diagnosis diagnosis);
+
+  Diagnosis findByName(String name);
 }

@@ -19,6 +19,12 @@
     FROM diagnosis
   </select>
 
+  <select id = "findByName"  parameterType="String" resultType="com.mindDiary.mindDiary.entity.Diagnosis">
+    SELECT id, name, number_of_choice
+    FROM diagnosis
+    WHERE name = #{name}
+  </select>
+
   <select id="findById" parameterType="int" resultMap="diagnosis">
     SELECT
       d.id AS 'diagnosis_id',
