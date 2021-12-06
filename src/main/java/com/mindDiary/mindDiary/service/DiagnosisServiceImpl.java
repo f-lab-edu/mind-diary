@@ -9,6 +9,12 @@ import com.mindDiary.mindDiary.entity.PageCriteria;
 import com.mindDiary.mindDiary.entity.Question;
 import com.mindDiary.mindDiary.entity.QuestionBaseLine;
 import com.mindDiary.mindDiary.entity.UserDiagnosis;
+import com.mindDiary.mindDiary.exception.businessException.DiagnosisDuplicatedException;
+import com.mindDiary.mindDiary.exception.businessException.InvalidScoreException;
+import com.mindDiary.mindDiary.exception.businessException.NotFoundDiagnosisException;
+import com.mindDiary.mindDiary.exception.businessException.NotFoundDiagnosisScoreException;
+import com.mindDiary.mindDiary.exception.businessException.NotFoundQuestionBaseLineException;
+import com.mindDiary.mindDiary.exception.businessException.NotFoundQuestionException;
 import com.mindDiary.mindDiary.mapper.DiagnosisRepository;
 import com.mindDiary.mindDiary.strategy.scoreCalc.ScoreCalculateStrategy;
 import java.time.LocalDateTime;
@@ -36,10 +42,20 @@ public class DiagnosisServiceImpl implements DiagnosisService {
   @Override
   public void saveAll() {
     List<Diagnosis> diagnoses = diagnosisRepository.findAll();
+    if (diagnoses == null || diagnoses.isEmpty()) {
+      throw new NotFoundDiagnosisException();
+    }
     List<Integer> diagnosisIds = toDiagnosisIds(diagnoses);
     List<Question> questions = questionService.findAllByDiagnosisIdsInDB(diagnosisIds);
-    List<QuestionBaseLine> questionBaseLines = questionBaseLineService.findAllByDiagnosisIdsInDB(diagnosisIds);
 
+    if (questions == null || questions.isEmpty()) {
+      throw new NotFoundQuestionException();
+    }
+
+    List<QuestionBaseLine> questionBaseLines = questionBaseLineService.findAllByDiagnosisIdsInDB(diagnosisIds);
+    if(questionBaseLines == null || questionBaseLines.isEmpty()) {
+      throw new NotFoundQuestionBaseLineException();
+    }
     diagnosisDAO.saveAll(diagnoses);
 
     questionService.saveAllInCache(questions);
@@ -88,6 +104,9 @@ public class DiagnosisServiceImpl implements DiagnosisService {
 
     DiagnosisScore diagnosisScore = diagnosisScoreService.readOneByDiagnosisIdAndScore(diagnosisId, score);
 
+    if (diagnosisScore == null) {
+      throw new NotFoundDiagnosisScoreException();
+    }
     UserDiagnosis userDiagnosis = UserDiagnosis
         .create(userId, diagnosisId, score,LocalDateTime.now(), diagnosisScore.getContent());
 
@@ -100,6 +119,10 @@ public class DiagnosisServiceImpl implements DiagnosisService {
   public void create(CreateDiagnosisRequestDTO request) {
 
     Diagnosis diagnosis = request.createDiagnosisEntity();
+
+    if (diagnosisRepository.findByName(diagnosis.getName()) != null) {
+      throw new DiagnosisDuplicatedException();
+    }
 
     diagnosisRepository.save(diagnosis);
     diagnosisScoreService.saveAllInDB(request.createDiagnosisScoreEntityList(diagnosis.getId()));
@@ -127,11 +150,13 @@ public class DiagnosisServiceImpl implements DiagnosisService {
       questionBaseLines = questionBaseLineService.readByDiagnosisIdInDB(diagnosisId);
       questionBaseLineService.saveAllInCache(questionBaseLines);
     }
-    scoreCalculateStrategy.addScoreBaseLine(createIntegerBaseLine(questionBaseLines));
 
-    return answers.stream()
-        .mapToInt(a -> scoreCalculateStrategy.calc(a.getChoiceNumber(), a.getReverse()))
-        .sum();
+    int score = scoreCalculateStrategy.calc(questionBaseLines, answers);
+
+    if (score < 0) {
+      throw new InvalidScoreException();
+    }
+    return score;
   }
 
 
