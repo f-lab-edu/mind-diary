@@ -1,7 +1,7 @@
 package com.mindDiary.mindDiary.entity;
 
 import com.mindDiary.mindDiary.strategy.jwt.TokenStrategy;
-import java.util.UUID;
+import com.mindDiary.mindDiary.strategy.randomToken.RandomTokenGenerator;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -44,7 +44,7 @@ public class User {
     return tokenStrategy.createRefreshToken(id);
   }
 
-  public void createEmailToken() {
-    this.emailCheckToken = UUID.randomUUID().toString();
+  public void createEmailToken(RandomTokenGenerator generator) {
+    this.emailCheckToken = generator.create();
   }
 }
