@@ -13,6 +13,8 @@ import com.mindDiary.mindDiary.entity.Answer;
 import com.mindDiary.mindDiary.entity.DiagnosisScore;
 import com.mindDiary.mindDiary.entity.QuestionBaseLine;
 import com.mindDiary.mindDiary.entity.UserDiagnosis;
+import com.mindDiary.mindDiary.exception.businessException.InvalidScoreException;
+import com.mindDiary.mindDiary.exception.businessException.NotFoundDiagnosisScoreException;
 import com.mindDiary.mindDiary.mapper.DiagnosisRepository;
 import com.mindDiary.mindDiary.service.DiagnosisScoreService;
 import com.mindDiary.mindDiary.service.DiagnosisServiceImpl;

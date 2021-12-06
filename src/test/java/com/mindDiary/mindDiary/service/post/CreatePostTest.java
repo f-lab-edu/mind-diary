@@ -12,6 +12,7 @@ import com.mindDiary.mindDiary.entity.PostMedia;
 import com.mindDiary.mindDiary.entity.PostTag;
 import com.mindDiary.mindDiary.entity.Tag;
 import com.mindDiary.mindDiary.entity.Type;
+import com.mindDiary.mindDiary.exception.businessException.NotMatchedTagException;
 import com.mindDiary.mindDiary.mapper.PostRepository;
 import com.mindDiary.mindDiary.service.PostMediaServiceImpl;
 import com.mindDiary.mindDiary.service.PostServiceImpl;

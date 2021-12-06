@@ -16,6 +16,7 @@ import com.mindDiary.mindDiary.entity.Diagnosis;
 import com.mindDiary.mindDiary.entity.DiagnosisScore;
 import com.mindDiary.mindDiary.entity.Question;
 import com.mindDiary.mindDiary.entity.QuestionBaseLine;
+import com.mindDiary.mindDiary.exception.businessException.DiagnosisDuplicatedException;
 import com.mindDiary.mindDiary.mapper.DiagnosisRepository;
 import com.mindDiary.mindDiary.service.DiagnosisScoreService;
 import com.mindDiary.mindDiary.service.DiagnosisServiceImpl;

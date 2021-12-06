@@ -15,6 +15,7 @@ import com.mindDiary.mindDiary.entity.PageCriteria;
 import com.mindDiary.mindDiary.entity.Post;
 import com.mindDiary.mindDiary.entity.PostMedia;
 import com.mindDiary.mindDiary.entity.PostTag;
+import com.mindDiary.mindDiary.exception.businessException.InvalidPageNumberException;
 import com.mindDiary.mindDiary.mapper.PostRepository;
 import com.mindDiary.mindDiary.service.PostMediaServiceImpl;
 import com.mindDiary.mindDiary.service.PostServiceImpl;
