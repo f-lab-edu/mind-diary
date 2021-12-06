@@ -9,7 +9,7 @@ public enum ErrorCode {
   INVALID_EMAIL_TOKEN(400, "이메일 토큰이 유효하지 않습니다"),
   NOT_MATCHED_PASSWORD(400, "비밀번호가 일치하지 않습니다"),
   NOT_MATCHED_ID(403, "ID가 일치하지 않습니다"),
-  NOT_MATCHED_TAG(400, "일치하는 태그 데이터가 없습니"),
+  NOT_FOUND_TAG(400, "조회되는 태그 데이터가 없습니다."),
   REDIS_ADD_VALUE_EXCEPTION(500, "캐시 저장 예외가 발생했습니다"),
   MAIL_SEND_FAILED_EXCEPTION(500, "이메일 전송에 실패했습니다"),
   PERMISSION_DENIED_EXCEPTION(403, "권한이 거부되었습니다"),
