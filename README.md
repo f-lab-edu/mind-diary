@@ -1,7 +1,7 @@
 
 # mind-diary 서버 구조도
 ![서버 아키텍쳐](https://user-images.githubusercontent.com/29730565/147021123-58b873b7-b901-41d9-b03f-f91993e25123.png)
-
+spring boot, Mybatis, Java, Mysql,  Redis, Jenkins, Github, Naver cloud platform
 
 ## 프로젝트 목표
 * 스트레스를 관리할 수 있는 앱 서비스를 구현해 내는 것이 목표입니다.
