@@ -48,10 +48,8 @@
 * Redis Pipeline을 이용하여 한번에 많은 데이터 추가 시 네트워크 병목 개선
 * Redis에 Look Aside 캐시 구조를 적용하여 가용성 확보하기
 * Mysql에서 인덱스 설정과 실행계획 분석 후 쿼리 최적화
+* naver Cloud Platform을 이용하여 로드밸런싱
 
-
-* 스레드 풀과 @Async를 이용하여 비동기 푸쉬 알람 서비스 구현 (미완성)
-* naver Cloud Platform을 이용하여 로드밸런싱(미완성)
 * Mysql Replication - Master/Slave 데이터 이중화 적용(미완성)
 * Ngrinder를 이용하여 connection pool 테스트(미완성)
 
