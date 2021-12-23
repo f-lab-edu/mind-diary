@@ -2,6 +2,7 @@ package com.mindDiary.mindDiary.service;
 
 import com.mindDiary.mindDiary.entity.PostTag;
 import com.mindDiary.mindDiary.mapper.PostTagRepository;
+import java.util.ArrayList;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -21,6 +22,10 @@ public class PostTagServiceImpl implements PostTagService {
 
   @Override
   public List<PostTag> findAllByPostIds(List<Integer> postIds) {
-    return postTagRepository.findAllByPostIds(postIds);
+    List<PostTag> postTags = postTagRepository.findAllByPostIds(postIds);
+    if (postTags == null || postTags.isEmpty()) {
+      return new ArrayList<>();
+    }
+    return postTags;
   }
 }

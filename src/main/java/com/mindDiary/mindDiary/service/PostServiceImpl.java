@@ -5,6 +5,8 @@ import com.mindDiary.mindDiary.entity.Post;
 import com.mindDiary.mindDiary.entity.PostMedia;
 import com.mindDiary.mindDiary.entity.PostTag;
 import com.mindDiary.mindDiary.entity.Tag;
+import com.mindDiary.mindDiary.exception.businessException.NotFoundPostException;
+import com.mindDiary.mindDiary.exception.businessException.NotFoundTagException;
 import com.mindDiary.mindDiary.mapper.PostRepository;
 import java.util.List;
 import java.util.Map;
@@ -34,12 +36,16 @@ public class PostServiceImpl implements PostService {
       tagService.save(tags);
       List<String> tagNames = toTagNames(tags);
       List<Tag> newTag = tagService.findByNames(tagNames);
+      if(newTag == null || newTag.isEmpty()) {
+        throw new NotFoundTagException();
+      }
       createPostTags(newTag, post.getId());
     }
 
     if (!post.getPostMedias().isEmpty()) {
       createPostMedias(post.getPostMedias(), post.getId());
     }
+
 
   }
 
@@ -92,7 +98,11 @@ public class PostServiceImpl implements PostService {
   @Override
   @Transactional
   public Post readPost(int postId) {
-    postRepository.increaseVisitCount(postId);
+    int res = postRepository.increaseVisitCount(postId);
+
+    if (res <= 0) {
+      throw new NotFoundPostException();
+    }
     return postRepository.findById(postId);
   }
 
