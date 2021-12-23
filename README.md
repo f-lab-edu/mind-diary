@@ -35,7 +35,7 @@ spring boot, Mybatis, Java, Mysql,  Redis, Jenkins, Github, Naver cloud platform
 
 
 ## 프로젝트 중점사항
-* Extensibility와 Scalability적인 서비스를 
+* Extensibility와 Scalability를 제공하는 서비스
 * 의존적이지 않은 단위테스트 작성
 * 다중 서버 환경에서 JWT 토큰과 쿠키를 활용한 인증 구현
 * 로그인을 했는지 확인하는 부가기능 반복 문제에 AOP를 적용하여 문제 해결하기
