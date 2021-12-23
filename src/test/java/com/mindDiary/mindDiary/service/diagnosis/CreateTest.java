@@ -1,7 +1,7 @@
 package com.mindDiary.mindDiary.service.diagnosis;
 
 
-import static com.mindDiary.mindDiary.service.diagnosis.DiagnosisFixture.*;
+import static com.mindDiary.mindDiary.service.diagnosis.DiagnosisDummy.*;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.doReturn;
@@ -16,13 +16,14 @@ import com.mindDiary.mindDiary.entity.Diagnosis;
 import com.mindDiary.mindDiary.entity.DiagnosisScore;
 import com.mindDiary.mindDiary.entity.Question;
 import com.mindDiary.mindDiary.entity.QuestionBaseLine;
+import com.mindDiary.mindDiary.exception.businessException.DiagnosisDuplicatedException;
 import com.mindDiary.mindDiary.mapper.DiagnosisRepository;
 import com.mindDiary.mindDiary.service.DiagnosisScoreService;
 import com.mindDiary.mindDiary.service.DiagnosisServiceImpl;
 import com.mindDiary.mindDiary.service.QuestionBaseLineService;
 import com.mindDiary.mindDiary.service.QuestionService;
 import com.mindDiary.mindDiary.service.UserDiagnosisService;
-import com.mindDiary.mindDiary.strategy.scoreCalc.ScoreCalculator;
+import com.mindDiary.mindDiary.strategy.scoreCalc.ScoreCalculateStrategy;
 import java.util.List;
 import java.util.stream.IntStream;
 import org.junit.jupiter.api.DisplayName;
@@ -51,7 +52,7 @@ public class CreateTest {
   UserDiagnosisService userDiagnosisService;
 
   @Mock
-  ScoreCalculator scoreCalculator;
+  ScoreCalculateStrategy scoreCalculateStrategy;
 
   @Mock
   QuestionService questionService;

@@ -1,5 +1,6 @@
 package com.mindDiary.mindDiary.strategy.scoreCalc;
 
+import com.mindDiary.mindDiary.entity.Answer;
 import com.mindDiary.mindDiary.entity.QuestionBaseLine;
 import com.mindDiary.mindDiary.entity.Reverse;
 import java.util.ArrayList;
@@ -8,21 +9,20 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class ScoreCalculateByBaseLineStrategy implements ScoreCalculateStrategy {
-  private List<Integer> scores = new ArrayList<>();
-  private int size;
 
-  @Override
-  public void addScoreBaseLine(List<Integer> baseLine) {
-    scores.addAll(baseLine);
-    size = baseLine.size();
+  public int calc(List<QuestionBaseLine> baseLines, List<Answer> answers) {
+
+    int size = baseLines.size();
+
+    return answers.stream()
+        .mapToInt(a -> baseLines.get(findScoreIndex(a.getChoiceNumber(), a.getReverse(), size)).getScore())
+        .sum();
   }
 
-  @Override
-  public int calc(int choiceNumber, Reverse reverse) {
-    if (reverse == Reverse.TRUE) {
-      return scores.get(size - choiceNumber - 1);
+  private int findScoreIndex(int choiceNumber, Reverse reverse, int size) {
+    if (reverse.equals(Reverse.TRUE)) {
+      return size - choiceNumber - 1;
     }
-    return scores.get(choiceNumber);
+    return choiceNumber;
   }
-
 }

@@ -12,6 +12,7 @@ import com.mindDiary.mindDiary.entity.PostMedia;
 import com.mindDiary.mindDiary.entity.PostTag;
 import com.mindDiary.mindDiary.entity.Tag;
 import com.mindDiary.mindDiary.entity.Type;
+import com.mindDiary.mindDiary.exception.businessException.NotFoundTagException;
 import com.mindDiary.mindDiary.mapper.PostRepository;
 import com.mindDiary.mindDiary.service.PostMediaServiceImpl;
 import com.mindDiary.mindDiary.service.PostServiceImpl;
@@ -20,6 +21,7 @@ import com.mindDiary.mindDiary.service.TagServiceImpl;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -97,7 +99,7 @@ public class CreatePostTest {
 
   @Test
   @DisplayName("게시글 생성 성공 : 게시글만 주어졌을 때")
-  private void createSuccess1() {
+  void createSuccess1() {
 
     // Arrange
     List<PostMedia> postMedia = new ArrayList<>();
@@ -125,7 +127,7 @@ public class CreatePostTest {
 
   @Test
   @DisplayName("게시글 생성 성공 : 게시글, 태그 데이터 주어졌을 때")
-  private void createSuccess2() {
+  void createSuccess2() {
 
     // Arrange
     List<PostMedia> postMedia = new ArrayList<>();
@@ -137,6 +139,16 @@ public class CreatePostTest {
     PostTag postTag = makePostTag(tag);
     List<PostTag> postTags = new ArrayList<>();
     postTags.add(postTag);
+
+    List<String> names = tags.stream()
+        .map(t -> t.getName())
+        .collect(Collectors.toList());
+
+    doReturn(tags)
+        .when(tagService)
+        .findByNames(argThat(n -> IntStream.range(0, n.size())
+        .allMatch(i -> n.get(i).equals(names.get(i)))));
+
 
     // Act
     postService.createPost(post, tags);
@@ -172,7 +184,7 @@ public class CreatePostTest {
 
   @Test
   @DisplayName("게시글 생성 성공 : 게시글, 미디어 데이터 주어졌을 때")
-  private void createSuccess3() {
+  void createSuccess3() {
 
     // Arrange
     List<PostMedia> postMedia = new ArrayList<>();
@@ -191,8 +203,8 @@ public class CreatePostTest {
             p.getLikeCount() == 0 &&
             p.getVisitCount() == 0 &&
             p.getWriter().equals(post.getWriter()) &&
-            p.getPostMedias().isEmpty() &&
             p.getTitle().equals(post.getTitle()) &&
+            p.getUserId() == post.getUserId() &&
             p.getContent().equals(post.getContent())));
 
     verify(postTagService, times(0))
@@ -214,10 +226,11 @@ public class CreatePostTest {
 
   @Test
   @DisplayName("게시글 생성 성공 : 게시글, 태그, 미디어 데이터가 주어졌을 때")
-  private void createSuccess4() {
+  void createSuccess4() {
 
     // Arrange
     List<PostMedia> postMedia = new ArrayList<>();
+    postMedia.add(makePostMedia());
     Post post = makeCreatePost(postMedia);
 
     List<Tag> tags = new ArrayList<>();
@@ -226,6 +239,15 @@ public class CreatePostTest {
     PostTag postTag = makePostTag(tag);
     List<PostTag> postTags = new ArrayList<>();
     postTags.add(postTag);
+
+    List<String> names = tags.stream()
+        .map(t -> t.getName())
+        .collect(Collectors.toList());
+
+    doReturn(tags)
+        .when(tagService)
+        .findByNames(argThat(n -> IntStream.range(0, n.size())
+            .allMatch(i -> n.get(i).equals(names.get(i)))));
 
     // Act
     postService.createPost(post, tags);
@@ -237,8 +259,8 @@ public class CreatePostTest {
             p.getLikeCount() == 0 &&
             p.getVisitCount() == 0 &&
             p.getWriter().equals(post.getWriter()) &&
-            p.getPostMedias().isEmpty() &&
             p.getTitle().equals(post.getTitle()) &&
+            p.getUserId() == post.getUserId() &&
             p.getContent().equals(post.getContent())));
 
     verify(postTagService, times(1))
@@ -265,7 +287,7 @@ public class CreatePostTest {
 
   @Test
   @DisplayName("게시글 생성 실패 : 입력한 태그 이름과 일치하는 태그 데이터가 DB에 없을 때")
-  private void createFail1() {
+  void createFail1() {
 
     // Arrange
     List<PostMedia> postMedia = new ArrayList<>();
@@ -287,10 +309,8 @@ public class CreatePostTest {
     // Act , assert
     assertThatThrownBy(() -> {
       postService.createPost(post, tags);
-    }).isInstanceOf(NotMatchedTagException.class);
+    }).isInstanceOf(NotFoundTagException.class);
 
-    verify(postRepository, times(0))
-        .save(post);
 
     verify(postTagService, times(0))
         .save(postTags);

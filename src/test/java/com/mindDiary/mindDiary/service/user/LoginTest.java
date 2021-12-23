@@ -51,7 +51,7 @@ public class LoginTest {
 
   @Test
   @DisplayName("입력한 비밀번호와 DB에 있는 비밀번호가 달라 로그인에 실패한다")
-  public void failByNotMatchedEmail() {
+  void failByNotMatchedEmail() {
 
     // Arrange
     User user = createUser();
@@ -84,7 +84,7 @@ public class LoginTest {
 
   @Test
   @DisplayName("토큰을 발급하지 못해 로그인에 실패한다")
-  public void failByToken() {
+  void failByToken() {
 
     // Arrange
     User user = createUser();
@@ -118,7 +118,7 @@ public class LoginTest {
 
   @Test
   @DisplayName("로그인에 성공한다")
-  public void success() {
+  void success() {
 
     // Arrange
     User user = createUser();

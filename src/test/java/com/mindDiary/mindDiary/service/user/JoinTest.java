@@ -13,11 +13,13 @@ import com.mindDiary.mindDiary.entity.Role;
 import com.mindDiary.mindDiary.entity.User;
 import com.mindDiary.mindDiary.exception.businessException.EmailDuplicatedException;
 import com.mindDiary.mindDiary.exception.businessException.InvalidEmailTokenException;
+import com.mindDiary.mindDiary.exception.businessException.InvalidPasswordException;
 import com.mindDiary.mindDiary.exception.businessException.NicknameDuplicatedException;
 import com.mindDiary.mindDiary.mapper.UserRepository;
 import com.mindDiary.mindDiary.service.UserServiceImpl;
 import com.mindDiary.mindDiary.service.UserTransactionServiceImpl;
 import com.mindDiary.mindDiary.strategy.email.EmailStrategy;
+import com.mindDiary.mindDiary.strategy.randomToken.RandomTokenGenerator;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -61,7 +63,7 @@ public class JoinTest {
   UserTransactionServiceImpl userTransactionService;
 
   @Mock
-  RandomEmailToken randomEmailToken;
+  RandomTokenGenerator tokenGenerator;
 
   public static User createUser() {
     return User.builder()
@@ -76,7 +78,7 @@ public class JoinTest {
 
   @Test
   @DisplayName("이미 등록된 이메일인 경우 회원가입에 실패한다")
-  public void joinFailByDuplicateEmail() {
+  void joinFailByDuplicateEmail() {
     // Arrange
     User user = createUser();
     String email = user.getEmail();
@@ -84,7 +86,7 @@ public class JoinTest {
     String emailToken = user.getEmailCheckToken();
 
     doReturn(emailToken)
-        .when(randomEmailToken)
+        .when(tokenGenerator)
         .create();
 
     doReturn(user)
@@ -105,7 +107,7 @@ public class JoinTest {
 
   @Test
   @DisplayName("이미 등록된 닉네임인 경우 회원가입에 실패한다")
-  public void joinFailByDuplicateNickname() {
+  void joinFailByDuplicateNickname() {
     // Arrange
     User user = createUser();
     String email = user.getEmail();
@@ -113,7 +115,7 @@ public class JoinTest {
     String emailToken = user.getEmailCheckToken();
 
     doReturn(emailToken)
-        .when(randomEmailToken)
+        .when(tokenGenerator)
         .create();
 
     doReturn(null)
@@ -134,7 +136,7 @@ public class JoinTest {
 
   @Test
   @DisplayName("회원가입 성공")
-  public void success() {
+  void success() {
     // Arrange
     User user = createUser();
     String email = user.getEmail();
@@ -143,7 +145,7 @@ public class JoinTest {
     String emailToken = user.getEmailCheckToken();
 
     doReturn(emailToken)
-        .when(randomEmailToken)
+        .when(tokenGenerator)
         .create();
 
     doReturn(null)
@@ -182,7 +184,7 @@ public class JoinTest {
     String emailToken = user.getEmailCheckToken();
 
     doReturn(str)
-        .when(randomEmailToken)
+        .when(tokenGenerator)
         .create();
 
     // Act
@@ -211,7 +213,7 @@ public class JoinTest {
     String emailToken = user.getEmailCheckToken();
 
     doReturn(emailToken)
-        .when(randomEmailToken)
+        .when(tokenGenerator)
         .create();
 
     doReturn(str)

@@ -11,6 +11,7 @@ import com.mindDiary.mindDiary.exception.businessException.NotMatchedPasswordExc
 import com.mindDiary.mindDiary.mapper.UserRepository;
 import com.mindDiary.mindDiary.strategy.email.EmailStrategy;
 import com.mindDiary.mindDiary.strategy.jwt.TokenStrategy;
+import com.mindDiary.mindDiary.strategy.randomToken.RandomTokenGenerator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -28,11 +29,12 @@ public class UserServiceImpl implements UserService {
   private final TokenStrategy tokenStrategy;
   private final UserTransactionService userTransactionService;
   private final UserDAO userDAO;
+  private final RandomTokenGenerator tokenGenerator;
 
   @Override
   @Transactional
   public void join(User user) {
-    user.createEmailToken();
+    user.createEmailToken(tokenGenerator);
     user.changeHashedPassword(passwordEncoder);
 
     isEmailDuplicate(user.getEmail());

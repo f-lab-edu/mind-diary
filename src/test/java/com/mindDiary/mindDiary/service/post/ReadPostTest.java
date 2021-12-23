@@ -8,6 +8,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 import com.mindDiary.mindDiary.entity.Post;
+import com.mindDiary.mindDiary.exception.businessException.NotFoundPostException;
 import com.mindDiary.mindDiary.mapper.PostRepository;
 import com.mindDiary.mindDiary.service.PostMediaServiceImpl;
 import com.mindDiary.mindDiary.service.PostServiceImpl;
@@ -41,7 +42,7 @@ public class ReadPostTest {
 
   @Test
   @DisplayName("게시글 조회 성공")
-  private void readOneSuccess1() {
+  void readOneSuccess1() {
 
     // Arrange
     Post post = makePost(new ArrayList<>(), new ArrayList<>());
@@ -71,7 +72,7 @@ public class ReadPostTest {
 
   @Test
   @DisplayName("게시글 조회 실패 : 게시글의 방문자수 올리는 과정을 실패했을 때")
-  private void readOneFail1() {
+  void readOneFail1() {
 
     // Arrange
     Post post = makePost(new ArrayList<>(), new ArrayList<>());

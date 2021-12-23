@@ -48,7 +48,7 @@ public class RefreshTest {
 
   @Test
   @DisplayName("입력한 리프레시 토큰이 유효하지 않아 토큰 재발급에 실패한다")
-  public void failByInvalidRefreshToken() {
+  void failByInvalidRefreshToken() {
 
     // Arrange
     String originRefreshToken = REFRESH_TOKEN;
@@ -81,7 +81,7 @@ public class RefreshTest {
   @DisplayName("캐시에 있는 토큰의 user id와 "
       + "입력한 토큰의 userId가"
       + " 일치하지 않아 토큰 재발급에 실패한다")
-  public void failByNotMatchedToken() {
+  void failByNotMatchedToken() {
 
     String originRefreshToken = REFRESH_TOKEN;
     User user = createUser();
@@ -118,7 +118,7 @@ public class RefreshTest {
 
   @Test
   @DisplayName("토큰 재발급에 성공한다")
-  public void success() {
+  void success() {
     String refreshToken = REFRESH_TOKEN;
     String accessToken = ACCESS_TOKEN;
     User user = createUser();

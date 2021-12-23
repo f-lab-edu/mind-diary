@@ -37,7 +37,7 @@ public class CheckEmailTokenTest {
 
   @Test
   @DisplayName("회원가입용 이메일 인증에 성공한다")
-  public void success() {
+  void success() {
 
     // Arrange
     User user = createUser();
@@ -67,7 +67,7 @@ public class CheckEmailTokenTest {
 
   @Test
   @DisplayName("이메일 인증 토큰이 캐시에 있는 토큰과 일치하지 않을 경우 이메일 인증에 실패한다")
-  public void failByInvalidCache() {
+  void failByInvalidCache() {
     // Arrange
     User user = createUser();
     String email = user.getEmail();

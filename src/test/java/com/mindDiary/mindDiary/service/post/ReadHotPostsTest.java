@@ -15,6 +15,7 @@ import com.mindDiary.mindDiary.entity.PageCriteria;
 import com.mindDiary.mindDiary.entity.Post;
 import com.mindDiary.mindDiary.entity.PostMedia;
 import com.mindDiary.mindDiary.entity.PostTag;
+import com.mindDiary.mindDiary.exception.businessException.InvalidPageNumberException;
 import com.mindDiary.mindDiary.mapper.PostRepository;
 import com.mindDiary.mindDiary.service.PostMediaServiceImpl;
 import com.mindDiary.mindDiary.service.PostServiceImpl;
@@ -52,7 +53,7 @@ public class ReadHotPostsTest {
 
   @Test
   @DisplayName("페이지별 인기 게시글 목록 조회 성공")
-  private void readHotSuccess1() {
+  void readHotSuccess1() {
 
     // Arrange
     int pageNumber = 1;
@@ -84,7 +85,7 @@ public class ReadHotPostsTest {
 
   @Test
   @DisplayName("페이지별 인기 게시글 목록 조회 성공 : 게시글에 태그 데이터도 같이 있는 경우")
-  private void readHotSuccess2() {
+  void readHotSuccess2() {
     // Arrange
     int pageNumber = 1;
     List<PostMedia> postMedias = new ArrayList<>();
@@ -102,7 +103,7 @@ public class ReadHotPostsTest {
         .findHotPosts(argThat(p -> p.getPageNumber() == pageNumber));
 
 
-    doReturn(null)
+    doReturn(new ArrayList<>())
         .when(postMediaService)
         .findAllByPostIds(argThat(postIdList ->
             IntStream.range(0, postIdList.size())
@@ -139,18 +140,20 @@ public class ReadHotPostsTest {
 
   @Test
   @DisplayName("페이지별 인기 게시글 목록 조회 성공 : 게시글데 미디어 테이터도 같이 있는 경우")
-  private void readHotSuccess3() {
+  void readHotSuccess3() {
 
     // Arrange
     int pageNumber = 1;
 
     List<PostTag> postTags = new ArrayList<>();
+
     List<PostMedia> postMedias = new ArrayList<>();
     postMedias.add(makePostMedia());
 
     List<Post> posts = new ArrayList<>();
     Post post = makePost(postMedias, postTags);
     posts.add(post);
+
 
     doReturn(posts)
         .when(postRepository)
@@ -162,7 +165,7 @@ public class ReadHotPostsTest {
             IntStream.range(0, postIdList.size())
                 .allMatch(i -> postIdList.get(i) == posts.get(i).getId())));
 
-    doReturn(null)
+    doReturn(new ArrayList<>())
         .when(postTagService)
         .findAllByPostIds(argThat(postIdList ->
             IntStream.range(0, postIdList.size())
@@ -172,6 +175,9 @@ public class ReadHotPostsTest {
     List<Post> results = postService.readHotPosts(pageNumber);
 
     // Assert
+    assertThat(results.get(0).getPostTags())
+        .isNullOrEmpty();
+
     assertThat(results.size())
         .isEqualTo(posts.size());
     assertThat(results.get(0).getId())
@@ -185,8 +191,9 @@ public class ReadHotPostsTest {
 
     assertThat(results.get(0).getPostMedias().get(0).getId())
         .isEqualTo(posts.get(0).getPostMedias().get(0).getId());
-    assertThat(results.get(0).getPostMedias().get(0).getPostId())
-        .isEqualTo(posts.get(0).getPostTags().get(0).getPostId());
+
+
+
     assertThat(results.get(0).getPostMedias().get(0).getUrl())
         .isEqualTo(posts.get(0).getPostMedias().get(0).getUrl());
   }
@@ -194,7 +201,7 @@ public class ReadHotPostsTest {
   @ParameterizedTest
   @ValueSource(ints = {-1, 0, -5})
   @DisplayName("페이지별 인기 게시글 목록 조회 실패 : 페이지 숫자가 음수나 0인 경우")
-  private void readHotFail1(int pageNumber) {
+  void readHotFail1(int pageNumber) {
 
     // Act, Assert
     assertThatThrownBy(() -> {
