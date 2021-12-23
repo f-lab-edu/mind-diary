@@ -30,7 +30,7 @@ public class DiaryServiceTest {
   DiaryRepository diaryRepository;
 
 
-  private Diary createDiary() {
+  public Diary createDiary() {
     return Diary.builder()
         .content("content")
         .title("title")
@@ -44,7 +44,7 @@ public class DiaryServiceTest {
 
   @Test
   @DisplayName("유저의 다이어리 목록 조회")
-  private void readDiariesSuccess() {
+  void readDiariesSuccess() {
 
     Diary diary = createDiary();
     int userId = diary.getUserId();
@@ -69,7 +69,7 @@ public class DiaryServiceTest {
 
   @Test
   @DisplayName("다이어리 한개 조회")
-  private void readOneDiarySuccess() {
+  void readOneDiarySuccess() {
 
     Diary diary = createDiary();
     int diaryId = diary.getId();
@@ -92,7 +92,7 @@ public class DiaryServiceTest {
 
   @Test
   @DisplayName("다이어리 생성")
-  private void createDiarySuccess() {
+  void createDiarySuccess() {
 
 
     Diary diary = createDiary();
