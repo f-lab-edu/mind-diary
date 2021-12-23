@@ -6,7 +6,7 @@ spring boot, Mybatis, Java, Mysql,  Redis, Jenkins, Github, Naver cloud platform
 ## 프로젝트 목표
 * 스트레스를 관리할 수 있는 앱 서비스를 구현해 내는 것이 목표입니다.
 * 대표 기능으로는 기분 일기, 커뮤니티, 자가진단 검사 기능이 있습니다.
-* 단순 기능 구현뿐 아니라 대용량 트래픽 처리를 고려한 서비스를 구현하는 것이 목표입니다.
+* 단순 기능 구현뿐 아니라 Extensibility와 Scalability를 고려한 서비스를 구현하는 것이 목표입니다.
 * 객체지향 원리와 Ioc/DI, AOP, 전략패턴 등을 적용함으로써 더 나은 코드를 작성하는 것이 목표입니다.
 * REST API형 서버로써 클라이언트는 프로토타입으로만 제작하여 백엔드 공부에 집중했습니다.
 
@@ -35,7 +35,7 @@ spring boot, Mybatis, Java, Mysql,  Redis, Jenkins, Github, Naver cloud platform
 
 
 ## 프로젝트 중점사항
-* 서버의 확장성
+* Extensibility와 Scalability적인 서비스를 
 * 의존적이지 않은 단위테스트 작성
 * 다중 서버 환경에서 JWT 토큰과 쿠키를 활용한 인증 구현
 * 로그인을 했는지 확인하는 부가기능 반복 문제에 AOP를 적용하여 문제 해결하기
