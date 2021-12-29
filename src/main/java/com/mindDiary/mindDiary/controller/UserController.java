@@ -6,7 +6,7 @@ import com.mindDiary.mindDiary.dto.response.AccessTokenResponseDTO;
 import com.mindDiary.mindDiary.entity.Token;
 import com.mindDiary.mindDiary.entity.User;
 import com.mindDiary.mindDiary.service.UserService;
-import com.mindDiary.mindDiary.strategy.cookie.CookieStrategy;
+import com.mindDiary.mindDiary.strategy.cookie.CookieGenerator;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -29,7 +29,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class UserController {
 
   private final UserService userService;
-  private final CookieStrategy cookieStrategy;
+  private final CookieGenerator cookieGenerator;
 
   @PostMapping("/join")
   public ResponseEntity join(@RequestBody @Valid JoinUserRequestDTO joinUserRequestDTO) {
@@ -51,7 +51,7 @@ public class UserController {
       HttpServletResponse httpServletResponse) {
 
     Token token = userService.login(loginUserRequestDTO.getEmail(), loginUserRequestDTO.getPassword());
-    Cookie cookie = token.turnRefreshTokenInfoCookie(cookieStrategy);
+    Cookie cookie = token.turnRefreshTokenInfoCookie(cookieGenerator);
     httpServletResponse.addCookie(cookie);
 
     return new ResponseEntity(createAccessTokenResponse(token), HttpStatus.OK);
@@ -61,13 +61,13 @@ public class UserController {
   public ResponseEntity updateToken(HttpServletRequest httpServletRequest,
       HttpServletResponse httpServletResponse) {
 
-    Cookie cookie = cookieStrategy.getRefreshTokenCookie(httpServletRequest);
+    Cookie cookie = cookieGenerator.getRefreshTokenCookie(httpServletRequest);
     String refreshToken = cookie.getValue();
 
     Token token = userService.refresh(refreshToken);
 
-    cookieStrategy.deleteRefreshTokenCookie(httpServletRequest, httpServletResponse);
-    Cookie newCookie = token.turnRefreshTokenInfoCookie(cookieStrategy);
+    cookieGenerator.deleteRefreshTokenCookie(httpServletRequest, httpServletResponse);
+    Cookie newCookie = token.turnRefreshTokenInfoCookie(cookieGenerator);
     httpServletResponse.addCookie(newCookie);
 
     return new ResponseEntity(createAccessTokenResponse(token), HttpStatus.OK);

@@ -21,7 +21,7 @@ import com.mindDiary.mindDiary.service.DiagnosisServiceImpl;
 import com.mindDiary.mindDiary.service.QuestionBaseLineService;
 import com.mindDiary.mindDiary.service.QuestionService;
 import com.mindDiary.mindDiary.service.UserDiagnosisService;
-import com.mindDiary.mindDiary.strategy.scoreCalc.ScoreCalculateStrategy;
+import com.mindDiary.mindDiary.strategy.scoreCalc.ScoreCalculator;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.IntStream;
@@ -51,7 +51,7 @@ public class SaveAllTest {
   UserDiagnosisService userDiagnosisService;
 
   @Mock
-  ScoreCalculateStrategy scoreCalculateStrategy;
+  ScoreCalculator scoreCalculator;
 
   @Mock
   QuestionService questionService;

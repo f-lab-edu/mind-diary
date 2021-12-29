@@ -17,7 +17,7 @@ import com.mindDiary.mindDiary.exception.InvalidJwtException;
 import com.mindDiary.mindDiary.exception.businessException.NotMatchedPasswordException;
 import com.mindDiary.mindDiary.mapper.UserRepository;
 import com.mindDiary.mindDiary.service.UserServiceImpl;
-import com.mindDiary.mindDiary.strategy.jwt.TokenStrategy;
+import com.mindDiary.mindDiary.strategy.token.TokenGenerator;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -47,7 +47,7 @@ public class LoginTest {
   PasswordEncoder passwordEncoder;
 
   @Mock
-  TokenStrategy tokenStrategy;
+  TokenGenerator tokenGenerator;
 
   @Test
   @DisplayName("입력한 비밀번호와 DB에 있는 비밀번호가 달라 로그인에 실패한다")
@@ -76,9 +76,9 @@ public class LoginTest {
 
     verify(userDAO, times(0))
         .addRefreshToken(anyString(), anyInt());
-    verify(tokenStrategy, times(0))
+    verify(tokenGenerator, times(0))
         .createAccessToken(userId, role, email);
-    verify(tokenStrategy, times(0))
+    verify(tokenGenerator, times(0))
         .createRefreshToken(userId);
   }
 
@@ -101,14 +101,14 @@ public class LoginTest {
         .matches(password, user.getPassword());
 
     doThrow(new InvalidJwtException())
-        .when(tokenStrategy)
+        .when(tokenGenerator)
         .createAccessToken(user.getId(), user.getRole().toString(), user.getEmail());
 
     assertThatThrownBy(() -> {
       userService.login(email, password);
     }).isInstanceOf(InvalidJwtException.class);
 
-    verify(tokenStrategy, times(0))
+    verify(tokenGenerator, times(0))
         .createRefreshToken(userId);
     verify(userDAO, times(0))
         .addRefreshToken(anyString(), anyInt());
@@ -140,11 +140,11 @@ public class LoginTest {
         .matches(password, user.getPassword());
 
     doReturn(accessToken)
-        .when(tokenStrategy)
+        .when(tokenGenerator)
         .createAccessToken(userId, role, email);
 
     doReturn(refreshToken)
-        .when(tokenStrategy)
+        .when(tokenGenerator)
         .createRefreshToken(userId);
 
     Token result = userService.login(email, password);

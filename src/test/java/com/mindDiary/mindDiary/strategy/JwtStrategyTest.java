@@ -4,7 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.mindDiary.mindDiary.exception.InvalidJwtException;
-import com.mindDiary.mindDiary.strategy.jwt.JwtStrategy;
+import com.mindDiary.mindDiary.strategy.token.JwtToken;
 import io.jsonwebtoken.Jwts;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -17,7 +17,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 public class JwtStrategyTest {
 
   @Autowired
-  JwtStrategy jwtUtil;
+  JwtToken jwtUtil;
 
   @ParameterizedTest
   @CsvSource(value = {"35, USER , meme@naver.com", "36, ADMIN, meme2@naver.com"})

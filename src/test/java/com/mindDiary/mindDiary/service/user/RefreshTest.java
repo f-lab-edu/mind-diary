@@ -20,7 +20,7 @@ import com.mindDiary.mindDiary.exception.InvalidJwtException;
 import com.mindDiary.mindDiary.exception.businessException.NotMatchedIdException;
 import com.mindDiary.mindDiary.mapper.UserRepository;
 import com.mindDiary.mindDiary.service.UserServiceImpl;
-import com.mindDiary.mindDiary.strategy.jwt.TokenStrategy;
+import com.mindDiary.mindDiary.strategy.token.TokenGenerator;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -44,7 +44,7 @@ public class RefreshTest {
   UserDAO userDAO;
 
   @Mock
-  TokenStrategy tokenStrategy;
+  TokenGenerator tokenGenerator;
 
   @Test
   @DisplayName("입력한 리프레시 토큰이 유효하지 않아 토큰 재발급에 실패한다")
@@ -58,7 +58,7 @@ public class RefreshTest {
     String email = user.getEmail();
 
     doThrow(new InvalidJwtException())
-        .when(tokenStrategy)
+        .when(tokenGenerator)
         .validateToken(originRefreshToken);
 
     // Act
@@ -69,9 +69,9 @@ public class RefreshTest {
     // Assert
     verify(userDAO, times(0))
         .getUserId(originRefreshToken);
-    verify(tokenStrategy, times(0))
+    verify(tokenGenerator, times(0))
         .createAccessToken(userId, role, email);
-    verify(tokenStrategy, times(0))
+    verify(tokenGenerator, times(0))
         .createRefreshToken(userId);
     verify(userDAO, times(0))
         .addRefreshToken(anyString(), anyInt());
@@ -91,7 +91,7 @@ public class RefreshTest {
     int otherUserId = 8;
 
     doReturn(true)
-        .when(tokenStrategy)
+        .when(tokenGenerator)
         .validateToken(originRefreshToken);
 
     doReturn(userId)
@@ -99,7 +99,7 @@ public class RefreshTest {
         .getUserId(originRefreshToken);
 
     doReturn(otherUserId)
-        .when(tokenStrategy)
+        .when(tokenGenerator)
         .getUserId(originRefreshToken);
 
     // Act
@@ -107,9 +107,9 @@ public class RefreshTest {
       userService.refresh(originRefreshToken);
     }).isInstanceOf(NotMatchedIdException.class);
 
-    verify(tokenStrategy, times(0))
+    verify(tokenGenerator, times(0))
         .createAccessToken(userId, role, email);
-    verify(tokenStrategy, times(0))
+    verify(tokenGenerator, times(0))
         .createRefreshToken(userId);
     verify(userDAO, times(0))
         .addRefreshToken(anyString(), anyInt());
@@ -128,7 +128,7 @@ public class RefreshTest {
     String email = user.getEmail();
 
     doReturn(true)
-        .when(tokenStrategy)
+        .when(tokenGenerator)
         .validateToken(refreshToken);
 
     doReturn(userId)
@@ -140,15 +140,15 @@ public class RefreshTest {
         .findById(userId);
 
     doReturn(userId)
-        .when(tokenStrategy)
+        .when(tokenGenerator)
         .getUserId(refreshToken);
 
     doReturn(accessToken)
-        .when(tokenStrategy)
+        .when(tokenGenerator)
         .createAccessToken(userId, role, email);
 
     doReturn(refreshToken)
-        .when(tokenStrategy)
+        .when(tokenGenerator)
         .createRefreshToken(userId);
 
     doNothing()

@@ -16,7 +16,7 @@ import com.mindDiary.mindDiary.exception.businessException.NotFoundDiagnosisScor
 import com.mindDiary.mindDiary.exception.businessException.NotFoundQuestionBaseLineException;
 import com.mindDiary.mindDiary.exception.businessException.NotFoundQuestionException;
 import com.mindDiary.mindDiary.mapper.DiagnosisRepository;
-import com.mindDiary.mindDiary.strategy.scoreCalc.ScoreCalculateStrategy;
+import com.mindDiary.mindDiary.strategy.scoreCalc.ScoreCalculator;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
@@ -34,7 +34,7 @@ public class DiagnosisServiceImpl implements DiagnosisService {
   private final QuestionBaseLineService questionBaseLineService;
   private final DiagnosisScoreService diagnosisScoreService;
   private final UserDiagnosisService userDiagnosisService;
-  private final ScoreCalculateStrategy scoreCalculateStrategy;
+  private final ScoreCalculator scoreCalculator;
   private final QuestionService questionService;
   private final DiagnosisDAO diagnosisDAO;
 
@@ -151,7 +151,7 @@ public class DiagnosisServiceImpl implements DiagnosisService {
       questionBaseLineService.saveAllInCache(questionBaseLines);
     }
 
-    int score = scoreCalculateStrategy.calc(questionBaseLines, answers);
+    int score = scoreCalculator.calc(questionBaseLines, answers);
 
     if (score < 0) {
       throw new InvalidScoreException();

@@ -2,9 +2,8 @@ package com.mindDiary.mindDiary.entity;
 
 import com.mindDiary.mindDiary.exception.businessException.InvalidEmailTokenException;
 import com.mindDiary.mindDiary.exception.businessException.InvalidPasswordException;
-import com.mindDiary.mindDiary.strategy.jwt.TokenStrategy;
+import com.mindDiary.mindDiary.strategy.token.TokenGenerator;
 import com.mindDiary.mindDiary.strategy.randomToken.RandomTokenGenerator;
-import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -45,12 +44,12 @@ public class User {
     this.role = Role.USER;
   }
 
-  public String turnUserinfoToAccessToken(TokenStrategy tokenStrategy) {
-    return tokenStrategy.createAccessToken(id, role.toString(), email);
+  public String turnUserinfoToAccessToken(TokenGenerator tokenGenerator) {
+    return tokenGenerator.createAccessToken(id, role.toString(), email);
   }
 
-  public String turnUserinfoToRefreshToken(TokenStrategy tokenStrategy) {
-    return tokenStrategy.createRefreshToken(id);
+  public String turnUserinfoToRefreshToken(TokenGenerator tokenGenerator) {
+    return tokenGenerator.createRefreshToken(id);
   }
 
   public void createEmailToken(RandomTokenGenerator generator) {
