@@ -1,4 +1,4 @@
-package com.mindDiary.mindDiary.strategy.email;
+package com.mindDiary.mindDiary.strategy.messageSender;
 
 import com.mindDiary.mindDiary.exception.businessException.MailSendFailedException;
 import lombok.extern.slf4j.Slf4j;
@@ -10,7 +10,7 @@ import org.springframework.stereotype.Service;
 
 @Slf4j
 @Service
-public class SendEmailStrategy implements EmailStrategy {
+public class EmailMessage implements MessageSender {
 
   @Value("${mailInfo.email}")
   private String fromEmailAddress;

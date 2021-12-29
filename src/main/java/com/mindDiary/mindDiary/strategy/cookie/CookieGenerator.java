@@ -4,7 +4,7 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-public interface CookieStrategy {
+public interface CookieGenerator {
 
   Cookie createCookie(String key, String value, int duration);
 

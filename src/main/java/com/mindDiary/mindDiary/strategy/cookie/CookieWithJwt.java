@@ -8,7 +8,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 @Service
-public class CreateCookieStrategy implements CookieStrategy {
+public class CookieWithJwt implements CookieGenerator {
 
   @Value("${jwt.refresh-token-validity-in-seconds}")
   private long refreshTokenValidityInSeconds;

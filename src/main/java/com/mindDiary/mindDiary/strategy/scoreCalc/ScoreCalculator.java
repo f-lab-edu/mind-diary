@@ -7,7 +7,7 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 
 @Service
-public interface ScoreCalculateStrategy {
+public interface ScoreCalculator {
 
   int calc(List<QuestionBaseLine> baseLines, List<Answer> answers);
 }

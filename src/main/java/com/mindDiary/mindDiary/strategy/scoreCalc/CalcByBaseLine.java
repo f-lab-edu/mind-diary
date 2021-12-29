@@ -3,12 +3,11 @@ package com.mindDiary.mindDiary.strategy.scoreCalc;
 import com.mindDiary.mindDiary.entity.Answer;
 import com.mindDiary.mindDiary.entity.QuestionBaseLine;
 import com.mindDiary.mindDiary.entity.Reverse;
-import java.util.ArrayList;
 import java.util.List;
 import org.springframework.stereotype.Service;
 
 @Service
-public class ScoreCalculateByBaseLineStrategy implements ScoreCalculateStrategy {
+public class CalcByBaseLine implements ScoreCalculator {
 
   public int calc(List<QuestionBaseLine> baseLines, List<Answer> answers) {
 
