@@ -3,7 +3,7 @@ package com.mindDiary.mindDiary.aop;
 import com.mindDiary.mindDiary.annotation.LoginCheck;
 import com.mindDiary.mindDiary.entity.Role;
 import com.mindDiary.mindDiary.exception.businessException.PermissionDeniedException;
-import com.mindDiary.mindDiary.strategy.jwt.TokenStrategy;
+import com.mindDiary.mindDiary.strategy.token.TokenGenerator;
 import java.lang.reflect.Method;
 import javax.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
@@ -27,7 +27,7 @@ public class LoginCheckAspect {
   private String requestHeaderKey;
   private static final String USER_ID = "userId";
 
-  private final TokenStrategy tokenStrategy;
+  private final TokenGenerator tokenGenerator;
 
   @Around("@annotation(loginCheck)")
   public Object loginCheck(ProceedingJoinPoint proceedingJoinPoint, LoginCheck loginCheck)
@@ -39,9 +39,9 @@ public class LoginCheckAspect {
 
     String token = request.getHeader(requestHeaderKey);
 
-    tokenStrategy.validateToken(token);
+    tokenGenerator.validateToken(token);
 
-    String role = tokenStrategy.getUserRole(token);
+    String role = tokenGenerator.getUserRole(token);
     if (loginCheck.checkLevel() == Role.ADMIN) {
       checkAdmin(role);
     }
@@ -50,7 +50,7 @@ public class LoginCheckAspect {
       checkUser(role);
     }
 
-    Object[] modifiedArgs = modifyArgsWithUserID(tokenStrategy.getUserId(token),proceedingJoinPoint);
+    Object[] modifiedArgs = modifyArgsWithUserID(tokenGenerator.getUserId(token),proceedingJoinPoint);
 
     return proceedingJoinPoint.proceed(modifiedArgs);
 

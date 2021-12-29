@@ -1,7 +1,6 @@
-package com.mindDiary.mindDiary.strategy.jwt;
+package com.mindDiary.mindDiary.strategy.token;
 
 import com.mindDiary.mindDiary.exception.InvalidJwtException;
-import com.mindDiary.mindDiary.exception.businessException.BusinessException;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
@@ -16,7 +15,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 @Service
-public class JwtStrategy implements TokenStrategy {
+public class JwtToken implements TokenGenerator {
 
   @Value("${jwt.secret}")
   private String secret;

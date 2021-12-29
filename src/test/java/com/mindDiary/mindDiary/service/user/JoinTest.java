@@ -18,7 +18,7 @@ import com.mindDiary.mindDiary.exception.businessException.NicknameDuplicatedExc
 import com.mindDiary.mindDiary.mapper.UserRepository;
 import com.mindDiary.mindDiary.service.UserServiceImpl;
 import com.mindDiary.mindDiary.service.UserTransactionServiceImpl;
-import com.mindDiary.mindDiary.strategy.email.EmailStrategy;
+import com.mindDiary.mindDiary.strategy.messageSender.MessageSender;
 import com.mindDiary.mindDiary.strategy.randomToken.RandomTokenGenerator;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.DisplayName;
@@ -57,7 +57,7 @@ public class JoinTest {
   UserDAO userDAO;
 
   @Mock
-  EmailStrategy emailStrategy;
+  MessageSender messageSender;
 
   @Mock
   UserTransactionServiceImpl userTransactionService;

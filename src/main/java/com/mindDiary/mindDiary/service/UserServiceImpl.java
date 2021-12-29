@@ -9,8 +9,8 @@ import com.mindDiary.mindDiary.exception.businessException.InvalidEmailTokenExce
 import com.mindDiary.mindDiary.exception.businessException.NotMatchedIdException;
 import com.mindDiary.mindDiary.exception.businessException.NotMatchedPasswordException;
 import com.mindDiary.mindDiary.mapper.UserRepository;
-import com.mindDiary.mindDiary.strategy.email.EmailStrategy;
-import com.mindDiary.mindDiary.strategy.jwt.TokenStrategy;
+import com.mindDiary.mindDiary.strategy.messageSender.MessageSender;
+import com.mindDiary.mindDiary.strategy.token.TokenGenerator;
 import com.mindDiary.mindDiary.strategy.randomToken.RandomTokenGenerator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -25,8 +25,8 @@ public class UserServiceImpl implements UserService {
 
   private final UserRepository userRepository;
   private final PasswordEncoder passwordEncoder;
-  private final EmailStrategy emailStrategy;
-  private final TokenStrategy tokenStrategy;
+  private final MessageSender messageSender;
+  private final TokenGenerator tokenGenerator;
   private final UserTransactionService userTransactionService;
   private final UserDAO userDAO;
   private final RandomTokenGenerator tokenGenerator;
@@ -43,7 +43,7 @@ public class UserServiceImpl implements UserService {
     userRepository.save(user);
 
     userDAO.addEmailToken(user.getEmailCheckToken(), user.getId());
-    emailStrategy.sendUserJoinMessage(user.getEmailCheckToken(), user.getEmail());
+    messageSender.sendUserJoinMessage(user.getEmailCheckToken(), user.getEmail());
 
     userTransactionService.removeCacheAfterRollback(user.getEmailCheckToken());
   }
@@ -98,7 +98,7 @@ public class UserServiceImpl implements UserService {
   }
 
   public Token createTokenAndInputCache(User user) {
-    Token token = Token.create(user, tokenStrategy);
+    Token token = Token.create(user, tokenGenerator);
     userDAO.addRefreshToken(token.getRefreshToken(), user.getId());
     return token;
   }
@@ -123,9 +123,9 @@ public class UserServiceImpl implements UserService {
   }
 
   public int validateOriginToken(String originToken) {
-    tokenStrategy.validateToken(originToken);
+    tokenGenerator.validateToken(originToken);
     int id = userDAO.getUserId(originToken);
-    if (id != tokenStrategy.getUserId(originToken)) {
+    if (id != tokenGenerator.getUserId(originToken)) {
       throw new NotMatchedIdException();
     }
     return id;

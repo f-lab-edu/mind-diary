@@ -1,8 +1,8 @@
-package com.mindDiary.mindDiary.strategy.jwt;
+package com.mindDiary.mindDiary.strategy.token;
 
 import io.jsonwebtoken.Claims;
 
-public interface TokenStrategy {
+public interface TokenGenerator {
 
   String createToken(Claims claims, long validityInSeconds);
 

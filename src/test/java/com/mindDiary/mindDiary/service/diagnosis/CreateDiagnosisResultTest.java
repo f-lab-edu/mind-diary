@@ -22,7 +22,7 @@ import com.mindDiary.mindDiary.service.DiagnosisServiceImpl;
 import com.mindDiary.mindDiary.service.QuestionBaseLineService;
 import com.mindDiary.mindDiary.service.QuestionService;
 import com.mindDiary.mindDiary.service.UserDiagnosisService;
-import com.mindDiary.mindDiary.strategy.scoreCalc.ScoreCalculateStrategy;
+import com.mindDiary.mindDiary.strategy.scoreCalc.ScoreCalculator;
 import java.util.List;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -58,7 +58,7 @@ public class CreateDiagnosisResultTest {
   DiagnosisDAO diagnosisDAO;
 
   @Mock
-  ScoreCalculateStrategy scoreCalculateStrategy;
+  ScoreCalculator scoreCalculator;
 
   @Test
   @DisplayName("사용자의 자가진단 점수에 따라 진단 결과를 저장")
@@ -81,7 +81,7 @@ public class CreateDiagnosisResultTest {
         .readByDiagnosisIdInCache(diagnosisId);
 
     doReturn(score)
-        .when(scoreCalculateStrategy)
+        .when(scoreCalculator)
         .calc(baseLines, answers);
 
     doReturn(diagnosisScore)
@@ -133,7 +133,7 @@ public class CreateDiagnosisResultTest {
         .readByDiagnosisIdInCache(diagnosisId);
 
     doReturn(score)
-        .when(scoreCalculateStrategy)
+        .when(scoreCalculator)
         .calc(baseLines, answers);
 
     doReturn(null)
@@ -170,7 +170,7 @@ public class CreateDiagnosisResultTest {
         .readByDiagnosisIdInCache(diagnosisId);
 
     doReturn(minusScore)
-        .when(scoreCalculateStrategy)
+        .when(scoreCalculator)
         .calc(baseLines, answers);
 
     // Act , Assert
