@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mindDiary.mindDiary.mapper.QuestionBaseLineRepository">
+  <select id="findByDiagnosisId" parameterType="int" resultType="com.mindDiary.mindDiary.entity.QuestionBaseLine">
+    SELECT id, content, score
+    FROM question_base_line
+    WHERE diagnosis_id = #{diagnosisId}
+    ORDER BY score
+  </select>
+
+  <select id = "findAllByDiagnosisIds" resultType="com.mindDiary.mindDiary.entity.QuestionBaseLine">
+    SELECT *
+    FROM question_base_line
+    WHERE diagnosis_id IN
+    <foreach item="item" index="index" collection="list" open="(" separator="," close=")">
+      #{item}
+    </foreach>
+  </select>
+
+  <update id="saveAll" parameterType="java.util.List">
+    INSERT INTO question_base_line (diagnosis_id, content, score)
+    VALUES
+    <foreach collection="list" item="item" separator=",">
+      (#{item.diagnosisId}, #{item.content}, #{item.score})
+    </foreach>
+  </update>
+
+</mapper>

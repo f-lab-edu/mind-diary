@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mindDiary.mindDiary.mapper.ReplyRepository">
+
+  <update id="save" parameterType="com.mindDiary.mindDiary.entity.Reply">
+    INSERT INTO reply (user_id, post_id, content, created_at)
+    VALUES(#{userId}, #{postId}, #{content}, #{createdAt})
+  </update>
+
+  <select id = "findByPostId" parameterType="int" resultMap="reply">
+    SELECT
+      r.id AS 'reply_id',
+      r.user_id AS 'reply_user_id',
+      r.post_id AS 'reply_post_id',
+      r.content AS 'reply_content',
+      r.created_at AS 'reply_created_at',
+      u.nickname AS 'reply_writer'
+    FROM reply r
+    LEFT OUTER JOIN user u ON u.id = r.user_id
+    WHERE r.post_id = #{postId}
+  </select>
+
+  <resultMap id="reply" type="com.mindDiary.mindDiary.entity.Reply">
+    <id property="id" column="reply_id"/>
+    <result property="userId" column="reply_user_id"/>
+    <result property="postId" column="reply_post_id"/>
+    <result property="content" column="reply_content"/>
+    <result property="createdAt" column="reply_created_at"/>
+    <result property="writer" column="reply_writer"/>
+  </resultMap>
+
+</mapper>

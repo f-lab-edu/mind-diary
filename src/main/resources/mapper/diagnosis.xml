@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mindDiary.mindDiary.mapper.DiagnosisRepository">
+
+  <update id="save" useGeneratedKeys="true" keyProperty="id" parameterType="com.mindDiary.mindDiary.entity.Diagnosis">
+    INSERT INTO diagnosis(name, number_of_choice)
+    VALUES(#{name}, #{numberOfChoice})
+  </update>
+
+  <select id = "findAllWithPaging" parameterType="com.mindDiary.mindDiary.entity.PageCriteria" resultType="com.mindDiary.mindDiary.entity.Diagnosis">
+    SELECT id, name, number_of_choice
+    FROM diagnosis
+    WHERE id > #{pageStart}
+    ORDER BY id LIMIT #{perPageNum}
+  </select>
+
+  <select id = "findAll"  resultType="com.mindDiary.mindDiary.entity.Diagnosis">
+    SELECT id, name, number_of_choice
+    FROM diagnosis
+  </select>
+
+  <select id = "findByName"  parameterType="String" resultType="com.mindDiary.mindDiary.entity.Diagnosis">
+    SELECT id, name, number_of_choice
+    FROM diagnosis
+    WHERE name = #{name}
+  </select>
+
+  <select id="findById" parameterType="int" resultMap="diagnosis">
+    SELECT
+      d.id AS 'diagnosis_id',
+      d.name AS 'diagnosis_name',
+      d.number_of_choice AS 'diagnosis_number_of_choice',
+      q.id AS 'question_id',
+      q.diagnosis_id AS 'question_diagnosis_id',
+      q.content AS 'question_content',
+      q.reverse AS 'question_reverse',
+      qb.id AS 'question_base_line_id',
+      qb.diagnosis_id AS 'question_base_line_diagnosis_id',
+      qb.content AS 'question_base_line_content',
+      qb.score AS 'question_base_line_score'
+    FROM diagnosis d
+    LEFT OUTER JOIN question q ON q.diagnosis_id = d.id
+    LEFT OUTER JOIN question_base_line qb ON qb.diagnosis_id = d.id
+    WHERE d.id = #{diagnosisId}
+  </select>
+
+  <resultMap id="diagnosis" type="com.mindDiary.mindDiary.entity.Diagnosis">
+    <id property="id" column = "diagnosis_id"/>
+    <result property="name" column = "diagnosis_name"/>
+    <result property="numberOfChoice" column="diagnosis_number_of_choice"/>
+    <collection property="questions" resultMap="question"/>
+    <collection property="questionBaseLines" resultMap="questionBaseLine"/>
+  </resultMap>
+
+  <resultMap id="question" type="com.mindDiary.mindDiary.entity.Question">
+    <id property="id" column="question_id"/>
+    <result property="diagnosisId" column="question_diagnosis_id"/>
+    <result property="content" column="question_content"/>
+    <result property="reverse" column="question_reverse"/>
+  </resultMap>
+
+  <resultMap id="questionBaseLine" type="com.mindDiary.mindDiary.entity.QuestionBaseLine">
+    <id property="id" column="question_base_line_id"/>
+    <result property="diagnosisId" column="question_base_line_diagnosis_id"/>
+    <result property="content" column="question_base_line_content"/>
+    <result property="score" column="question_base_line_score"/>
+  </resultMap>
+
+</mapper>

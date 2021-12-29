@@ -1,42 +1,134 @@
 package com.mindDiary.mindDiary.service;
 
-import com.mindDiary.mindDiary.dto.request.UserJoinRequestDTO;
-import com.mindDiary.mindDiary.repository.UserRepository;
+import com.mindDiary.mindDiary.dao.UserDAO;
+import com.mindDiary.mindDiary.entity.Token;
+import com.mindDiary.mindDiary.entity.User;
+import com.mindDiary.mindDiary.exception.businessException.EmailDuplicatedException;
+import com.mindDiary.mindDiary.exception.businessException.NicknameDuplicatedException;
+import com.mindDiary.mindDiary.exception.businessException.InvalidEmailTokenException;
+import com.mindDiary.mindDiary.exception.businessException.NotMatchedIdException;
+import com.mindDiary.mindDiary.exception.businessException.NotMatchedPasswordException;
+import com.mindDiary.mindDiary.mapper.UserRepository;
+import com.mindDiary.mindDiary.strategy.messageSender.MessageSender;
+import com.mindDiary.mindDiary.strategy.token.TokenGenerator;
+import com.mindDiary.mindDiary.strategy.randomToken.RandomTokenGenerator;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
 
   private final UserRepository userRepository;
+  private final PasswordEncoder passwordEncoder;
+  private final MessageSender messageSender;
+  private final TokenGenerator tokenGenerator;
+  private final UserTransactionService userTransactionService;
+  private final UserDAO userDAO;
+  private final RandomTokenGenerator tokenGenerator;
 
-  public boolean isDuplicate(UserJoinRequestDTO userJoinRequestDTO) {
+  @Override
+  @Transactional
+  public void join(User user) {
+    user.createEmailToken(tokenGenerator);
+    user.changeHashedPassword(passwordEncoder);
 
-    if (isDuplicateEmail(userJoinRequestDTO.getEmail())
-        || isDuplicateNickname(userJoinRequestDTO.getNickname())) {
-      return true;
+    isEmailDuplicate(user.getEmail());
+    isNicknameDuplicate(user.getNickname());
+
+    userRepository.save(user);
+
+    userDAO.addEmailToken(user.getEmailCheckToken(), user.getId());
+    messageSender.sendUserJoinMessage(user.getEmailCheckToken(), user.getEmail());
+
+    userTransactionService.removeCacheAfterRollback(user.getEmailCheckToken());
+  }
+
+
+
+  public void isNicknameDuplicate(String nickname) {
+    if (userRepository.findByNickname(nickname) != null) {
+      throw new NicknameDuplicatedException();
     }
+  }
 
-    return false;
+  public void isEmailDuplicate(String email) {
+    if (userRepository.findByEmail(email) != null) {
+      throw new EmailDuplicatedException();
+    }
+  }
+
+
+  @Override
+  public void checkEmailToken(String token, String email) {
+
+    User user = userRepository.findByEmail(email);
+
+    isValidateUserIdInCache(user.getId(), token);
+
+    updateRoleUser(user);
+  }
+
+
+  public void updateRoleUser(User user) {
+    user.changeRoleUser();
+    userRepository.updateRole(user);
+  }
+
+  public void isValidateUserIdInCache(int userId, String token) {
+    int id = userDAO.getUserId(token);
+    if (userId != id) {
+      throw new InvalidEmailTokenException();
+    }
   }
 
   @Override
-  public void join(UserJoinRequestDTO userJoinRequestDTO) {
+  public Token login(String email, String password) {
+    User findUser = userRepository.findByEmail(email);
 
+    validatePassword(password, findUser.getPassword());
 
-    //해싱된 패스워드 생성
+    Token token = createTokenAndInputCache(findUser);
 
-    ////DB에 기본 정보 & 인증키를 저장
-    //메일 링크 클릭 시 파라미터로 전달받은 데이터 (emaill, authkey)가 일치할 경우 authstatus를 1로 업데이
-
+    return token;
   }
 
-  private boolean isDuplicateEmail(String email) {
-    return userRepository.findByEmail(email) != null;
+  public Token createTokenAndInputCache(User user) {
+    Token token = Token.create(user, tokenGenerator);
+    userDAO.addRefreshToken(token.getRefreshToken(), user.getId());
+    return token;
   }
 
-  private boolean isDuplicateNickname(String nickname) {
-    return userRepository.findByNickname(nickname) != null;
+
+  public void validatePassword(String originPassword, String newPassword) {
+    if (!passwordEncoder.matches(originPassword, newPassword)) {
+      throw new NotMatchedPasswordException();
+    }
   }
+
+  @Override
+  public Token refresh(String originToken) {
+
+    int id = validateOriginToken(originToken);
+
+    User user = userRepository.findById(id);
+
+    Token token = createTokenAndInputCache(user);
+
+    return token;
+  }
+
+  public int validateOriginToken(String originToken) {
+    tokenGenerator.validateToken(originToken);
+    int id = userDAO.getUserId(originToken);
+    if (id != tokenGenerator.getUserId(originToken)) {
+      throw new NotMatchedIdException();
+    }
+    return id;
+  }
+
 }

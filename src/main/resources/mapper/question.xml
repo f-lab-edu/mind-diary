@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mindDiary.mindDiary.mapper.QuestionRepository">
+
+  <select id = "findAllByDiagnosisIds" resultType="com.mindDiary.mindDiary.entity.Question">
+    SELECT *
+    FROM question
+    WHERE diagnosis_id IN
+    <foreach item="item" index="index" collection="list" open="(" separator="," close=")">
+      #{item}
+    </foreach>
+  </select>
+
+  <select id = "findByDiagnosisId" parameterType="int" resultType="com.mindDiary.mindDiary.entity.Question">
+    SELECT *
+    FROM question
+    WHERE diagnosis_id = #{diagnosisId}
+  </select>
+
+  <update id="saveAll" parameterType="java.util.List">
+    INSERT INTO question (diagnosis_id, content, reverse)
+    VALUES
+    <foreach collection="list" item="item" separator=",">
+      (#{item.diagnosisId}, #{item.content}, #{item.reverse})
+    </foreach>
+  </update>
+
+</mapper>

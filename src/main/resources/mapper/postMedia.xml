@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mindDiary.mindDiary.mapper.PostMediaRepository">
+
+  <update id="save" parameterType="java.util.List">
+    INSERT INTO post_media (post_id, type, url)
+    VALUES
+        <foreach collection="list" item="item" separator=",">
+          (#{item.postId}, #{item.type}, #{item.url})
+        </foreach>
+  </update>
+
+  <select id = "findAllByPostIds" resultType="com.mindDiary.mindDiary.entity.PostMedia">
+    SELECT *
+    FROM post_media
+    WHERE post_id IN
+    <foreach item="item" index="index" collection="list" open="(" separator="," close=")">
+      #{item}
+    </foreach>
+  </select>
+</mapper>

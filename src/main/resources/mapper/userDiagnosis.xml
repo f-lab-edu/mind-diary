@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mindDiary.mindDiary.mapper.UserDiagnosisRepository">
+  <update id="save" parameterType="com.mindDiary.mindDiary.entity.UserDiagnosis">
+    INSERT INTO user_diagnosis(user_id, diagnosis_id, created_at, score, content)
+    VALUES(#{userId}, #{diagnosisId}, #{createdAt}, #{score}, #{content})
+  </update>
+
+  <select id = "findByUserId" parameterType="int" resultType="com.mindDiary.mindDiary.entity.UserDiagnosis">
+    SELECT user_id, diagnosis_id, score, created_at, content
+    FROM user_diagnosis
+    WHERE user_id = #{userId}
+  </select>
+
+</mapper>
