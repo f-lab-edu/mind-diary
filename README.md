@@ -6,9 +6,8 @@ spring boot, Mybatis, Java, Mysql,  Redis, Jenkins, Github, Naver cloud platform
 ## 프로젝트 목표
 * 스트레스를 관리할 수 있는 앱 서비스를 구현해 내는 것이 목표입니다.
 * 대표 기능으로는 기분 일기, 커뮤니티, 자가진단 검사 기능이 있습니다.
-* 단순 기능 구현뿐 아니라 Extensibility와 Scalability를 고려한 서비스를 구현하는 것이 목표입니다.
+* 단순 기능 구현뿐 아니라 대규모 트래픽 처리를 위한 애플리케이션 아키텍처를 구현하는 것이 목표입니다.
 * 객체지향 원리와 Ioc/DI, AOP, 전략패턴 등을 적용함으로써 더 나은 코드를 작성하는 것이 목표입니다.
-* REST API형 서버로써 클라이언트는 프로토타입으로만 제작하여 백엔드 공부에 집중했습니다.
 
 ## 기술적 issue 해결 과정
 
@@ -35,31 +34,30 @@ spring boot, Mybatis, Java, Mysql,  Redis, Jenkins, Github, Naver cloud platform
 
 
 ## 프로젝트 중점사항
-* Extensibility와 Scalability를 제공하는 서비스
-* 의존적이지 않은 단위테스트 작성
+* 대규모 트래픽 처리를 위한 애플리케이션 아키텍처를 구현
+* Mysql에서 인덱스 설정과 실행계획 분석 후 쿼리 최적화
 * 다중 서버 환경에서 JWT 토큰과 쿠키를 활용한 인증 구현
 * 로그인을 했는지 확인하는 부가기능 반복 문제에 AOP를 적용하여 문제 해결하기
+* 스프링의 @Transactional을 이용하여 작업의 완전성 보장하기
+* 의존적이지 않은 단위테스트 작성
 * Redis Cache를 이용해 자가진단 조회 기능 구현
 * ControllerAdvice, ExceptionHandler를 사용하여 비즈니스 예외 처리 전략
-* 스프링의 @Transactional을 이용하여 작업의 완전성 보장하기
 * Redis 트랜잭션에는 롤백이 없기 때문에 직접 트랜잭션 롤백 후처리하기
 * Jenkins를 사용하여 CI/CD 환경 구축
 * 게시글 목록 조회 시 중복된 일대다 데이터를 가져오는 문제를 메서드 분리와 쿼리 튜닝으로 해결하기
 * Redis Pipeline을 이용하여 한번에 많은 데이터 추가 시 네트워크 병목 개선
 * Redis에 Look Aside 캐시 구조를 적용하여 가용성 확보하기
-* Mysql에서 인덱스 설정과 실행계획 분석 후 쿼리 최적화
 * naver Cloud Platform을 이용하여 로드밸런싱
-
 * Mysql Replication - Master/Slave 데이터 이중화 적용(미완성)
 * Ngrinder를 이용하여 connection pool 테스트(미완성)
 
 
 
 ## DB ERD
-
+![erd](https://user-images.githubusercontent.com/29730565/147660055-1441303d-8601-45db-ab0e-0475d3b9badd.png)
 
 ## API Docs
-
+[API Docs](https://meme2367.notion.site/API-1-9309f14a7cfd4396a7283c9dbf58f38f)
 
 ## Front
-
+[OvenApp](https://ovenapp.io/view/wuU5O3u53xaMuUPLNQwZxwDTPvJ3J1lv/)
