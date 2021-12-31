@@ -46,8 +46,6 @@ spring boot, Mybatis, Java, Mysql,  Redis, Jenkins, Github, Naver cloud platform
 * Redis Pipeline을 이용하여 한번에 많은 데이터 추가 시 네트워크 병목 개선
 * Redis에 Look Aside 캐시 구조를 적용하여 가용성 확보하기
 * naver Cloud Platform을 이용하여 로드밸런싱
-* Mysql Replication - Master/Slave 데이터 이중화 적용(미완성)
-* Ngrinder를 이용하여 connection pool 테스트(미완성)
 
 
 
