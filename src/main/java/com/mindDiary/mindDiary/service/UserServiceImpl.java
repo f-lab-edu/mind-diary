@@ -43,7 +43,8 @@ public class UserServiceImpl implements UserService {
     userRepository.save(user);
 
     userDAO.addEmailToken(user.getEmailCheckToken(), user.getId());
-    messageSender.sendUserJoinMessage(user.getEmailCheckToken(), user.getEmail());
+
+    user.sendJoinMessage(messageSender);
 
     userTransactionService.removeCacheAfterRollback(user.getEmailCheckToken());
   }
