@@ -20,7 +20,7 @@ import com.mindDiary.mindDiary.exception.InvalidJwtException;
 import com.mindDiary.mindDiary.exception.businessException.NotMatchedIdException;
 import com.mindDiary.mindDiary.mapper.UserRepository;
 import com.mindDiary.mindDiary.service.UserServiceImpl;
-import com.mindDiary.mindDiary.strategy.token.TokenGenerator;
+import com.mindDiary.mindDiary.strategy.token.JwtTokenGenerator;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -44,7 +44,7 @@ public class RefreshTest {
   UserDAO userDAO;
 
   @Mock
-  TokenGenerator tokenGenerator;
+  JwtTokenGenerator tokenGenerator;
 
   @Test
   @DisplayName("입력한 리프레시 토큰이 유효하지 않아 토큰 재발급에 실패한다")

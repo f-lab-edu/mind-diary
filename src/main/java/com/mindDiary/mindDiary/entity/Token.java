@@ -1,7 +1,7 @@
 package com.mindDiary.mindDiary.entity;
 
 import com.mindDiary.mindDiary.strategy.cookie.CookieGenerator;
-import com.mindDiary.mindDiary.strategy.token.TokenGenerator;
+import com.mindDiary.mindDiary.strategy.token.JwtTokenGenerator;
 import javax.servlet.http.Cookie;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -16,7 +16,7 @@ public class Token {
 
   private String refreshToken;
 
-  public static Token create(User user, TokenGenerator tokenGenerator) {
+  public static Token create(User user, JwtTokenGenerator tokenGenerator) {
 
     return new Token(
         user.turnUserinfoToAccessToken(tokenGenerator),

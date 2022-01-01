@@ -17,7 +17,7 @@ import com.mindDiary.mindDiary.exception.InvalidJwtException;
 import com.mindDiary.mindDiary.exception.businessException.NotMatchedPasswordException;
 import com.mindDiary.mindDiary.mapper.UserRepository;
 import com.mindDiary.mindDiary.service.UserServiceImpl;
-import com.mindDiary.mindDiary.strategy.token.TokenGenerator;
+import com.mindDiary.mindDiary.strategy.token.JwtTokenGenerator;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -47,7 +47,7 @@ public class LoginTest {
   PasswordEncoder passwordEncoder;
 
   @Mock
-  TokenGenerator tokenGenerator;
+  JwtTokenGenerator tokenGenerator;
 
   @Test
   @DisplayName("입력한 비밀번호와 DB에 있는 비밀번호가 달라 로그인에 실패한다")

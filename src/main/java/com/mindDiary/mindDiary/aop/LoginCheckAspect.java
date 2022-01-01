@@ -3,7 +3,7 @@ package com.mindDiary.mindDiary.aop;
 import com.mindDiary.mindDiary.annotation.LoginCheck;
 import com.mindDiary.mindDiary.entity.Role;
 import com.mindDiary.mindDiary.exception.businessException.PermissionDeniedException;
-import com.mindDiary.mindDiary.strategy.token.TokenGenerator;
+import com.mindDiary.mindDiary.strategy.token.JwtTokenGenerator;
 import java.lang.reflect.Method;
 import javax.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
@@ -27,7 +27,7 @@ public class LoginCheckAspect {
   private String requestHeaderKey;
   private static final String USER_ID = "userId";
 
-  private final TokenGenerator tokenGenerator;
+  private final JwtTokenGenerator tokenGenerator;
 
   @Around("@annotation(loginCheck)")
   public Object loginCheck(ProceedingJoinPoint proceedingJoinPoint, LoginCheck loginCheck)
