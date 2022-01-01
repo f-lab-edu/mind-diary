@@ -1,8 +1,7 @@
-package com.mindDiary.mindDiary.strategy.scoreCalc;
+package com.mindDiary.mindDiary.strategy.Calculator;
 
 import com.mindDiary.mindDiary.entity.Answer;
 import com.mindDiary.mindDiary.entity.QuestionBaseLine;
-import com.mindDiary.mindDiary.entity.Reverse;
 import java.util.List;
 import org.springframework.stereotype.Service;
 

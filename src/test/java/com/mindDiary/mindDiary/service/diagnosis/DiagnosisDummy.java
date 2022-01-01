@@ -20,11 +20,11 @@ import java.util.stream.IntStream;
 
 public class DiagnosisDummy {
 
-  static Diagnosis makeDiagnosis() {
+  public static Diagnosis makeDiagnosis() {
     return makeDiagnosis(makeCreateDiagnosisRequestDTO());
   }
 
-  static Diagnosis makeDiagnosis(CreateDiagnosisRequestDTO request) {
+  public static Diagnosis makeDiagnosis(CreateDiagnosisRequestDTO request) {
     return Diagnosis.builder()
         .questionBaseLines(makeBaseLineList())
         .questions(makeQuestionList())
@@ -34,7 +34,7 @@ public class DiagnosisDummy {
         .build();
   }
 
-  static CreateDiagnosisRequestDTO makeCreateDiagnosisRequestDTO(
+  public static CreateDiagnosisRequestDTO makeCreateDiagnosisRequestDTO(
       List<CreateQuestionRequestDTO> questions,
       List<CreateQuestionBaseLineRequestDTO> questionBaseLines,
       List<CreateDiagnosisScoreRequestDTO> diagnosisScores
@@ -49,7 +49,7 @@ public class DiagnosisDummy {
   }
 
 
-  static CreateDiagnosisRequestDTO
+  public static CreateDiagnosisRequestDTO
   makeCreateDiagnosisRequestDTO() {
     List<CreateQuestionRequestDTO> questions =
         makeCreateQuestionRequestDTOList();
@@ -66,21 +66,21 @@ public class DiagnosisDummy {
         diagnosisScores);
   }
 
-  static List<DiagnosisScore> makeScoreList() {
+  public static List<DiagnosisScore> makeScoreList() {
     List<CreateDiagnosisScoreRequestDTO> scores =
         makeCreateDiagnosisScoreRequestDTOList();
     return makeScoreList(scores);
   }
 
 
-  static List<DiagnosisScore> makeScoreList(
+  public static List<DiagnosisScore> makeScoreList(
       List<CreateDiagnosisScoreRequestDTO> scores) {
     return IntStream.range(0, scores.size())
         .mapToObj(i -> makeScoreEntity(i + 1, scores.get(i)))
         .collect(Collectors.toList());
   }
 
-  static CreateDiagnosisScoreRequestDTO
+  public static CreateDiagnosisScoreRequestDTO
   makeCreateDiagnosisScoreRequestDTO() {
     return new CreateDiagnosisScoreRequestDTO(
         18,
@@ -89,7 +89,7 @@ public class DiagnosisDummy {
     );
   }
 
-  static List<Answer> makeAnswerList() {
+  public static List<Answer> makeAnswerList() {
     return makeQuestionAnswerRequestDTOList()
         .stream()
         .map(a -> new Answer(
@@ -99,11 +99,11 @@ public class DiagnosisDummy {
         .collect(Collectors.toList());
   }
 
-  static UserDiagnosis makeUserDiagnosis() {
+  public static UserDiagnosis makeUserDiagnosis() {
     return makeUserDiagnosis(makeDiagnosisScore());
   }
 
-  static List<QuestionAnswerRequestDTO>
+  public static List<QuestionAnswerRequestDTO>
   makeQuestionAnswerRequestDTOList() {
     List<QuestionAnswerRequestDTO> answers
         = new ArrayList<>();
@@ -160,11 +160,11 @@ public class DiagnosisDummy {
         .build();
   }
 
-  static DiagnosisScore makeDiagnosisScore() {
+  public static DiagnosisScore makeDiagnosisScore() {
     return makeScoreEntity(2, makeCreateDiagnosisScoreRequestDTO());
   }
 
-  static DiagnosisScore makeScoreEntity(
+  public static DiagnosisScore makeScoreEntity(
       int id,
       CreateDiagnosisScoreRequestDTO dto) {
     return DiagnosisScore.builder()
@@ -176,7 +176,7 @@ public class DiagnosisDummy {
         .build();
   }
 
-  static List<CreateDiagnosisScoreRequestDTO>
+  public static List<CreateDiagnosisScoreRequestDTO>
   makeCreateDiagnosisScoreRequestDTOList() {
     List<CreateDiagnosisScoreRequestDTO> scores = new ArrayList<>();
 
@@ -200,7 +200,7 @@ public class DiagnosisDummy {
   }
 
 
-  static CreateQuestionBaseLineRequestDTO
+  public static CreateQuestionBaseLineRequestDTO
   makeCreateQuestionBaseLineRequestDTO() {
     return new CreateQuestionBaseLineRequestDTO(
         "아니다",
@@ -209,13 +209,13 @@ public class DiagnosisDummy {
   }
 
 
-  static List<QuestionBaseLine> makeBaseLineList() {
+  public static List<QuestionBaseLine> makeBaseLineList() {
     List<CreateQuestionBaseLineRequestDTO> baseLines =
         makeCreateQuestionBaseLineRequestDTOList();
     return makeBaseLineList(baseLines);
   }
 
-  static List<QuestionBaseLine> makeBaseLineList(
+  public static List<QuestionBaseLine> makeBaseLineList(
       List<CreateQuestionBaseLineRequestDTO> baseLines) {
     return IntStream.range(0, baseLines.size())
         .mapToObj(i -> makeBaseLine(i + 1, baseLines.get(i)))
@@ -233,7 +233,7 @@ public class DiagnosisDummy {
         .build();
   }
 
-  static List<CreateQuestionBaseLineRequestDTO>
+  public static List<CreateQuestionBaseLineRequestDTO>
   makeCreateQuestionBaseLineRequestDTOList() {
     List<CreateQuestionBaseLineRequestDTO> baseLines
         = new ArrayList<>();
@@ -258,7 +258,7 @@ public class DiagnosisDummy {
   }
 
 
-  static CreateQuestionRequestDTO
+  public static CreateQuestionRequestDTO
   makeCreateQuestionRequestDTO() {
     return new CreateQuestionRequestDTO(
         "예상치 못한 일 때문에 화가 난 적이 있습니까?",
@@ -267,13 +267,13 @@ public class DiagnosisDummy {
   }
 
 
-  static List<Question> makeQuestionList() {
+  public static List<Question> makeQuestionList() {
     List<CreateQuestionRequestDTO> questions =
         makeCreateQuestionRequestDTOList();
     return makeQuestionList(questions);
   }
 
-  static List<Question> makeQuestionList(
+  public static List<Question> makeQuestionList(
       List<CreateQuestionRequestDTO> questions) {
     return IntStream.range(0, questions.size())
         .mapToObj(i -> makeQuestion(i + 1, questions.get(i)))
@@ -281,7 +281,7 @@ public class DiagnosisDummy {
   }
 
 
-  static Question makeQuestion(
+  public static Question makeQuestion(
       int id,
       CreateQuestionRequestDTO createQuestionRequestDTO) {
     return Question.builder()
@@ -293,7 +293,7 @@ public class DiagnosisDummy {
   }
 
 
-  static List<CreateQuestionRequestDTO> makeCreateQuestionRequestDTOList() {
+  public static List<CreateQuestionRequestDTO> makeCreateQuestionRequestDTOList() {
     List<CreateQuestionRequestDTO> questions
         = new ArrayList<>();
     questions.add(new CreateQuestionRequestDTO(
