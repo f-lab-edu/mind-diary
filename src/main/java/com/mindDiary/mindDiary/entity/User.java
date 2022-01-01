@@ -3,7 +3,7 @@ package com.mindDiary.mindDiary.entity;
 import com.mindDiary.mindDiary.exception.businessException.InvalidEmailTokenException;
 import com.mindDiary.mindDiary.exception.businessException.InvalidPasswordException;
 import com.mindDiary.mindDiary.strategy.messageSender.MessageSender;
-import com.mindDiary.mindDiary.strategy.token.TokenGenerator;
+import com.mindDiary.mindDiary.strategy.token.JwtTokenGenerator;
 import com.mindDiary.mindDiary.strategy.randomToken.RandomTokenGenerator;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -45,11 +45,11 @@ public class User {
     this.role = Role.USER;
   }
 
-  public String turnUserinfoToAccessToken(TokenGenerator tokenGenerator) {
+  public String turnUserinfoToAccessToken(JwtTokenGenerator tokenGenerator) {
     return tokenGenerator.createAccessToken(id, role.toString(), email);
   }
 
-  public String turnUserinfoToRefreshToken(TokenGenerator tokenGenerator) {
+  public String turnUserinfoToRefreshToken(JwtTokenGenerator tokenGenerator) {
     return tokenGenerator.createRefreshToken(id);
   }
 
