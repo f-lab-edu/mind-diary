@@ -16,7 +16,7 @@ import com.mindDiary.mindDiary.exception.businessException.NotFoundDiagnosisScor
 import com.mindDiary.mindDiary.exception.businessException.NotFoundQuestionBaseLineException;
 import com.mindDiary.mindDiary.exception.businessException.NotFoundQuestionException;
 import com.mindDiary.mindDiary.mapper.DiagnosisRepository;
-import com.mindDiary.mindDiary.strategy.scoreCalc.ScoreCalculator;
+import com.mindDiary.mindDiary.strategy.Calculator.ScoreCalculator;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;

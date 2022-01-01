@@ -22,7 +22,7 @@ import com.mindDiary.mindDiary.service.DiagnosisServiceImpl;
 import com.mindDiary.mindDiary.service.QuestionBaseLineService;
 import com.mindDiary.mindDiary.service.QuestionService;
 import com.mindDiary.mindDiary.service.UserDiagnosisService;
-import com.mindDiary.mindDiary.strategy.scoreCalc.ScoreCalculator;
+import com.mindDiary.mindDiary.strategy.Calculator.ScoreCalculator;
 import java.util.List;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

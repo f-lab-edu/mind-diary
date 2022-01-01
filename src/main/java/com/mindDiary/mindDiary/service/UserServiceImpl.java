@@ -26,7 +26,7 @@ public class UserServiceImpl implements UserService {
   private final UserRepository userRepository;
   private final PasswordEncoder passwordEncoder;
   private final MessageSender messageSender;
-  private final TokenGenerator tokenGenerator;
+  private final TokenGenerator jwtTokenGenerator;
   private final UserTransactionService userTransactionService;
   private final UserDAO userDAO;
   private final RandomTokenGenerator tokenGenerator;
@@ -98,7 +98,7 @@ public class UserServiceImpl implements UserService {
   }
 
   public Token createTokenAndInputCache(User user) {
-    Token token = Token.create(user, tokenGenerator);
+    Token token = Token.create(user, jwtTokenGenerator);
     userDAO.addRefreshToken(token.getRefreshToken(), user.getId());
     return token;
   }
@@ -123,9 +123,9 @@ public class UserServiceImpl implements UserService {
   }
 
   public int validateOriginToken(String originToken) {
-    tokenGenerator.validateToken(originToken);
+    jwtTokenGenerator.validateToken(originToken);
     int id = userDAO.getUserId(originToken);
-    if (id != tokenGenerator.getUserId(originToken)) {
+    if (id != jwtTokenGenerator.getUserId(originToken)) {
       throw new NotMatchedIdException();
     }
     return id;
