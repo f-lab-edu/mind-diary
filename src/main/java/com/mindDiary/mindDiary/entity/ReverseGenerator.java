@@ -6,9 +6,12 @@ import java.util.stream.IntStream;
 
 public class ReverseGenerator {
 
-  public List<Integer> reverse(List<Integer> list) {
-    return IntStream.range(0, list.size())
-        .mapToObj(i -> list.get(list.size() - 1 - i))
-        .collect(Collectors.toList());
+  public List<Integer> reverseOrNot(List<Integer> list, Reverse reverse) {
+    if (reverse == Reverse.TRUE) {
+      return IntStream.range(0, list.size())
+          .mapToObj(i -> list.get(list.size() - 1 - i))
+          .collect(Collectors.toList());
+    }
+    return list;
   }
 }
