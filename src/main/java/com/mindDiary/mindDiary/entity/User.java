@@ -2,6 +2,7 @@ package com.mindDiary.mindDiary.entity;
 
 import com.mindDiary.mindDiary.exception.businessException.InvalidEmailTokenException;
 import com.mindDiary.mindDiary.exception.businessException.InvalidPasswordException;
+import com.mindDiary.mindDiary.strategy.messageSender.MessageSender;
 import com.mindDiary.mindDiary.strategy.token.TokenGenerator;
 import com.mindDiary.mindDiary.strategy.randomToken.RandomTokenGenerator;
 import lombok.AllArgsConstructor;
@@ -61,5 +62,11 @@ public class User {
     if (emailToken == null || emailToken.toString().isEmpty() || emailToken.toString().isBlank()) {
       throw new InvalidEmailTokenException();
     }
+  }
+
+  public void sendJoinMessage(MessageSender messageSender) {
+    String text = "?token=" + emailCheckToken +
+        "&email=" + email;
+    messageSender.sendMessage(email, text);
   }
 }
