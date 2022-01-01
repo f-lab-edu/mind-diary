@@ -29,12 +29,12 @@ public class UserServiceImpl implements UserService {
   private final TokenGenerator jwtTokenGenerator;
   private final UserTransactionService userTransactionService;
   private final UserDAO userDAO;
-  private final RandomTokenGenerator tokenGenerator;
+  private final RandomTokenGenerator randomTokenGenerator;
 
   @Override
   @Transactional
   public void join(User user) {
-    user.createEmailToken(tokenGenerator);
+    user.createEmailToken(randomTokenGenerator);
     user.changeHashedPassword(passwordEncoder);
 
     isEmailDuplicate(user.getEmail());
