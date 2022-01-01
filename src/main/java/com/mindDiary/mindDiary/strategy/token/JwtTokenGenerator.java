@@ -11,20 +11,23 @@ import io.jsonwebtoken.security.Keys;
 import java.nio.charset.StandardCharsets;
 import java.security.Key;
 import java.util.Date;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
-@Service
-public class JwtToken implements TokenGenerator {
+@RequiredArgsConstructor
+@Component
+public class JwtTokenGenerator  {
 
   @Value("${jwt.secret}")
-  private String secret;
+  private final String secret;
 
   @Value("${jwt.access-token-validity-in-seconds}")
-  private long accessTokenValidityInSeconds;
+  private final long accessTokenValidityInSeconds;
 
   @Value("${jwt.refresh-token-validity-in-seconds}")
-  private long refreshTokenValidityInSeconds;
+  private final long refreshTokenValidityInSeconds;
 
   private static final String USER_ID = "userId";
   private static final String USER_ROLE = "userRole";
@@ -38,7 +41,6 @@ public class JwtToken implements TokenGenerator {
   }
 
 
-  @Override
   public String createAccessToken(int id, String role, String email) {
 
     Claims claims = Jwts.claims();
@@ -49,7 +51,6 @@ public class JwtToken implements TokenGenerator {
     return createToken(claims, accessTokenValidityInSeconds);
   }
 
-  @Override
   public String createRefreshToken(int id) {
 
     Claims claims = Jwts.claims();
