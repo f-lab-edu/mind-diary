@@ -1,5 +1,8 @@
 package com.mindDiary.mindDiary.entity;
 
+import com.mindDiary.mindDiary.strategy.ScoreListGenerator.NormalScoreListGenerator;
+import com.mindDiary.mindDiary.strategy.ScoreListGenerator.ReverseScoreListGenerator;
+import com.mindDiary.mindDiary.strategy.ScoreListGenerator.ScoreListGeneretor;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -23,5 +26,12 @@ public class Question {
 
   public boolean isReverse() {
     return reverse == Reverse.TRUE;
+  }
+
+  public ScoreListGeneretor createScoreListGenerator() {
+    if (isReverse()) {
+      return new ReverseScoreListGenerator();
+    }
+    return new NormalScoreListGenerator();
   }
 }

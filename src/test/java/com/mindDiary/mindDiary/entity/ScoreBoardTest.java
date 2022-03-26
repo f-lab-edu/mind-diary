@@ -19,12 +19,10 @@ public class ScoreBoardTest {
     List<Question> questions = makeQuestionList();
     List<QuestionBaseLine> baseLines  = makeBaseLineList();
     List<Answer> answers = makeAnswerList();
-    ScoreCalculator2 calculator2 = new Calculator();
-    ReverseGenerator generator = new ReverseGenerator();
-    ScoreBoard board = new ScoreBoard(questions, baseLines, generator);
 
-    assertThat(board.calc(answers, calculator2)).isSameAs(18);
+    ScoreCalculator2 calculator = new Calculator();
+    ScoreBoard board = new ScoreBoard(questions, baseLines);
+
+    assertThat(board.calc(answers, calculator)).isSameAs(18);
   }
-
-
 }
