@@ -9,8 +9,8 @@ public class ScoreBoard {
 
   private final Map<Integer, BaseLineList> baseLineMap = new HashMap<>();
 
-  public ScoreBoard(List<Question> questions, List<QuestionBaseLine> baseLines, ReverseGenerator generator) {
-    questions.forEach(q -> put(q.getId(), new BaseLineList(baseLines, q.getReverse(), generator)));
+  public ScoreBoard(List<Question> questions, List<QuestionBaseLine> baseLines) {
+    questions.forEach(q -> put(q.getId(), new BaseLineList(baseLines, q.createScoreListGenerator())));
   }
 
   public void put(int questionId, BaseLineList baseLines) {
