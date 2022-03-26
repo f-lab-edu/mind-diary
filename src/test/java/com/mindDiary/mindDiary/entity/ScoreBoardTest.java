@@ -18,12 +18,12 @@ public class ScoreBoardTest {
   void calculate() {
     List<Question> questions = makeQuestionList();
     List<QuestionBaseLine> baseLines  = makeBaseLineList();
-
     List<Answer> answers = makeAnswerList();
     ScoreCalculator2 calculator2 = new Calculator();
-    ScoreBoard scoreBoard1 = new ScoreBoard(questions, baseLines);
+    ReverseGenerator generator = new ReverseGenerator();
+    ScoreBoard board = new ScoreBoard(questions, baseLines, generator);
 
-    assertThat(scoreBoard1.calc(answers, calculator2)).isSameAs(18);
+    assertThat(board.calc(answers, calculator2)).isSameAs(18);
   }
 
 

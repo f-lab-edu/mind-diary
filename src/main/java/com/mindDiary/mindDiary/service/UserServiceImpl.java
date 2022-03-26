@@ -10,7 +10,7 @@ import com.mindDiary.mindDiary.exception.businessException.NotMatchedIdException
 import com.mindDiary.mindDiary.exception.businessException.NotMatchedPasswordException;
 import com.mindDiary.mindDiary.mapper.UserRepository;
 import com.mindDiary.mindDiary.strategy.messageSender.MessageSender;
-import com.mindDiary.mindDiary.strategy.token.TokenGenerator;
+import com.mindDiary.mindDiary.strategy.token.JwtTokenGenerator;
 import com.mindDiary.mindDiary.strategy.randomToken.RandomTokenGenerator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -26,7 +26,7 @@ public class UserServiceImpl implements UserService {
   private final UserRepository userRepository;
   private final PasswordEncoder passwordEncoder;
   private final MessageSender messageSender;
-  private final TokenGenerator jwtTokenGenerator;
+  private final JwtTokenGenerator jwtTokenGenerator;
   private final UserTransactionService userTransactionService;
   private final UserDAO userDAO;
   private final RandomTokenGenerator randomTokenGenerator;
@@ -43,7 +43,8 @@ public class UserServiceImpl implements UserService {
     userRepository.save(user);
 
     userDAO.addEmailToken(user.getEmailCheckToken(), user.getId());
-    messageSender.sendUserJoinMessage(user.getEmailCheckToken(), user.getEmail());
+
+    user.sendJoinMessage(messageSender);
 
     userTransactionService.removeCacheAfterRollback(user.getEmailCheckToken());
   }
